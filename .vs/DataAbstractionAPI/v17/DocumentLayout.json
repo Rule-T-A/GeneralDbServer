@@ -40,7 +40,7 @@
               "RelativeDocumentMoniker": "DataAbstractionAPI.Core.Tests\\Models\\RecordTests.cs",
               "ToolTip": "C:\\Users\\katie\\Project Files\\GeneralDbServer\\DataAbstractionAPI.Core.Tests\\Models\\RecordTests.cs",
               "RelativeToolTip": "DataAbstractionAPI.Core.Tests\\Models\\RecordTests.cs",
-              "ViewState": "AgIAAA4AAAAAAAAAAAAIwAAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAgAAAAAAAAAAAAIwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-10-26T21:02:58.287Z",
               "EditorCaption": ""
@@ -55,8 +55,7 @@
               "RelativeToolTip": "DataAbstractionAPI.Core.Tests\\Models\\QueryOptionsTests.cs",
               "ViewState": "AgIAABYAAAAAAAAAAAA1wAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-26T21:02:55.53Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-26T21:02:55.53Z"
             },
             {
               "$type": "Document",
@@ -68,8 +67,7 @@
               "RelativeToolTip": "DataAbstractionAPI.Core.Tests\\Models\\FieldDefinitionTests.cs",
               "ViewState": "AgIAABEAAAAAAAAAAAAIwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-26T21:02:46.744Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-26T21:02:46.744Z"
             },
             {
               "$type": "Document",
@@ -81,8 +79,7 @@
               "RelativeToolTip": "DataAbstractionAPI.Adapters.Tests\\CsvSchemaManagerTests.cs",
               "ViewState": "AgIAAHkAAAAAAAAAAAAYwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-26T21:02:30.047Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-26T21:02:30.047Z"
             },
             {
               "$type": "Document",
@@ -94,8 +91,7 @@
               "RelativeToolTip": "DataAbstractionAPI.Adapters.Tests\\CsvFileHandlerTests.cs",
               "ViewState": "AgIAADQAAAAAAAAAAAAYwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-26T21:02:17.146Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-26T21:02:17.146Z"
             }
           ]
         }
