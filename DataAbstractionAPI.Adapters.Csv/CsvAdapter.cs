@@ -73,9 +73,34 @@ public class CsvAdapter : IDataAdapter
         };
     }
 
-    public Task<Record> GetAsync(string collection, string id, CancellationToken ct = default)
+    public async Task<Record> GetAsync(string collection, string id, CancellationToken ct = default)
     {
-        throw new NotImplementedException();
+        await Task.Yield(); // Make async
+
+        var csvPath = GetCsvPath(collection);
+        
+        if (!File.Exists(csvPath))
+        {
+            throw new FileNotFoundException($"Collection '{collection}' not found at {csvPath}");
+        }
+
+        var handler = new CsvFileHandler(csvPath);
+        var allRecords = handler.ReadRecords();
+
+        // Find the record with matching ID
+        var recordData = allRecords.FirstOrDefault(dict => 
+            dict.ContainsKey("id") && dict["id"]?.ToString() == id);
+
+        if (recordData == null)
+        {
+            throw new FileNotFoundException($"Record with ID '{id}' not found in collection '{collection}'");
+        }
+
+        return new Record
+        {
+            Id = id,
+            Data = recordData
+        };
     }
 
     public Task<CreateResult> CreateAsync(string collection, Dictionary<string, object> data, CancellationToken ct = default)

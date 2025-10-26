@@ -119,5 +119,31 @@ public class CsvAdapterTests : IDisposable
         Assert.Equal(3, result.Total);
         Assert.Equal("2", result.Data[0].Id); // Should start from second record
     }
+
+    [Fact]
+    public async Task CsvAdapter_GetAsync_ReturnsRecord_WithMatchingId()
+    {
+        // Arrange
+        var id = "2";
+
+        // Act
+        var record = await _adapter.GetAsync("users", id);
+
+        // Assert
+        Assert.NotNull(record);
+        Assert.Equal("2", record.Id);
+        Assert.Equal("Bob Smith", record.Data["name"]);
+        Assert.Equal("bob@example.com", record.Data["email"]);
+        Assert.Equal("25", record.Data["age"]);
+    }
+
+    [Fact]
+    public async Task CsvAdapter_GetAsync_WithInvalidId_ThrowsNotFoundException()
+    {
+        // Act & Assert
+        await Assert.ThrowsAsync<FileNotFoundException>(
+            () => _adapter.GetAsync("users", "999")
+        );
+    }
 }
 
