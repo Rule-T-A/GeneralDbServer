@@ -83,32 +83,49 @@ public class CsvFileHandler
     /// <param name="record">Record to append as dictionary</param>
     public void AppendRecord(Dictionary<string, object> record)
     {
-        var config = new CsvConfiguration(CultureInfo.InvariantCulture)
-        {
-            HasHeaderRecord = File.Exists(_filePath) && new FileInfo(_filePath).Length > 0
-        };
-
         var appendMode = File.Exists(_filePath) && new FileInfo(_filePath).Length > 0;
-
-        using var writer = new StreamWriter(_filePath, appendMode);
-        using var csv = new CsvWriter(writer, config);
 
         if (!appendMode)
         {
-            // Write headers
+            // Write headers first
+            using var writer1 = new StreamWriter(_filePath, false);
+            using var csv1 = new CsvWriter(writer1, CultureInfo.InvariantCulture);
+            
             foreach (var key in record.Keys)
             {
-                csv.WriteField(key);
+                csv1.WriteField(key);
             }
-            csv.NextRecord();
+            csv1.NextRecord();
+            
+            // Write the record itself
+            foreach (var value in record.Values)
+            {
+                csv1.WriteField(value?.ToString() ?? string.Empty);
+            }
+            csv1.NextRecord();
         }
-
-        // Write record
-        foreach (var value in record.Values)
+        else
         {
-            csv.WriteField(value?.ToString() ?? string.Empty);
+            // Read existing headers to maintain field order
+            var headers = ReadHeaders();
+            var orderedValues = new List<string>();
+            
+            foreach (var header in headers)
+            {
+                var value = record.ContainsKey(header) ? record[header]?.ToString() ?? string.Empty : string.Empty;
+                orderedValues.Add(value);
+            }
+            
+            // Append record maintaining header order
+            using var writer2 = new StreamWriter(_filePath, true);
+            using var csv2 = new CsvWriter(writer2, CultureInfo.InvariantCulture);
+            
+            foreach (var value in orderedValues)
+            {
+                csv2.WriteField(value);
+            }
+            csv2.NextRecord();
         }
-        csv.NextRecord();
     }
 }
 

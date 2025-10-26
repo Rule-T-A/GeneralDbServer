@@ -103,9 +103,41 @@ public class CsvAdapter : IDataAdapter
         };
     }
 
-    public Task<CreateResult> CreateAsync(string collection, Dictionary<string, object> data, CancellationToken ct = default)
+    public async Task<CreateResult> CreateAsync(string collection, Dictionary<string, object> data, CancellationToken ct = default)
     {
-        throw new NotImplementedException();
+        await Task.Yield(); // Make async
+
+        var csvPath = GetCsvPath(collection);
+        
+        if (!File.Exists(csvPath))
+        {
+            throw new FileNotFoundException($"Collection '{collection}' not found at {csvPath}");
+        }
+
+        // Generate a unique ID for the new record
+        var newId = GenerateId();
+        
+        // Add ID to the data dictionary
+        var recordData = new Dictionary<string, object>(data)
+        {
+            ["id"] = newId
+        };
+
+        // Append the record to the CSV file
+        var handler = new CsvFileHandler(csvPath);
+        handler.AppendRecord(recordData);
+
+        var record = new Record
+        {
+            Id = newId,
+            Data = recordData
+        };
+
+        return new CreateResult
+        {
+            Record = record,
+            Id = newId
+        };
     }
 
     public Task UpdateAsync(string collection, string id, Dictionary<string, object> data, CancellationToken ct = default)

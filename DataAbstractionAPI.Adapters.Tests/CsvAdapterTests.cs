@@ -162,5 +162,51 @@ public class CsvAdapterTests : IDisposable
         // Assert
         Assert.Equal(100, ids.Count); // All IDs should be unique
     }
+
+    [Fact]
+    public async Task CsvAdapter_CreateAsync_AddsRecord_ToCsvFile()
+    {
+        // Arrange
+        var newRecord = new Dictionary<string, object>
+        {
+            { "name", "David Lee" },
+            { "email", "david@example.com" },
+            { "age", "35" },
+            { "active", "true" }
+        };
+
+        // Act
+        var result = await _adapter.CreateAsync("users", newRecord);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.NotNull(result.Id);
+        Assert.Equal("David Lee", result.Record.Data["name"]);
+        Assert.Equal("david@example.com", result.Record.Data["email"]);
+
+        // Verify record was written to file
+        var allRecords = await _adapter.ListAsync("users", new QueryOptions { Limit = 100 });
+        Assert.Equal(4, allRecords.Total); // Should now have 4 records (original 3 + 1 new)
+    }
+
+    [Fact]
+    public async Task CsvAdapter_CreateAsync_AppendsToExistingFile()
+    {
+        // Arrange
+        var initialCount = (await _adapter.ListAsync("users", new QueryOptions { Limit = 100 })).Total;
+        var newRecord = new Dictionary<string, object>
+        {
+            { "name", "Eva Martin" },
+            { "email", "eva@example.com" },
+            { "age", "28" }
+        };
+
+        // Act
+        await _adapter.CreateAsync("users", newRecord);
+
+        // Assert
+        var finalCount = (await _adapter.ListAsync("users", new QueryOptions { Limit = 100 })).Total;
+        Assert.Equal(initialCount + 1, finalCount);
+    }
 }
 
