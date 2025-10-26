@@ -280,6 +280,19 @@ MIT License - see LICENSE file for details
 
 ---
 
+## Documentation
+
+### Active Documentation
+- **README.md** - This file, project overview
+- **IMPLEMENTATION_PLAN.md** - Detailed TDD implementation plan
+- **API_USAGE.md** - REST API usage guide
+- **QUICK_API_GUIDE.md** - Quick start for the API
+- **data-abstraction-api.md** - API specification
+- **TEST_COVERAGE_REPORT.md** - Test coverage status
+
+### Archived Documentation
+Historical and outdated documentation has been moved to the `archive/` folder for reference.
+
 ## Contributing
 
 This is an active development project. See `IMPLEMENTATION_PLAN.md` for detailed implementation roadmap.
