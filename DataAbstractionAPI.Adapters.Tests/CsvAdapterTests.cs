@@ -1,0 +1,123 @@
+namespace DataAbstractionAPI.Adapters.Tests;
+
+using DataAbstractionAPI.Core.Interfaces;
+using DataAbstractionAPI.Core.Models;
+using DataAbstractionAPI.Adapters.Csv;
+
+public class CsvAdapterTests : IDisposable
+{
+    private readonly string _testDataDir;
+    private readonly string _tempTestDir;
+    private readonly CsvAdapter _adapter;
+
+    public CsvAdapterTests()
+    {
+        _testDataDir = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "testdata");
+        _tempTestDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(_tempTestDir);
+        
+        // Copy test CSV to temp directory
+        File.Copy(
+            Path.Combine(_testDataDir, "users.csv"),
+            Path.Combine(_tempTestDir, "users.csv"),
+            true
+        );
+
+        _adapter = new CsvAdapter(_tempTestDir);
+    }
+
+    public void Dispose()
+    {
+        Directory.Delete(_tempTestDir, true);
+    }
+
+    [Fact]
+    public async Task CsvAdapter_ListAsync_ReturnsAllRecords_WithoutFilter()
+    {
+        // Arrange
+        var options = new QueryOptions
+        {
+            Limit = 100
+        };
+
+        // Act
+        var result = await _adapter.ListAsync("users", options);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(3, result.Data.Count);
+        Assert.Equal(3, result.Total);
+        Assert.False(result.More);
+        
+        // Verify first record
+        Assert.Equal("1", result.Data[0].Id);
+        Assert.Equal("Alice Johnson", result.Data[0].Data["name"]);
+    }
+
+    [Fact]
+    public async Task CsvAdapter_ListAsync_ReturnsCorrectTotal_Count()
+    {
+        // Arrange
+        var options = new QueryOptions
+        {
+            Limit = 100
+        };
+
+        // Act
+        var result = await _adapter.ListAsync("users", options);
+
+        // Assert
+        Assert.Equal(3, result.Total);
+        Assert.Equal(3, result.Data.Count);
+    }
+
+    [Fact]
+    public async Task CsvAdapter_ListAsync_HandlesMissingCollection_ThrowsException()
+    {
+        // Arrange
+        var options = new QueryOptions();
+
+        // Act & Assert
+        await Assert.ThrowsAsync<FileNotFoundException>(
+            () => _adapter.ListAsync("nonexistent", options)
+        );
+    }
+
+    [Fact]
+    public async Task CsvAdapter_ListAsync_RespectsLimit()
+    {
+        // Arrange
+        var options = new QueryOptions
+        {
+            Limit = 2
+        };
+
+        // Act
+        var result = await _adapter.ListAsync("users", options);
+
+        // Assert
+        Assert.Equal(2, result.Data.Count);
+        Assert.Equal(3, result.Total);
+        Assert.True(result.More);
+    }
+
+    [Fact]
+    public async Task CsvAdapter_ListAsync_RespectsOffset()
+    {
+        // Arrange
+        var options = new QueryOptions
+        {
+            Limit = 10,
+            Offset = 1
+        };
+
+        // Act
+        var result = await _adapter.ListAsync("users", options);
+
+        // Assert
+        Assert.Equal(2, result.Data.Count);
+        Assert.Equal(3, result.Total);
+        Assert.Equal("2", result.Data[0].Id); // Should start from second record
+    }
+}
+

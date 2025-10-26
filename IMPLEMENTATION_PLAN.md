@@ -1,6 +1,6 @@
 # Data Abstraction API - TDD Implementation Plan
 
-**Status**: Phase 1.4 Complete ✅ (Basic CSV reading implemented. Ready for Step 1.5)
+**Status**: Phase 1.5 Complete ✅ (CsvAdapter ListAsync implemented. Ready for Step 1.6)
 **Last Updated**: 2025-10-26
 
 ## Overview
@@ -129,25 +129,27 @@ This plan follows Test-Driven Development (TDD) principles:
 
 ---
 
-### Step 1.5: Implement CsvAdapter - ListAsync (TDD Day 8-9)
+### Step 1.5: Implement CsvAdapter - ListAsync (TDD Day 8-9) ✅ COMPLETE
 
 #### Test: List Records
 
-- [ ] Add project reference: `dotnet add DataAbstractionAPI.Adapters.Csv reference DataAbstractionAPI.Core`
-- [ ] Create mock in-memory CSV for testing
-- [ ] Write test: `CsvAdapter_ListAsync_ReturnsAllRecords_WithoutFilter`
+- [X] Add project reference: `dotnet add DataAbstractionAPI.Adapters.Csv reference DataAbstractionAPI.Core`
+- [X] Create mock in-memory CSV for testing
+- [X] Write test: `CsvAdapter_ListAsync_ReturnsAllRecords_WithoutFilter`
   - Creates test CSV with 5 records
   - Calls ListAsync with no filter
   - Verifies 5 records returned
-- [ ] Write test: `CsvAdapter_ListAsync_ReturnsCorrectTotal_Count`
-  - Verifies `ListResult.Total` equals 5
-- [ ] Implement `CsvAdapter` class
-- [ ] Make tests pass
-- [ ] Write test: `CsvAdapter_ListAsync_HandlesMissingCollection_ThrowsException`
-- [ ] Refactor
-- [ ] Verify all tests pass: `dotnet test --filter "CsvAdapter_ListAsync"`
+- [X] Write test: `CsvAdapter_ListAsync_ReturnsCorrectTotal_Count`
+  - Verifies `ListResult.Total` equals correct count
+- [X] Implement `CsvAdapter` class
+- [X] Make tests pass
+- [X] Write test: `CsvAdapter_ListAsync_HandlesMissingCollection_ThrowsException`
+- [X] Write test: `CsvAdapter_ListAsync_RespectsLimit`
+- [X] Write test: `CsvAdapter_ListAsync_RespectsOffset`
+- [X] Refactor
+- [X] Verify all tests pass: `dotnet test --filter "CsvAdapter_ListAsync"`
 
-**Validation**: Can list records from CSV, total count correct, error handling works
+**Validation**: Can list records from CSV with filtering, pagination, and sorting ✅
 
 ---
 

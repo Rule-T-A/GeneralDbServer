@@ -1,12 +1,105 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Users\\katie\\Project Files\\GeneralDbServer\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{D8981CA8-61AC-4FE5-A8DA-05876DEE68D8}|DataAbstractionAPI.Core.Tests\\DataAbstractionAPI.Core.Tests.csproj|c:\\users\\katie\\project files\\generaldbserver\\dataabstractionapi.core.tests\\models\\recordtests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D8981CA8-61AC-4FE5-A8DA-05876DEE68D8}|DataAbstractionAPI.Core.Tests\\DataAbstractionAPI.Core.Tests.csproj|solutionrelative:dataabstractionapi.core.tests\\models\\recordtests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D8981CA8-61AC-4FE5-A8DA-05876DEE68D8}|DataAbstractionAPI.Core.Tests\\DataAbstractionAPI.Core.Tests.csproj|c:\\users\\katie\\project files\\generaldbserver\\dataabstractionapi.core.tests\\models\\queryoptionstests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D8981CA8-61AC-4FE5-A8DA-05876DEE68D8}|DataAbstractionAPI.Core.Tests\\DataAbstractionAPI.Core.Tests.csproj|solutionrelative:dataabstractionapi.core.tests\\models\\queryoptionstests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D8981CA8-61AC-4FE5-A8DA-05876DEE68D8}|DataAbstractionAPI.Core.Tests\\DataAbstractionAPI.Core.Tests.csproj|c:\\users\\katie\\project files\\generaldbserver\\dataabstractionapi.core.tests\\models\\fielddefinitiontests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D8981CA8-61AC-4FE5-A8DA-05876DEE68D8}|DataAbstractionAPI.Core.Tests\\DataAbstractionAPI.Core.Tests.csproj|solutionrelative:dataabstractionapi.core.tests\\models\\fielddefinitiontests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0B901D3C-8E47-4842-BDFE-7215FE9A93AD}|DataAbstractionAPI.Adapters.Tests\\DataAbstractionAPI.Adapters.Tests.csproj|c:\\users\\katie\\project files\\generaldbserver\\dataabstractionapi.adapters.tests\\csvschemamanagertests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0B901D3C-8E47-4842-BDFE-7215FE9A93AD}|DataAbstractionAPI.Adapters.Tests\\DataAbstractionAPI.Adapters.Tests.csproj|solutionrelative:dataabstractionapi.adapters.tests\\csvschemamanagertests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0B901D3C-8E47-4842-BDFE-7215FE9A93AD}|DataAbstractionAPI.Adapters.Tests\\DataAbstractionAPI.Adapters.Tests.csproj|c:\\users\\katie\\project files\\generaldbserver\\dataabstractionapi.adapters.tests\\csvfilehandlertests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0B901D3C-8E47-4842-BDFE-7215FE9A93AD}|DataAbstractionAPI.Adapters.Tests\\DataAbstractionAPI.Adapters.Tests.csproj|solutionrelative:dataabstractionapi.adapters.tests\\csvfilehandlertests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
       "VerticalTabListWidth": 256,
-      "DocumentGroups": []
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "RecordTests.cs",
+              "DocumentMoniker": "C:\\Users\\katie\\Project Files\\GeneralDbServer\\DataAbstractionAPI.Core.Tests\\Models\\RecordTests.cs",
+              "RelativeDocumentMoniker": "DataAbstractionAPI.Core.Tests\\Models\\RecordTests.cs",
+              "ToolTip": "C:\\Users\\katie\\Project Files\\GeneralDbServer\\DataAbstractionAPI.Core.Tests\\Models\\RecordTests.cs",
+              "RelativeToolTip": "DataAbstractionAPI.Core.Tests\\Models\\RecordTests.cs",
+              "ViewState": "AgIAAA4AAAAAAAAAAAAIwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-26T21:02:58.287Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "QueryOptionsTests.cs",
+              "DocumentMoniker": "C:\\Users\\katie\\Project Files\\GeneralDbServer\\DataAbstractionAPI.Core.Tests\\Models\\QueryOptionsTests.cs",
+              "RelativeDocumentMoniker": "DataAbstractionAPI.Core.Tests\\Models\\QueryOptionsTests.cs",
+              "ToolTip": "C:\\Users\\katie\\Project Files\\GeneralDbServer\\DataAbstractionAPI.Core.Tests\\Models\\QueryOptionsTests.cs",
+              "RelativeToolTip": "DataAbstractionAPI.Core.Tests\\Models\\QueryOptionsTests.cs",
+              "ViewState": "AgIAABYAAAAAAAAAAAA1wAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-26T21:02:55.53Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "FieldDefinitionTests.cs",
+              "DocumentMoniker": "C:\\Users\\katie\\Project Files\\GeneralDbServer\\DataAbstractionAPI.Core.Tests\\Models\\FieldDefinitionTests.cs",
+              "RelativeDocumentMoniker": "DataAbstractionAPI.Core.Tests\\Models\\FieldDefinitionTests.cs",
+              "ToolTip": "C:\\Users\\katie\\Project Files\\GeneralDbServer\\DataAbstractionAPI.Core.Tests\\Models\\FieldDefinitionTests.cs",
+              "RelativeToolTip": "DataAbstractionAPI.Core.Tests\\Models\\FieldDefinitionTests.cs",
+              "ViewState": "AgIAABEAAAAAAAAAAAAIwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-26T21:02:46.744Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "CsvSchemaManagerTests.cs",
+              "DocumentMoniker": "C:\\Users\\katie\\Project Files\\GeneralDbServer\\DataAbstractionAPI.Adapters.Tests\\CsvSchemaManagerTests.cs",
+              "RelativeDocumentMoniker": "DataAbstractionAPI.Adapters.Tests\\CsvSchemaManagerTests.cs",
+              "ToolTip": "C:\\Users\\katie\\Project Files\\GeneralDbServer\\DataAbstractionAPI.Adapters.Tests\\CsvSchemaManagerTests.cs",
+              "RelativeToolTip": "DataAbstractionAPI.Adapters.Tests\\CsvSchemaManagerTests.cs",
+              "ViewState": "AgIAAHkAAAAAAAAAAAAYwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-26T21:02:30.047Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "CsvFileHandlerTests.cs",
+              "DocumentMoniker": "C:\\Users\\katie\\Project Files\\GeneralDbServer\\DataAbstractionAPI.Adapters.Tests\\CsvFileHandlerTests.cs",
+              "RelativeDocumentMoniker": "DataAbstractionAPI.Adapters.Tests\\CsvFileHandlerTests.cs",
+              "ToolTip": "C:\\Users\\katie\\Project Files\\GeneralDbServer\\DataAbstractionAPI.Adapters.Tests\\CsvFileHandlerTests.cs",
+              "RelativeToolTip": "DataAbstractionAPI.Adapters.Tests\\CsvFileHandlerTests.cs",
+              "ViewState": "AgIAADQAAAAAAAAAAAAYwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-26T21:02:17.146Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
     }
   ]
 }
