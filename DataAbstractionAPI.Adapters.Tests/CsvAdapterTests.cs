@@ -145,5 +145,22 @@ public class CsvAdapterTests : IDisposable
             () => _adapter.GetAsync("users", "999")
         );
     }
+
+    [Fact]
+    public void CsvAdapter_GenerateId_ReturnsUniqueGuids()
+    {
+        // Arrange
+        var ids = new HashSet<string>();
+
+        // Act
+        for (int i = 0; i < 100; i++)
+        {
+            var id = _adapter.GenerateId();
+            ids.Add(id);
+        }
+
+        // Assert
+        Assert.Equal(100, ids.Count); // All IDs should be unique
+    }
 }
 

@@ -128,6 +128,15 @@ public class CsvAdapter : IDataAdapter
         throw new NotImplementedException();
     }
 
+    /// <summary>
+    /// Generates a unique ID for a new record (using GUID).
+    /// </summary>
+    /// <returns>A unique string ID</returns>
+    public string GenerateId()
+    {
+        return Guid.NewGuid().ToString("N"); // Format without hyphens
+    }
+
     private string GetCsvPath(string collection)
     {
         return Path.Combine(_baseDirectory, $"{collection}.csv");
