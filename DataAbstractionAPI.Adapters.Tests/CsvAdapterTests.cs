@@ -251,5 +251,191 @@ public class CsvAdapterTests : IDisposable
         Assert.NotNull(exception);
         Assert.DoesNotContain("ArgumentException", exception.GetType().Name);
     }
+
+    [Fact]
+    public async Task CsvAdapter_UpdateAsync_ModifiesRecord_InPlace()
+    {
+        // Arrange - Get existing record
+        var queryOptions = new QueryOptions { Limit = 100 };
+        var initialRecords = await _adapter.ListAsync("users", queryOptions);
+        var recordToUpdate = initialRecords.Data.First();
+        var originalEmail = recordToUpdate.Data["email"].ToString();
+
+        var updates = new Dictionary<string, object>
+        {
+            { "email", "updated@example.com" },
+            { "name", "Updated Name" }
+        };
+
+        // Act
+        await _adapter.UpdateAsync("users", recordToUpdate.Id, updates);
+
+        // Assert - Verify the record was updated
+        var updatedRecord = await _adapter.GetAsync("users", recordToUpdate.Id);
+        Assert.NotNull(updatedRecord);
+        Assert.Equal("updated@example.com", updatedRecord.Data["email"].ToString());
+        Assert.Equal("Updated Name", updatedRecord.Data["name"].ToString());
+        
+        // Verify other fields unchanged
+        Assert.Equal(recordToUpdate.Data["id"], updatedRecord.Data["id"]);
+        
+        // Verify total record count unchanged
+        var finalRecords = await _adapter.ListAsync("users", queryOptions);
+        Assert.Equal(initialRecords.Total, finalRecords.Total);
+    }
+
+    [Fact]
+    public async Task CsvAdapter_UpdateAsync_WithInvalidId_ThrowsException()
+    {
+        // Arrange
+        var invalidId = Guid.NewGuid().ToString();
+        var updates = new Dictionary<string, object>
+        {
+            { "name", "Test" }
+        };
+
+        // Act & Assert
+        await Assert.ThrowsAsync<KeyNotFoundException>(
+            () => _adapter.UpdateAsync("users", invalidId, updates)
+        );
+    }
+
+    [Fact]
+    public async Task CsvAdapter_UpdateAsync_HandlesPartialUpdates()
+    {
+        // Arrange - Get existing record
+        var queryOptions = new QueryOptions { Limit = 100 };
+        var initialRecords = await _adapter.ListAsync("users", queryOptions);
+        var recordToUpdate = initialRecords.Data.First();
+        var originalName = recordToUpdate.Data["name"].ToString();
+        var originalAge = recordToUpdate.Data["age"].ToString();
+
+        // Only update email
+        var updates = new Dictionary<string, object>
+        {
+            { "email", "partial-update@example.com" }
+        };
+
+        // Act
+        await _adapter.UpdateAsync("users", recordToUpdate.Id, updates);
+
+        // Assert - Verify only email was updated
+        var updatedRecord = await _adapter.GetAsync("users", recordToUpdate.Id);
+        Assert.Equal("partial-update@example.com", updatedRecord.Data["email"].ToString());
+        Assert.Equal(originalName, updatedRecord.Data["name"].ToString());
+        Assert.Equal(originalAge, updatedRecord.Data["age"].ToString());
+    }
+
+    [Fact]
+    public async Task CsvAdapter_DeleteAsync_RemovesRecord_FromFile()
+    {
+        // Arrange - Get existing records
+        var queryOptions = new QueryOptions { Limit = 100 };
+        var initialRecords = await _adapter.ListAsync("users", queryOptions);
+        var recordToDelete = initialRecords.Data.First();
+        var initialCount = initialRecords.Total;
+
+        // Act
+        await _adapter.DeleteAsync("users", recordToDelete.Id);
+
+        // Assert - Verify record count decreased
+        var finalRecords = await _adapter.ListAsync("users", queryOptions);
+        Assert.Equal(initialCount - 1, finalRecords.Total);
+        
+        // Verify the deleted record is not found
+        await Assert.ThrowsAsync<FileNotFoundException>(
+            () => _adapter.GetAsync("users", recordToDelete.Id)
+        );
+    }
+
+    [Fact]
+    public async Task CsvAdapter_DeleteAsync_WithInvalidId_ThrowsException()
+    {
+        // Arrange
+        var invalidId = Guid.NewGuid().ToString();
+
+        // Act & Assert
+        await Assert.ThrowsAsync<KeyNotFoundException>(
+            () => _adapter.DeleteAsync("users", invalidId)
+        );
+    }
+
+    [Fact]
+    public async Task CsvAdapter_DeleteAsync_RemainingRecords_Intact()
+    {
+        // Arrange
+        var queryOptions = new QueryOptions { Limit = 100 };
+        var allRecords = await _adapter.ListAsync("users", queryOptions);
+        var recordToDelete = allRecords.Data.First();
+        var recordToKeep = allRecords.Data.Skip(1).First();
+
+        // Act
+        await _adapter.DeleteAsync("users", recordToDelete.Id);
+
+        // Assert - Verify other records still exist
+        var keptRecord = await _adapter.GetAsync("users", recordToKeep.Id);
+        Assert.NotNull(keptRecord);
+        Assert.Equal(recordToKeep.Data["name"], keptRecord.Data["name"]);
+    }
+
+    [Fact]
+    public async Task CsvAdapter_GetSchemaAsync_ReturnsSchema()
+    {
+        // Arrange & Act
+        var schema = await _adapter.GetSchemaAsync("users");
+
+        // Assert
+        Assert.NotNull(schema);
+        Assert.Equal("users", schema.Name);
+        Assert.True(schema.Fields.Count > 0);
+        
+        // Verify schema contains expected fields from users.csv
+        var fieldNames = schema.Fields.Select(f => f.Name).ToList();
+        Assert.Contains("id", fieldNames);
+        Assert.Contains("name", fieldNames);
+        Assert.Contains("email", fieldNames);
+    }
+
+    [Fact]
+    public async Task CsvAdapter_GetSchemaAsync_WithNonExistentCollection_ThrowsException()
+    {
+        // Arrange, Act & Assert
+        await Assert.ThrowsAsync<FileNotFoundException>(
+            () => _adapter.GetSchemaAsync("nonexistent")
+        );
+    }
+
+    [Fact]
+    public async Task CsvAdapter_ListCollectionsAsync_ReturnsCollectionNames()
+    {
+        // Arrange - Ensure at least users collection exists
+        var expectedCollections = new List<string> { "users" };
+
+        // Act
+        var collections = await _adapter.ListCollectionsAsync();
+
+        // Assert
+        Assert.NotNull(collections);
+        Assert.Contains("users", collections);
+        Assert.True(collections.Length >= 1);
+    }
+
+    [Fact]
+    public async Task CsvAdapter_ListCollectionsAsync_OnlyReturnsCsvFiles()
+    {
+        // Arrange - Create a non-CSV file in the test directory
+        var txtFilePath = Path.Combine(_tempTestDir, "noncsv.txt");
+        await File.WriteAllTextAsync(txtFilePath, "this is not a csv");
+
+        // Act
+        var collections = await _adapter.ListCollectionsAsync();
+
+        // Assert
+        Assert.DoesNotContain("noncsv", collections);
+        foreach (var collection in collections)
+        {
+            Assert.True(collection.EndsWith(".csv") || !collection.Contains("."));
+        }
+    }
 }
 

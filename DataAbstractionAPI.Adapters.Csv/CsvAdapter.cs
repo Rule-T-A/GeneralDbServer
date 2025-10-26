@@ -2,6 +2,7 @@ namespace DataAbstractionAPI.Adapters.Csv;
 
 using DataAbstractionAPI.Core.Interfaces;
 using DataAbstractionAPI.Core.Models;
+using DataAbstractionAPI.Core.Enums;
 
 /// <summary>
 /// CSV storage adapter implementing IDataAdapter for CSV file storage.
@@ -140,24 +141,192 @@ public class CsvAdapter : IDataAdapter
         };
     }
 
-    public Task UpdateAsync(string collection, string id, Dictionary<string, object> data, CancellationToken ct = default)
+    public async Task UpdateAsync(string collection, string id, Dictionary<string, object> data, CancellationToken ct = default)
     {
-        throw new NotImplementedException();
+        await Task.Yield(); // Make async
+
+        var csvPath = GetCsvPath(collection);
+        
+        if (!File.Exists(csvPath))
+        {
+            throw new FileNotFoundException($"Collection '{collection}' not found at {csvPath}");
+        }
+
+        // Read all records from the CSV file
+        var handler = new CsvFileHandler(csvPath);
+        var headers = handler.ReadHeaders();
+        var allRecords = handler.ReadRecords();
+
+        // Find the record with matching ID
+        var recordIndex = -1;
+        for (int i = 0; i < allRecords.Count; i++)
+        {
+            if (allRecords[i].ContainsKey("id") && allRecords[i]["id"]?.ToString() == id)
+            {
+                recordIndex = i;
+                break;
+            }
+        }
+
+        if (recordIndex == -1)
+        {
+            throw new KeyNotFoundException($"Record with ID '{id}' not found in collection '{collection}'");
+        }
+
+        // Update the record with new data (merge updates into existing data)
+        var existingRecord = allRecords[recordIndex];
+        foreach (var kvp in data)
+        {
+            if (existingRecord.ContainsKey(kvp.Key))
+            {
+                existingRecord[kvp.Key] = kvp.Value;
+            }
+            else
+            {
+                // New field being added
+                existingRecord.Add(kvp.Key, kvp.Value);
+            }
+        }
+        allRecords[recordIndex] = existingRecord;
+
+        // Write all records back to the CSV file
+        var lockPath = csvPath + ".lock";
+        using (var fileLock = new CsvFileLock(lockPath))
+        {
+            using (var writer = new StreamWriter(csvPath, false))
+            using (var csv = new CsvHelper.CsvWriter(writer, System.Globalization.CultureInfo.InvariantCulture))
+            {
+                // Write headers
+                foreach (var header in headers)
+                {
+                    csv.WriteField(header);
+                }
+                csv.NextRecord();
+
+                // Write records
+                foreach (var record in allRecords)
+                {
+                    foreach (var header in headers)
+                    {
+                        var value = record.ContainsKey(header) ? record[header]?.ToString() : "";
+                        csv.WriteField(value);
+                    }
+                    csv.NextRecord();
+                }
+            }
+        }
     }
 
-    public Task DeleteAsync(string collection, string id, CancellationToken ct = default)
+    public async Task DeleteAsync(string collection, string id, CancellationToken ct = default)
     {
-        throw new NotImplementedException();
+        await Task.Yield(); // Make async
+
+        var csvPath = GetCsvPath(collection);
+        
+        if (!File.Exists(csvPath))
+        {
+            throw new FileNotFoundException($"Collection '{collection}' not found at {csvPath}");
+        }
+
+        // Read all records from the CSV file
+        var handler = new CsvFileHandler(csvPath);
+        var headers = handler.ReadHeaders();
+        var allRecords = handler.ReadRecords();
+
+        // Find the record with matching ID
+        var recordToDeleteIndex = -1;
+        for (int i = 0; i < allRecords.Count; i++)
+        {
+            if (allRecords[i].ContainsKey("id") && allRecords[i]["id"]?.ToString() == id)
+            {
+                recordToDeleteIndex = i;
+                break;
+            }
+        }
+
+        if (recordToDeleteIndex == -1)
+        {
+            throw new KeyNotFoundException($"Record with ID '{id}' not found in collection '{collection}'");
+        }
+
+        // Remove the record from the list
+        allRecords.RemoveAt(recordToDeleteIndex);
+
+        // Write all remaining records back to the CSV file
+        var lockPath = csvPath + ".lock";
+        using (var fileLock = new CsvFileLock(lockPath))
+        {
+            using (var writer = new StreamWriter(csvPath, false))
+            using (var csv = new CsvHelper.CsvWriter(writer, System.Globalization.CultureInfo.InvariantCulture))
+            {
+                // Write headers
+                foreach (var header in headers)
+                {
+                    csv.WriteField(header);
+                }
+                csv.NextRecord();
+
+                // Write remaining records
+                foreach (var record in allRecords)
+                {
+                    foreach (var header in headers)
+                    {
+                        var value = record.ContainsKey(header) ? record[header]?.ToString() : "";
+                        csv.WriteField(value);
+                    }
+                    csv.NextRecord();
+                }
+            }
+        }
     }
 
-    public Task<CollectionSchema> GetSchemaAsync(string collection, CancellationToken ct = default)
+    public async Task<CollectionSchema> GetSchemaAsync(string collection, CancellationToken ct = default)
     {
-        throw new NotImplementedException();
+        await Task.Yield(); // Make async
+
+        var csvPath = GetCsvPath(collection);
+        
+        if (!File.Exists(csvPath))
+        {
+            throw new FileNotFoundException($"Collection '{collection}' not found at {csvPath}");
+        }
+
+        // Read headers from CSV file
+        var handler = new CsvFileHandler(csvPath);
+        var headers = handler.ReadHeaders();
+
+        // Create FieldDefinitions from headers
+        var fields = headers.Select(header => new FieldDefinition
+        {
+            Name = header,
+            Type = FieldType.String, // Default to String type
+            Nullable = true, // All CSV fields are nullable by default
+            Default = null
+        }).ToList();
+
+        return new CollectionSchema
+        {
+            Name = collection,
+            Fields = fields
+        };
     }
 
-    public Task<string[]> ListCollectionsAsync(CancellationToken ct = default)
+    public async Task<string[]> ListCollectionsAsync(CancellationToken ct = default)
     {
-        throw new NotImplementedException();
+        await Task.Yield(); // Make async
+
+        // Get all CSV files in the base directory
+        if (!Directory.Exists(_baseDirectory))
+        {
+            return Array.Empty<string>();
+        }
+
+        var csvFiles = Directory.GetFiles(_baseDirectory, "*.csv", SearchOption.TopDirectoryOnly);
+        var collections = csvFiles
+            .Select(file => Path.GetFileNameWithoutExtension(file))
+            .ToArray();
+
+        return collections;
     }
 
     /// <summary>
