@@ -29,7 +29,27 @@ https://api.example.com/api
 
 Operations for querying and modifying records (rows).
 
-#### 1. List/Query Records
+#### 1. List Available Collections
+
+```
+GET /api/data
+```
+
+**Response:**
+```json
+["users", "orders", "products"]
+```
+
+Returns an array of collection names (without `.csv` extension) available in the data store.
+
+**Example:**
+```
+GET /api/data
+```
+
+---
+
+#### 2. List/Query Records
 
 ```
 GET /data/{collection}
@@ -153,7 +173,7 @@ POST /data/{collection}
 
 ---
 
-#### 5. Update Record
+#### 6. Update Record
 
 ```
 PATCH /data/{collection}/{id}
@@ -188,7 +208,7 @@ PATCH /data/{collection}/{id}
 
 ---
 
-#### 6. Delete Record
+#### 7. Delete Record
 
 ```
 DELETE /data/{collection}/{id}
@@ -204,7 +224,7 @@ DELETE /data/{collection}/{id}
 
 ---
 
-#### 7. Bulk Operations
+#### 8. Bulk Operations
 
 ```
 POST /data/{collection}/bulk
@@ -262,7 +282,7 @@ POST /data/{collection}/bulk
 
 ---
 
-#### 8. Summary/Aggregation
+#### 9. Summary/Aggregation
 
 ```
 GET /data/{collection}/summary
@@ -287,7 +307,7 @@ GET /data/users/summary?field=status
 
 ---
 
-#### 9. Complex Aggregation
+#### 10. Complex Aggregation
 
 ```
 POST /data/{collection}/aggregate
@@ -344,11 +364,21 @@ Operations for modifying data structure (columns, tables).
 GET /schema
 ```
 
-**Response:**
+**Alternative:** Collections can also be listed via the Data Operations endpoint:
+```
+GET /api/data
+```
+
+**Response (via /schema):**
 ```json
 {
   "collections": ["users", "orders", "products"]
 }
+```
+
+**Response (via /api/data):**
+```json
+["users", "orders", "products"]
 ```
 
 ---

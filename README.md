@@ -2,8 +2,8 @@
 
 A .NET Core implementation of a unified data abstraction layer that provides a consistent interface for interacting with data across different storage backends.
 
-**Status**: Phase 1 + 1.x + 2.0-2.1 Complete ✅  
-**Last Updated**: October 26, 2025
+**Status**: Phase 1 + 1.x + 2.0-2.1 + 3.0 Complete ✅  
+**Last Updated**: November 2025
 
 ---
 
@@ -229,8 +229,17 @@ CsvAdapterTests
 - [ ] ValidationService (Step 2.5)
 - [ ] Integration tests (Step 2.6)
 
+### Phase 3: REST API ✅ COMPLETE
+- [x] REST API with ASP.NET Core Web API
+- [x] Swagger documentation
+- [x] Full CRUD endpoints
+- [x] Collections listing endpoint
+- [x] Schema endpoints
+- [x] DI integration
+- [x] HTTPS support
+- Port: http://localhost:5012, https://localhost:7128
+
 ### Upcoming Phases
-- **Phase 3**: REST API (ASP.NET Core Web API)
 - **Phase 4**: Management UI (Blazor Server)
 
 ---
