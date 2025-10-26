@@ -171,7 +171,50 @@ public class CsvAdapter : IDataAdapter
 
     private string GetCsvPath(string collection)
     {
-        return Path.Combine(_baseDirectory, $"{collection}.csv");
+        // Security validation: prevent path traversal attacks
+        ValidateCollectionName(collection);
+        
+        var csvPath = Path.Combine(_baseDirectory, $"{collection}.csv");
+        
+        // Additional security: ensure the resolved path is still within base directory
+        var resolvedPath = Path.GetFullPath(csvPath);
+        var resolvedBase = Path.GetFullPath(_baseDirectory);
+        
+        if (!resolvedPath.StartsWith(resolvedBase, StringComparison.Ordinal))
+        {
+            throw new ArgumentException($"Invalid collection name: {collection}");
+        }
+        
+        return csvPath;
+    }
+
+    /// <summary>
+    /// Validates collection name to prevent path traversal attacks.
+    /// </summary>
+    private static void ValidateCollectionName(string collection)
+    {
+        if (string.IsNullOrWhiteSpace(collection))
+        {
+            throw new ArgumentException("Collection name cannot be empty", nameof(collection));
+        }
+
+        // Reject path traversal attempts
+        if (collection.Contains("..") || collection.Contains("../"))
+        {
+            throw new ArgumentException("Collection name cannot contain '..' (path traversal)", nameof(collection));
+        }
+
+        // Reject directory separators
+        if (collection.Contains('/') || collection.Contains('\\'))
+        {
+            throw new ArgumentException("Collection name cannot contain directory separators", nameof(collection));
+        }
+
+        // Reject absolute paths
+        if (Path.IsPathRooted(collection))
+        {
+            throw new ArgumentException("Collection name cannot be an absolute path", nameof(collection));
+        }
     }
 
     private List<Record> FilterRecords(List<Record> records, Dictionary<string, object> filter)

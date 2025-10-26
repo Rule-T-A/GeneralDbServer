@@ -208,5 +208,48 @@ public class CsvAdapterTests : IDisposable
         var finalCount = (await _adapter.ListAsync("users", new QueryOptions { Limit = 100 })).Total;
         Assert.Equal(initialCount + 1, finalCount);
     }
+
+    [Fact]
+    public async Task CsvAdapter_SecureCollection_RejectsPathTraversal_WithDotDot()
+    {
+        // Arrange & Act & Assert
+        await Assert.ThrowsAsync<ArgumentException>(
+            () => _adapter.ListAsync("../etc", new QueryOptions())
+        );
+    }
+
+    [Fact]
+    public async Task CsvAdapter_SecureCollection_RejectsPathTraversal_WithBackslash()
+    {
+        // Arrange & Act & Assert
+        await Assert.ThrowsAsync<ArgumentException>(
+            () => _adapter.ListAsync("collection\\name", new QueryOptions())
+        );
+    }
+
+    [Fact]
+    public async Task CsvAdapter_SecureCollection_RejectsPathTraversal_WithForwardSlash()
+    {
+        // Arrange & Act & Assert
+        await Assert.ThrowsAsync<ArgumentException>(
+            () => _adapter.ListAsync("collection/name", new QueryOptions())
+        );
+    }
+
+    [Fact]
+    public async Task CsvAdapter_SecureCollection_AcceptsValidCollectionName()
+    {
+        // Arrange
+        var options = new QueryOptions { Limit = 10 };
+
+        // Act & Assert - Should throw FileNotFoundException (collection doesn't exist)
+        // but NOT ArgumentException (security validation passed)
+        var exception = await Assert.ThrowsAsync<FileNotFoundException>(
+            () => _adapter.ListAsync("valid-collection-name", options)
+        );
+        
+        Assert.NotNull(exception);
+        Assert.DoesNotContain("ArgumentException", exception.GetType().Name);
+    }
 }
 
