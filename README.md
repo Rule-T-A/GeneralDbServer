@@ -2,7 +2,7 @@
 
 A .NET Core implementation of a unified data abstraction layer that provides a consistent interface for interacting with data across different storage backends.
 
-**Status**: Phase 1 Complete ✅  
+**Status**: Phase 1 + 1.x + 2.0-2.1 Complete ✅  
 **Last Updated**: October 26, 2025
 
 ---
@@ -15,7 +15,9 @@ This project implements a storage-agnostic data access API following TDD (Test-D
 - **CSV storage adapter** with full CRUD operations
 - **File locking** for concurrency safety
 - **Security validation** to prevent path traversal attacks
-- **Comprehensive test coverage** (37 tests passing)
+- **Full CRUD operations** (Create, Read, Update, Delete)
+- **Schema operations** (Get schema, List collections)
+- **Comprehensive test coverage** (78 tests passing)
 
 ---
 
@@ -23,17 +25,20 @@ This project implements a storage-agnostic data access API following TDD (Test-D
 
 ```
 GeneralDbServer/
-├── DataAbstractionAPI.Core/              # Core models, interfaces, and enums
-│   ├── Enums/                            # FieldType, StorageType
-│   ├── Interfaces/                       # IDataAdapter, IDefaultGenerator, ITypeConverter
-│   └── Models/                           # Record, QueryOptions, ListResult, etc.
-├── DataAbstractionAPI.Adapters.Csv/      # CSV storage adapter
-│   ├── CsvAdapter.cs                     # Main adapter implementation
-│   ├── CsvFileHandler.cs                 # CSV file read/write operations
-│   ├── CsvFileLock.cs                    # File locking mechanism
-│   └── CsvSchemaManager.cs               # Schema file management
-├── DataAbstractionAPI.Core.Tests/       # Core model and interface tests
-└── DataAbstractionAPI.Adapters.Tests/   # Adapter and integration tests
+├── DataAbstractionAPI.Core/                    # Core models, interfaces, and enums
+│   ├── Enums/                                  # FieldType, StorageType, ConversionStrategy, DefaultGenerationStrategy
+│   ├── Exceptions/                             # ConversionException, ValidationException
+│   ├── Interfaces/                             # IDataAdapter, IDefaultGenerator, ITypeConverter
+│   └── Models/                                  # Record, QueryOptions, ListResult, CollectionSchema, etc.
+├── DataAbstractionAPI.Adapters.Csv/           # CSV storage adapter
+│   ├── CsvAdapter.cs                          # Main adapter implementation
+│   ├── CsvFileHandler.cs                      # CSV file read/write operations
+│   ├── CsvFileLock.cs                         # File locking mechanism
+│   └── CsvSchemaManager.cs                    # Schema file management
+├── DataAbstractionAPI.Services/               # Business logic services (in progress)
+├── DataAbstractionAPI.Core.Tests/             # Core model and interface tests
+├── DataAbstractionAPI.Adapters.Tests/         # Adapter and integration tests
+└── DataAbstractionAPI.Services.Tests/         # Service tests (in progress)
 ```
 
 ---
@@ -42,28 +47,28 @@ GeneralDbServer/
 
 ### Core Components ✅
 - **Interfaces**: `IDataAdapter`, `IDefaultGenerator`, `ITypeConverter`
-- **Models**: `Record`, `CollectionSchema`, `FieldDefinition`, `QueryOptions`, `ListResult`, `CreateResult`
-- **Enums**: `FieldType` (8 types), `StorageType` (4 types)
-- **10 tests** for core models and enums
+- **Models**: `Record`, `CollectionSchema`, `FieldDefinition`, `QueryOptions`, `ListResult`, `CreateResult`, `DefaultGenerationContext`
+- **Enums**: `FieldType`, `StorageType`, `ConversionStrategy`, `DefaultGenerationStrategy`
+- **Exceptions**: `ConversionException`, `ValidationException`
+- **29 tests** for core models, enums, and exceptions
 
 ### CSV Adapter ✅
 - **ListAsync**: Query records with filtering, pagination, sorting
 - **GetAsync**: Retrieve single record by ID
 - **CreateAsync**: Create new records with auto-generated IDs
+- **UpdateAsync**: Update existing records with partial updates
+- **DeleteAsync**: Delete records by ID
+- **GetSchemaAsync**: Retrieve collection schema from CSV headers
+- **ListCollectionsAsync**: List all available collections
 - **GenerateId**: Unique ID generation using GUIDs
-- **27 tests** for adapter functionality
+- **39 tests** for adapter functionality
 
 ### Security & Safety ✅
 - **Path traversal prevention**: Validates collection names
 - **File locking**: Prevents concurrent access issues
 - **Error handling**: Proper exception handling throughout
-- **4 security tests** + **4 concurrency tests**
-
-### Supporting Utilities ✅
-- **CsvFileHandler**: Read/write CSV files using CsvHelper
-- **CsvSchemaManager**: JSON schema file management
-- **CsvFileLock**: Exclusive file locking mechanism
-- **9 tests** for utilities
+- **Service injection support**: Ready for dependency injection
+- **4 security tests** + **4 concurrency tests** + **3 service injection tests**
 
 ---
 
@@ -71,9 +76,9 @@ GeneralDbServer/
 
 ```bash
 Test Run Summary:
-✓ Core.Tests: 10 tests passed
-✓ Adapters.Tests: 27 tests passed
-Total: 37 tests, 37 passed, 0 failed
+✓ Core.Tests: 39 tests passed
+✓ Adapters.Tests: 39 tests passed
+Total: 78 tests, 78 passed, 0 failed
 ```
 
 Run tests:
@@ -89,6 +94,9 @@ dotnet test
 - **List**: Query with filters, pagination, sorting, field selection
 - **Get**: Retrieve single record by ID
 - **Create**: Add new records with auto-generated IDs
+- **Update**: Modify existing records (partial updates supported)
+- **Delete**: Remove records by ID
+- **Schema**: Get collection schema, list collections
 - **Field projection**: Request only specific fields
 - **Filtering**: Basic equality filters on any field
 
@@ -202,10 +210,26 @@ CsvAdapterTests
 - [x] CSV adapter with CRUD operations
 - [x] File locking
 - [x] Security validation
-- [x] 37 tests passing
+- [x] 78 tests passing
 
-### Upcoming Phases (Not Started)
-- **Phase 2**: Services Layer (DefaultGenerator, TypeConverter, FilterEvaluator)
+### Phase 1.x: Complete CRUD ✅ COMPLETE
+- [x] UpdateAsync implementation
+- [x] DeleteAsync implementation
+- [x] GetSchemaAsync implementation
+- [x] ListCollectionsAsync implementation
+- [x] Additional test coverage
+
+### Phase 2: Services Layer 🚧 IN PROGRESS
+- [x] Core types prepared (Step 2.0)
+- [x] CsvAdapter refactored for injection (Step 2.05)
+- [x] Services project created (Step 2.1)
+- [ ] DefaultGenerator service (Step 2.2) ← Next
+- [ ] TypeConverter service (Step 2.3)
+- [ ] FilterEvaluator service (Step 2.4)
+- [ ] ValidationService (Step 2.5)
+- [ ] Integration tests (Step 2.6)
+
+### Upcoming Phases
 - **Phase 3**: REST API (ASP.NET Core Web API)
 - **Phase 4**: Management UI (Blazor Server)
 
@@ -251,4 +275,4 @@ MIT License - see LICENSE file for details
 
 This is an active development project. See `IMPLEMENTATION_PLAN.md` for detailed implementation roadmap.
 
-**Current Focus**: Phase 1 complete. Ready for Phase 2 (Services Layer).
+**Current Focus**: Phase 2 in progress - implementing services layer. Ready for DefaultGenerator implementation.

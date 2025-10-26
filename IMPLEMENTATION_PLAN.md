@@ -26,7 +26,7 @@ This plan follows Test-Driven Development (TDD) principles:
 - ⏸️ **Phase 4**: WAITING FOR PHASE 3
 - ⏸️ **Phase 5**: WAITING FOR PHASE 4
 
-**Total Tests**: 50 passing (10 Core + 40 Adapter tests)
+**Total Tests**: 78 passing (39 Core + 39 Adapter tests)
 
 ### Known Scope Limitations
 
@@ -481,7 +481,7 @@ The Services layer provides reusable business logic that adapters can use:
 - [X] Update `ITypeConverter` signature to include ConversionStrategy parameter
 - [X] Update `IDefaultGenerator` signature with context and strategy methods
 
-**Validation**: ✅ All Core types compile, 47 tests still passing
+**Validation**: ✅ All Core types compile, 78 tests passing
 
 ---
 
@@ -504,7 +504,7 @@ The Services layer provides reusable business logic that adapters can use:
 
 **Note**: FilterEvaluator not added yet - will be added when service is implemented in Step 2.4
 
-**Validation**: ✅ CsvAdapter refactored, all 50 tests passing (10 Core + 40 Adapter), ready for service injection
+**Validation**: ✅ CsvAdapter refactored, all 78 tests passing (39 Core + 39 Adapter), ready for service injection
 
 ---
 
