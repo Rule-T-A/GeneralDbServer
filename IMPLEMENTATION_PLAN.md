@@ -294,7 +294,67 @@ dotnet test
 
 **⚠️ DO NOT START PHASE 2 WITHOUT DISCUSSION**
 
-**Goal**: Implement business logic services (DefaultGenerator, TypeConverter, FilterEvaluator)
+**Goal**: Implement business logic services (DefaultGenerator, TypeConverter, FilterEvaluator, ValidationService)
+
+### ⚠️ Issues Addressed Before Starting Phase 2
+
+**These changes address gaps between Phase 1 implementation and Phase 2 requirements:**
+
+1. **Missing Core Types**: Added ConversionStrategy enum, ConversionException, ValidationException
+2. **Interface Updates**: Updated ITypeConverter and IDefaultGenerator signatures to match specifications
+3. **Architecture Gap**: Added Step 2.0 and 2.05 to prepare Core and refactor CsvAdapter for service injection
+4. **Context Support**: Added DefaultGenerationContext for context-aware default generation
+5. **Dependency Injection**: CsvAdapter will be updated to accept services via constructor
+
+### Architecture Overview
+
+The Services layer provides reusable business logic that adapters can use:
+
+```
+┌─────────────────────────────────────────┐
+│         Adapters (CsvAdapter)           │
+│  - Injects Services via constructor     │
+│  - Delegates filtering to FilterEvaluator│
+│  - Uses DefaultGenerator for fields     │
+│  - Uses TypeConverter for conversions   │
+└─────────────────┬───────────────────────┘
+                  │
+                  ▼
+┌─────────────────────────────────────────┐
+│           Services Layer                 │
+│  - FilterEvaluator (filter logic)       │
+│  - DefaultGenerator (smart defaults)    │
+│  - TypeConverter (type conversions)     │
+│  - ValidationService (data validation)   │
+└─────────────────┬───────────────────────┘
+                  │
+                  ▼
+┌─────────────────────────────────────────┐
+│              Core (Interfaces)           │
+│  - IDataAdapter                         │
+│  - IDefaultGenerator                    │
+│  - ITypeConverter                       │
+└─────────────────────────────────────────┘
+```
+
+**Key Integration Points:**
+- `FilterEvaluator`: Replaces inline filtering in CsvAdapter
+- `DefaultGenerator`: Used when adding new fields without defaults
+- `TypeConverter`: Used when modifying field types
+- `ValidationService`: Validates records before create/update
+
+### Important Notes
+
+**Breaking Changes in Phase 2:**
+- Core interfaces updated with new signatures (ITypeConverter, IDefaultGenerator)
+- New Core types required: ConversionStrategy, DefaultGenerationStrategy, exceptions
+- CsvAdapter will need refactoring to use FilterEvaluator service
+- All Phase 1 tests should still pass after Step 2.0 and 2.05
+
+**Updated Service Signature:**
+- `ITypeConverter.Convert()` now includes `ConversionStrategy` parameter
+- `IDefaultGenerator.GenerateDefault()` now includes `DefaultGenerationContext` parameter
+- These changes maintain backward compatibility with optional parameters
 
 ### Discuss Before Proceeding:
 
@@ -308,6 +368,121 @@ dotnet test
 - [ ] Phase 1 fully complete
 - [ ] All Phase 1 tests passing
 - [ ] Phase 1 code reviewed
+- [ ] Core interfaces updated with missing types
+- [ ] CsvAdapter refactored to support service injection
+
+---
+
+### Step 2.0: Prepare Core for Services (Pre-requisite)
+
+**⚠️ CRITICAL: Complete this before starting Services implementation**
+
+#### Update Core Interfaces and Add Missing Types
+
+- [ ] Add `ConversionStrategy` enum to Core/Enums:
+  ```csharp
+  public enum ConversionStrategy
+  {
+      Cast = 0,
+      Truncate = 1,
+      FailOnError = 2,
+      SetNull = 3
+  }
+  ```
+
+- [ ] Add `ConversionException` to Core/Exceptions:
+  ```csharp
+  public class ConversionException : Exception
+  {
+      public string FieldName { get; }
+      public object Value { get; }
+      // Constructor with field name and value
+  }
+  ```
+
+- [ ] Add `ValidationException` to Core/Exceptions:
+  ```csharp
+  public class ValidationException : Exception
+  {
+      public string FieldName { get; }
+      // Constructor with field name
+  }
+  ```
+
+- [ ] Update `ITypeConverter` signature to include strategy:
+  ```csharp
+  public interface ITypeConverter
+  {
+      object Convert(object value, FieldType fromType, FieldType toType, ConversionStrategy strategy);
+  }
+  ```
+
+- [ ] Add `DefaultGenerationContext` model to Core/Models:
+  ```csharp
+  public class DefaultGenerationContext
+  {
+      public string CollectionName { get; set; }
+      public List<Record> ExistingRecords { get; set; }
+  }
+  ```
+
+- [ ] Update `IDefaultGenerator` signature:
+  ```csharp
+  public interface IDefaultGenerator
+  {
+      object GenerateDefault(string fieldName, FieldType fieldType, DefaultGenerationContext context);
+      DefaultGenerationStrategy DetermineStrategy(string fieldName, FieldType fieldType);
+  }
+  ```
+
+- [ ] Add `DefaultGenerationStrategy` enum to Core/Enums:
+  ```csharp
+  public enum DefaultGenerationStrategy
+  {
+      UserSpecified = 0,
+      PatternMatch = 1,
+      ContextAnalysis = 2,
+      TypeBased = 3
+  }
+  ```
+
+**Validation**: All Core types compile, no breaking changes
+
+---
+
+### Step 2.05: Refactor CsvAdapter for Service Injection (Pre-requisite)
+
+**⚠️ CRITICAL: Update CsvAdapter before implementing Services**
+
+#### Prepare CsvAdapter for Dependency Injection
+
+- [ ] Add constructor overload to accept services:
+  ```csharp
+  public CsvAdapter(
+      string baseDirectory,
+      IDefaultGenerator? defaultGenerator = null,
+      ITypeConverter? typeConverter = null,
+      FilterEvaluator? filterEvaluator = null)
+  ```
+
+- [ ] Update `FilterRecords` method to use FilterEvaluator if available:
+  ```csharp
+  private List<Record> FilterRecords(List<Record> records, Dictionary<string, object> filter)
+  {
+      if (_filterEvaluator != null)
+      {
+          return _filterEvaluator.Evaluate(records, filter).ToList();
+      }
+      // Fall back to simple equality for backward compatibility
+      return records.Where(...).ToList();
+  }
+  ```
+
+- [ ] Update existing tests to ensure they still pass
+- [ ] Add tests for CsvAdapter with injected services (optional)
+- [ ] Verify all Phase 1 tests still pass
+
+**Validation**: CsvAdapter refactored, all 27 tests still pass, ready for service injection
 
 ---
 
