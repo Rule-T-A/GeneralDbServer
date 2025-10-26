@@ -26,7 +26,7 @@ This plan follows Test-Driven Development (TDD) principles:
 - ⏸️ **Phase 4**: WAITING FOR PHASE 3
 - ⏸️ **Phase 5**: WAITING FOR PHASE 4
 
-**Total Tests**: 47 passing (10 Core + 37 Adapter tests)
+**Total Tests**: 50 passing (10 Core + 40 Adapter tests)
 
 ### Known Scope Limitations
 
@@ -485,39 +485,26 @@ The Services layer provides reusable business logic that adapters can use:
 
 ---
 
-### Step 2.05: Refactor CsvAdapter for Service Injection (Pre-requisite)
+### ✅ Step 2.05: Refactor CsvAdapter for Service Injection (Pre-requisite) - COMPLETE
 
 **⚠️ CRITICAL: Update CsvAdapter before implementing Services**
 
 #### Prepare CsvAdapter for Dependency Injection
 
-- [ ] Add constructor overload to accept services:
-  ```csharp
-  public CsvAdapter(
-      string baseDirectory,
-      IDefaultGenerator? defaultGenerator = null,
-      ITypeConverter? typeConverter = null,
-      FilterEvaluator? filterEvaluator = null)
-  ```
+- [X] Added constructor overload to accept optional services:
+  - `IDefaultGenerator? defaultGenerator = null`
+  - `ITypeConverter? typeConverter = null`
+- [X] Stored service dependencies as private fields for future use
+- [X] Maintained backward compatibility with existing constructor signature
+- [X] All existing tests still pass (37 → 40 tests)
+- [X] Added 3 new tests for service injection:
+  - `CsvAdapter_WithOptionalServices_AcceptsNullServices`
+  - `CsvAdapter_WithOptionalServices_MaintainsBackwardCompatibility`
+  - `CsvAdapter_Constructor_BackwardCompatible_WithoutServices`
 
-- [ ] Update `FilterRecords` method to use FilterEvaluator if available:
-  ```csharp
-  private List<Record> FilterRecords(List<Record> records, Dictionary<string, object> filter)
-  {
-      if (_filterEvaluator != null)
-      {
-          return _filterEvaluator.Evaluate(records, filter).ToList();
-      }
-      // Fall back to simple equality for backward compatibility
-      return records.Where(...).ToList();
-  }
-  ```
+**Note**: FilterEvaluator not added yet - will be added when service is implemented in Step 2.4
 
-- [ ] Update existing tests to ensure they still pass
-- [ ] Add tests for CsvAdapter with injected services (optional)
-- [ ] Verify all Phase 1 tests still pass
-
-**Validation**: CsvAdapter refactored, all 27 tests still pass, ready for service injection
+**Validation**: ✅ CsvAdapter refactored, all 50 tests passing (10 Core + 40 Adapter), ready for service injection
 
 ---
 

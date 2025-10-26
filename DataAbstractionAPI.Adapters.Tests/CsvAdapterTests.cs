@@ -437,5 +437,44 @@ public class CsvAdapterTests : IDisposable
             Assert.True(collection.EndsWith(".csv") || !collection.Contains("."));
         }
     }
+
+    [Fact]
+    public void CsvAdapter_WithOptionalServices_AcceptsNullServices()
+    {
+        // Arrange
+        var adapter = new CsvAdapter(_tempTestDir, defaultGenerator: null, typeConverter: null);
+
+        // Act & Assert - No exception should be thrown
+        Assert.NotNull(adapter);
+    }
+
+    [Fact]
+    public async Task CsvAdapter_WithOptionalServices_MaintainsBackwardCompatibility()
+    {
+        // Arrange
+        var adapter = new CsvAdapter(_tempTestDir);
+
+        // Act - Use adapter with default behavior
+        var result = await adapter.ListAsync("users", new QueryOptions { Limit = 10 });
+
+        // Assert - Should work exactly as before
+        Assert.NotNull(result);
+        Assert.True(result.Data.Count > 0);
+    }
+
+    [Fact]
+    public void CsvAdapter_Constructor_BackwardCompatible_WithoutServices()
+    {
+        // This test ensures the original constructor signature still works
+        // Arrange & Act - Should not throw
+        var adapter = new CsvAdapter(_tempTestDir);
+
+        // Assert
+        Assert.NotNull(adapter);
+        
+        // Also test single parameter call works
+        var adapter2 = new CsvAdapter(baseDirectory: _tempTestDir);
+        Assert.NotNull(adapter2);
+    }
 }
 

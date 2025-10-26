@@ -10,10 +10,20 @@ using DataAbstractionAPI.Core.Enums;
 public class CsvAdapter : IDataAdapter
 {
     private readonly string _baseDirectory;
+    private readonly IDefaultGenerator? _defaultGenerator;
+    private readonly ITypeConverter? _typeConverter;
 
-    public CsvAdapter(string baseDirectory)
+    /// <summary>
+    /// Initializes a new instance of CsvAdapter with optional service dependencies.
+    /// </summary>
+    /// <param name="baseDirectory">The base directory for CSV files</param>
+    /// <param name="defaultGenerator">Optional default value generator</param>
+    /// <param name="typeConverter">Optional type converter</param>
+    public CsvAdapter(string baseDirectory, IDefaultGenerator? defaultGenerator = null, ITypeConverter? typeConverter = null)
     {
         _baseDirectory = baseDirectory;
+        _defaultGenerator = defaultGenerator;
+        _typeConverter = typeConverter;
     }
 
     /// <summary>
