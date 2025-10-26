@@ -1,6 +1,6 @@
 # Data Abstraction API - TDD Implementation Plan
 
-**Status**: Phase 1.1 Complete ✅
+**Status**: Phase 1.1 Partial ⚠️ (Core.Tests project recommended but not created yet)
 **Last Updated**: 2025-10-26
 
 ## Overview
@@ -28,22 +28,29 @@ This plan follows Test-Driven Development (TDD) principles:
 
 ---
 
-### Step 1.1: Create Solution Structure (Day 1) ✅ COMPLETE
+### Step 1.1: Create Solution Structure (Day 1) ⚠️ PARTIAL
 
 #### Setup
 
 - [X] Create solution file: `dotnet new sln -n DataAbstractionAPI`
 - [X] Create Core project: `dotnet new classlib -n DataAbstractionAPI.Core -f net8.0`
 - [X] Add project to solution: `dotnet sln add DataAbstractionAPI.Core`
+- [ ] Create Core test project: `dotnet new xunit -n DataAbstractionAPI.Core.Tests -f net8.0`
+- [ ] Add Core test to solution: `dotnet sln add DataAbstractionAPI.Core.Tests`
+- [ ] Add reference from Core test to Core: `dotnet add DataAbstractionAPI.Core.Tests reference DataAbstractionAPI.Core`
 - [X] Create Adapter project: `dotnet new classlib -n DataAbstractionAPI.Adapters.Csv -f net8.0`
 - [X] Add adapter to solution: `dotnet sln add DataAbstractionAPI.Adapters.Csv`
-- [X] Create test project: `dotnet new xunit -n DataAbstractionAPI.Adapters.Tests -f net8.0`
+- [X] Create Adapter test project: `dotnet new xunit -n DataAbstractionAPI.Adapters.Tests -f net8.0`
 - [X] Add test project to solution: `dotnet sln add DataAbstractionAPI.Adapters.Tests`
-- [X] Add project reference from test to adapter: `dotnet add DataAbstractionAPI.Adapters.Tests reference DataAbstractionAPI.Adapters.Csv`
+- [X] Add project references from adapter test to adapter and Core: 
+  - `dotnet add DataAbstractionAPI.Adapters.Tests reference DataAbstractionAPI.Adapters.Csv`
+  - `dotnet add DataAbstractionAPI.Adapters.Tests reference DataAbstractionAPI.Core`
 - [X] Add CsvHelper package: `dotnet add DataAbstractionAPI.Adapters.Csv package CsvHelper -v 33.0.1`
 - [X] Verify solution builds: `dotnet build`
 
 **Validation**: Solution compiles, all projects added, NuGet packages restored
+
+**Current Status**: Core.Tests project needs to be created (recommended addition)
 
 ---
 
@@ -72,8 +79,14 @@ This plan follows Test-Driven Development (TDD) principles:
 - [ ] Create enums:
   - [ ] `FieldType` (String, Integer, Float, Boolean, DateTime, Date, Array, Object)
   - [ ] `StorageType` (Csv, Sql, NoSql, InMemory)
+- [ ] Create basic tests in Core.Tests for models (validation, serialization, equality)
+  - [ ] Test Record model (id, data dictionary)
+  - [ ] Test FieldDefinition model (name, type, nullable, default)
+  - [ ] Test QueryOptions model (fields, filter, limit, offset)
+  - [ ] Test ListResult model (data list, total, more flag)
+  - [ ] Test enum values and serialization
 
-**Validation**: All interfaces compile without implementation
+**Validation**: All interfaces compile without implementation, basic model tests pass
 
 ---
 
@@ -237,6 +250,7 @@ This plan follows Test-Driven Development (TDD) principles:
 **Code**
 
 - [ ] All interfaces defined in Core
+- [ ] All models defined in Core with proper validation
 - [ ] CsvAdapter implements IDataAdapter
 - [ ] Can read/write CSV files
 - [ ] Can save/load schemas
@@ -245,10 +259,12 @@ This plan follows Test-Driven Development (TDD) principles:
 
 **Tests**
 
+- [ ] All Core tests pass: `dotnet test DataAbstractionAPI.Core.Tests`
 - [ ] All unit tests pass: `dotnet test DataAbstractionAPI.Adapters.Tests`
 - [ ] Test coverage > 80% for CsvAdapter
 - [ ] Integration tests pass
 - [ ] Security tests pass
+- [ ] Model validation tests pass in Core.Tests
 
 **Documentation**
 
@@ -259,7 +275,14 @@ This plan follows Test-Driven Development (TDD) principles:
 **Validation Command:**
 
 ```bash
+# Run all Core tests
+dotnet test DataAbstractionAPI.Core.Tests
+
+# Run all Adapter tests
 dotnet test --filter "FullyQualifiedName~CsvAdapter"
+
+# Or run all tests
+dotnet test
 ```
 
 **Phase Gate**: ✅ PHASE 1 COMPLETE - Do NOT proceed to Phase 2 without discussion.

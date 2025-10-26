@@ -25,6 +25,7 @@ DataAbstractionAPI/
 │   └── DataAbstractionAPI.UI/             # Management UI (Blazor Server)
 ├── tests/
 │   ├── DataAbstractionAPI.Core.Tests/
+│   ├── DataAbstractionAPI.Services.Tests/
 │   ├── DataAbstractionAPI.API.Tests/
 │   ├── DataAbstractionAPI.Adapters.Tests/
 │   └── DataAbstractionAPI.Integration.Tests/
