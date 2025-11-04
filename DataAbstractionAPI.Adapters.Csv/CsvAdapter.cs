@@ -134,9 +134,13 @@ public class CsvAdapter : IDataAdapter
             ["id"] = newId
         };
 
-        // Append the record to the CSV file
-        var handler = new CsvFileHandler(csvPath);
-        handler.AppendRecord(recordData);
+        // Append the record to the CSV file with file locking to prevent concurrent write conflicts
+        var lockPath = csvPath + ".lock";
+        using (var fileLock = new CsvFileLock(lockPath))
+        {
+            var handler = new CsvFileHandler(csvPath);
+            handler.AppendRecord(recordData);
+        }
 
         var record = new Record
         {
@@ -203,7 +207,8 @@ public class CsvAdapter : IDataAdapter
         var lockPath = csvPath + ".lock";
         using (var fileLock = new CsvFileLock(lockPath))
         {
-            using (var writer = new StreamWriter(csvPath, false))
+            using (var fileStream = new FileStream(csvPath, FileMode.Create, FileAccess.Write, FileShare.Read))
+            using (var writer = new StreamWriter(fileStream))
             using (var csv = new CsvHelper.CsvWriter(writer, System.Globalization.CultureInfo.InvariantCulture))
             {
                 // Write headers
@@ -266,7 +271,8 @@ public class CsvAdapter : IDataAdapter
         var lockPath = csvPath + ".lock";
         using (var fileLock = new CsvFileLock(lockPath))
         {
-            using (var writer = new StreamWriter(csvPath, false))
+            using (var fileStream = new FileStream(csvPath, FileMode.Create, FileAccess.Write, FileShare.Read))
+            using (var writer = new StreamWriter(fileStream))
             using (var csv = new CsvHelper.CsvWriter(writer, System.Globalization.CultureInfo.InvariantCulture))
             {
                 // Write headers

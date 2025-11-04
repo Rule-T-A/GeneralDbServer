@@ -28,6 +28,7 @@ http://localhost:5012/swagger
 ```
 - Click "Try it out" on any endpoint
 - Enter parameters
+- For file uploads: Use the file picker to select a CSV file
 - Click "Execute"
 - See the response right there!
 
@@ -84,15 +85,18 @@ Create requests to:
 
 ## Available Endpoints
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/data` | List all available collections |
-| GET | `/api/data/users` | List all users |
-| GET | `/api/data/users/{id}` | Get specific user |
-| GET | `/api/data/users/schema` | Get user schema |
-| POST | `/api/data/users` | Create new user |
-| PUT | `/api/data/users/{id}` | Update user |
-| DELETE | `/api/data/users/{id}` | Delete user |
+| Method | Endpoint | Description | Query Parameters |
+|--------|----------|-------------|------------------|
+| GET | `/api/data` | List all available collections | None |
+| GET | `/api/data/{collection}` | List all records in a collection | `limit` (optional, default: 100) |
+| GET | `/api/data/{collection}/{id}` | Get specific record by ID | None |
+| GET | `/api/data/{collection}/schema` | Get collection schema | None |
+| POST | `/api/data/{collection}` | Create new record | None |
+| POST | `/api/data/upload` | Upload CSV file to create or replace a collection | None (multipart/form-data) |
+| PUT | `/api/data/{collection}/{id}` | Update record | None |
+| DELETE | `/api/data/{collection}/{id}` | Delete record | None |
+
+**Note**: The underlying adapter supports advanced query options (filtering, sorting, field selection, offset), but the REST API currently only exposes the `limit` parameter. Additional query parameters can be added in future updates.
 
 ---
 
@@ -112,13 +116,15 @@ Invoke-RestMethod -Uri http://localhost:5012/api/data/users
 ```json
 {
   "data": [
-    { "id": "1", "Data": { "id": "1", "name": "Alice", "email": "alice@example.com" } },
-    { "id": "2", "Data": { "id": "2", "name": "Bob", "email": "bob@example.com" } }
+    { "id": "1", "data": { "id": "1", "name": "Alice", "email": "alice@example.com" } },
+    { "id": "2", "data": { "id": "2", "name": "Bob", "email": "bob@example.com" } }
   ],
   "total": 2,
   "more": false
 }
 ```
+
+**Note**: The response uses full property names (`data`, `total`, `more`) rather than compact keys like `d` and `t`. Each record contains an `id` and a `data` object with the record fields. Property names are serialized using camelCase by default in ASP.NET Core.
 
 ### 3. Create a New User
 ```powershell
@@ -142,6 +148,27 @@ Invoke-RestMethod -Uri http://localhost:5012/api/data/users/{id} -Method PUT -Bo
 ```powershell
 Invoke-RestMethod -Uri http://localhost:5012/api/data/users/{id} -Method DELETE
 ```
+
+### 6. Upload a CSV File (Create/Replace Collection)
+```powershell
+# Using multipart/form-data
+$formData = @{
+    collection = "products"
+    file = Get-Item "C:\path\to\products.csv"
+}
+
+Invoke-RestMethod -Uri http://localhost:5012/api/data/upload -Method POST -Form $formData
+```
+
+**Or using Swagger UI:**
+1. Go to `http://localhost:5012/swagger`
+2. Find `POST /api/data/upload`
+3. Click "Try it out"
+4. Enter collection name (e.g., "products")
+5. Click "Choose File" and select your CSV file
+6. Click "Execute"
+
+**Note**: The uploaded CSV file will be saved to the `testdata` directory. If a collection with the same name already exists, it will be replaced.
 
 ---
 
@@ -169,8 +196,8 @@ Invoke-RestMethod http://localhost:5012/api/data/users -Method POST -Body $newUs
 ## Troubleshooting
 
 ### Server won't start?
-- Make sure port 5000 is available
-- Check if another application is using that port
+- Make sure port 5012 (HTTP) or 7128 (HTTPS) is available
+- Check if another application is using those ports
 - Try: `dotnet run --project DataAbstractionAPI.API --urls "http://localhost:5013"`
 
 ### Can't connect?

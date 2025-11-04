@@ -18,15 +18,25 @@ This plan follows Test-Driven Development (TDD) principles:
 
 ## Implementation Status & Known Gaps
 
-### Current Status (November 2025)
+### Current Status (December 2025)
 - ✅ **Phase 1**: COMPLETE - Basic CRUD operations working
 - ✅ **Phase 1.x**: COMPLETE - Full CRUD operations working (10 new tests added)
-- ⏸️ **Phase 2**: READY - Plan updated with prerequisites  
+- ⏸️ **Phase 2**: PARTIAL - DefaultGenerator complete, other services pending
 - ✅ **Phase 3**: COMPLETE - REST API with Swagger implemented (running on localhost:5012)
-- ⏸️ **Phase 4**: WAITING FOR PHASE 3
+- ⏸️ **Phase 3.1**: PENDING - Limitations remediation (recommended before Phase 4)
+- ⏸️ **Phase 4**: WAITING FOR PHASE 3.1 (recommended)
 - ⏸️ **Phase 5**: WAITING FOR PHASE 4
 
-**Total Tests**: 78 passing (39 Core + 39 Adapter tests)
+**Known Limitations**: See `LIMITATIONS_REMEDIATION_PLAN.md` for detailed plan to address:
+- Cancellation token support (not fully implemented)
+- Duplicate field handling (throws exception)
+- Concurrent write retry logic (not implemented)
+- New field persistence (may not persist properly)
+- Schema file consistency (needs implementation)
+
+**Total Tests**: 133 passing (39 Core + 66 Adapter + 13 Services + 15 API tests)
+
+**Note**: Comprehensive test suite added (Phase 3.1 preparation) - see `TEST_IMPLEMENTATION_SUMMARY.md`
 
 ### Known Scope Limitations
 
@@ -557,7 +567,9 @@ The Services layer provides reusable business logic that adapters can use:
 
 ---
 
-### Step 2.3: Implement TypeConverter (TDD)
+### Step 2.3: Implement TypeConverter (TDD) - PENDING
+
+**Note**: Can be deferred until needed for schema modifications or field type changes.
 
 #### Test: Type Conversions
 
@@ -792,7 +804,308 @@ dotnet test DataAbstractionAPI.API.Tests
   - AddFieldAsync(), ModifyFieldAsync(), DeleteFieldAsync()
 - These need to be implemented before API can be fully functional
 
-**Phase Gate**: ✅ PHASE 3 COMPLETE - Do NOT proceed to Phase 4 without discussion.
+**Phase Gate**: ✅ PHASE 3 COMPLETE - Basic API functional, but see Phase 3.1 for recommended improvements.
+
+**Note**: Phase 3.1 (Limitations Remediation) is recommended before Phase 4 to address discovered limitations and improve robustness.
+
+---
+
+## Phase 3.1: Limitations Remediation (Week 4-5)
+
+**⚠️ RECOMMENDED: Address discovered limitations before Phase 4**
+
+**Goal**: Fix limitations discovered during comprehensive test implementation
+
+**Status**: ⏸️ PENDING - Ready to start after Phase 3
+
+**Based On**: Test implementation findings documented in `TEST_GAPS_ANALYSIS.md` and `LIMITATIONS_REMEDIATION_PLAN.md`
+
+### Prerequisites
+
+- [ ] Phase 3 complete
+- [ ] All Phase 3 tests passing
+- [ ] Review `LIMITATIONS_REMEDIATION_PLAN.md` with team
+- [ ] Get approval to proceed with remediation
+
+---
+
+### Step 3.1.1: Implement Cancellation Token Support (High Priority)
+
+**Effort**: 2-3 days  
+**Risk**: Low
+
+#### Test: Cancellation Support
+
+- [ ] Update existing cancellation tests to verify actual cancellation:
+  - Update `CsvAdapter_ListAsync_WithCancellation_AcceptsCancellationToken` to verify cancellation
+  - Update `CsvAdapter_GetAsync_WithCancellation_AcceptsCancellationToken` to verify cancellation
+  - Update `CsvAdapter_CreateAsync_WithCancellation_AcceptsCancellationToken` to verify cancellation
+- [ ] Add cancellation token checks in CsvAdapter methods:
+  - Add `ct.ThrowIfCancellationRequested()` after `Task.Yield()` in all async methods
+  - Add cancellation checks before file I/O operations
+  - Add cancellation checks in loops (if any)
+  - Ensure file locks are released on cancellation
+- [ ] Add cancellation support at API level:
+  - Update DataController methods to accept `CancellationToken` parameter
+  - ASP.NET Core automatically binds `HttpContext.RequestAborted` to `CancellationToken`
+  - Pass cancellation token to adapter methods
+- [ ] Add tests for cancellation during file I/O
+- [ ] Add tests for lock release on cancellation
+- [ ] Test cancellation propagation through API layer
+- [ ] Make tests pass
+- [ ] Refactor
+
+**Files to Modify**:
+- `DataAbstractionAPI.Adapters.Csv/CsvAdapter.cs`
+- `DataAbstractionAPI.API/Controllers/DataController.cs`
+- `DataAbstractionAPI.Adapters.Tests/CsvAdapterTests.cs`
+- `DataAbstractionAPI.API.Tests/DataControllerTests.cs`
+
+**Validation**: ✅ All cancellation tests pass, cancellation works during file I/O, locks released on cancellation
+
+---
+
+### Step 3.1.2: Fix Duplicate Field Handling (High Priority)
+
+**Effort**: 1 day  
+**Risk**: Low
+
+#### Test: Duplicate Field Deduplication
+
+- [ ] Update test: `CsvAdapter_ListAsync_SelectFields_WithDuplicateFields_ThrowsException` to verify deduplication
+- [ ] Implement deduplication in `SelectFields` method:
+  - Use `fields.Distinct().ToArray()` or HashSet for deduplication
+  - Preserve order (first occurrence)
+  - Consider logging warning if duplicates detected (optional)
+- [ ] Make test pass
+- [ ] Add tests for:
+  - Multiple duplicates
+  - Order preservation
+  - Performance impact (verify no significant degradation)
+- [ ] Refactor
+
+**Files to Modify**:
+- `DataAbstractionAPI.Adapters.Csv/CsvAdapter.cs`
+- `DataAbstractionAPI.Adapters.Tests/CsvAdapterTests.cs`
+
+**Validation**: ✅ Duplicate fields are deduplicated, order preserved, no exceptions thrown
+
+---
+
+### Step 3.1.3: Implement Concurrent Write Retry Logic (Medium Priority)
+
+**Effort**: 2-3 days  
+**Risk**: Medium
+
+#### Test: Retry Mechanism
+
+- [ ] Create `RetryOptions` class:
+  ```csharp
+  public class RetryOptions
+  {
+      public int MaxRetries { get; set; } = 3;
+      public int BaseDelayMs { get; set; } = 50;
+      public bool Enabled { get; set; } = true;
+  }
+  ```
+- [ ] Add to CsvAdapter constructor:
+  - `RetryOptions? retryOptions = null`
+  - Use defaults if not provided: `_retryOptions = retryOptions ?? new RetryOptions();`
+- [ ] Implement retry helper method (or inline retry logic):
+  - Exponential backoff: 50ms, 100ms, 200ms, 400ms
+  - Retry on IOException (file locked)
+  - Max retries: 3-5 attempts
+  - Throw exception after max retries
+- [ ] Update `CreateAsync`:
+  - Wrap `AppendRecord` call in retry logic
+- [ ] Update `UpdateAsync`:
+  - Wrap file write in retry logic
+- [ ] Update `DeleteAsync`:
+  - Wrap file write in retry logic
+- [ ] Update test: `CsvAdapter_ConcurrentWrites_MayRequireRetry` to verify retries work
+- [ ] Add tests for:
+  - Retry exhaustion (all retries fail)
+  - Retry success after initial failures
+  - Non-retryable errors (not IOException)
+  - Performance with high concurrency
+- [ ] Make tests pass
+- [ ] Refactor
+
+**Files to Create** (Optional):
+- `DataAbstractionAPI.Adapters.Csv/RetryHelper.cs`
+
+**Files to Modify**:
+- `DataAbstractionAPI.Adapters.Csv/CsvAdapter.cs`
+- `DataAbstractionAPI.Adapters.Tests/CsvAdapterTests.cs`
+
+**Future Enhancement**: Support appsettings.json configuration for retry options
+
+**Validation**: ✅ Retry logic handles file locking, configurable parameters, performance acceptable
+
+---
+
+### Step 3.1.4: Fix New Field Persistence in Updates (Medium Priority)
+
+**Effort**: 3-4 days  
+**Risk**: Medium
+
+#### Test: Header Updates with New Fields
+
+- [ ] Update test: `CsvAdapter_UpdateAsync_WithNewField_AddsFieldToRecord` to verify field persistence
+- [ ] Implement header update logic in `UpdateAsync`:
+  - Detect new fields in update dictionary
+  - Read current headers from file
+  - Identify new fields not in headers
+  - If new fields exist:
+    a. Read all records
+    b. Add new fields to headers (append to end)
+    c. Use intelligent defaults for existing records (see Step 3.1.5)
+    d. Write updated headers and all records
+    e. Update schema file if exists (see Step 3.1.6)
+- [ ] Consider helper method: `UpdateHeadersIfNeeded(Collection<string> newFields)`
+- [ ] Handle edge cases:
+  - Multiple concurrent updates adding different fields
+  - Schema file consistency
+  - Performance with large datasets
+- [ ] Add tests for:
+  - Adding single new field
+  - Adding multiple new fields
+  - Concurrent updates adding different fields
+  - Existing records get appropriate defaults
+  - Header order preservation
+- [ ] Make tests pass
+- [ ] Refactor
+
+**Files to Modify**:
+- `DataAbstractionAPI.Adapters.Csv/CsvAdapter.cs`
+- `DataAbstractionAPI.Adapters.Csv/CsvFileHandler.cs`
+- `DataAbstractionAPI.Adapters.Tests/CsvAdapterTests.cs`
+
+**Validation**: ✅ New fields persist, headers updated, existing records get defaults
+
+---
+
+### Step 3.1.5: Implement Intelligent Defaults for New Fields (Medium Priority)
+
+**Effort**: 2-3 days (depends on Step 3.1.4)  
+**Risk**: Low
+
+#### Test: DefaultGenerator Integration
+
+- [ ] In `UpdateAsync`, when new fields are added:
+  - Check if `DefaultGenerator` is available
+  - If yes:
+    a. Determine field type (infer from first value or use String as default)
+    b. Create `DefaultGenerationContext` with collection name
+    c. Call `_defaultGenerator.GenerateDefault(fieldName, fieldType, context)`
+    d. Use generated default for existing records
+  - If no:
+    a. Use empty string (current behavior, backward compatible)
+- [ ] For new field's first value:
+  - Use the value provided in the update
+  - Apply intelligent default to all OTHER existing records
+- [ ] Add tests for:
+  - Boolean fields with `is_*` prefix → false
+  - DateTime fields with `*_at` suffix → current timestamp
+  - ID fields with `*_id` suffix → null
+  - Without DefaultGenerator injected → empty string (backward compatible)
+- [ ] Make tests pass
+- [ ] Refactor
+
+**Files to Modify**:
+- `DataAbstractionAPI.Adapters.Csv/CsvAdapter.cs`
+- `DataAbstractionAPI.Adapters.Tests/CsvAdapterTests.cs`
+
+**Note**: Requires DefaultGenerator to be injected (optional, backward compatible)
+
+**Validation**: ✅ Intelligent defaults used when DefaultGenerator available, backward compatible
+
+---
+
+### Step 3.1.6: Implement Schema File Consistency (High Priority)
+
+**Effort**: 2-3 days  
+**Risk**: Medium
+
+#### Approach: CSV Headers as Source of Truth
+
+**Decision**: CSV headers are primary, schema files are optional metadata
+
+- [ ] Update `GetSchemaAsync` logic:
+  - Read headers from CSV (always - source of truth)
+  - If schema file exists:
+    - Load schema file
+    - Merge: Use header order from CSV, enrich with metadata from schema
+    - For fields in CSV but not in schema: infer type from data
+  - If no schema file:
+    - Create schema from headers only (infer types)
+- [ ] Update `UpdateAsync` to maintain schema files:
+  - When headers change, update schema file if it exists
+  - Add new field definitions to schema
+  - Infer type from first value
+  - Use DefaultGenerator for default value
+  - Save updated schema
+- [ ] Enhance `CsvSchemaManager`:
+  - Add method to update existing schema
+  - Add method to add field to schema
+  - Handle schema file updates thread-safely
+- [ ] Add tests for:
+  - Schema file updates when headers change
+  - Schema file merging with CSV headers
+  - Schema file optional (works without schema file)
+  - Concurrent schema updates
+- [ ] Make tests pass
+- [ ] Refactor
+
+**Files to Modify**:
+- `DataAbstractionAPI.Adapters.Csv/CsvAdapter.cs`
+- `DataAbstractionAPI.Adapters.Csv/CsvSchemaManager.cs`
+- `DataAbstractionAPI.Adapters.Tests/CsvAdapterTests.cs`
+
+**Validation**: ✅ CSV headers are primary, schema files enriched with metadata, backward compatible
+
+---
+
+### Phase 3.1 Complete Checklist
+
+**Code**
+
+- [ ] Cancellation token support implemented in adapter and API
+- [ ] Duplicate field handling fixed
+- [ ] Concurrent write retry logic implemented
+- [ ] New field persistence works correctly
+- [ ] Intelligent defaults used when DefaultGenerator available
+- [ ] Schema file consistency maintained
+
+**Tests**
+
+- [ ] All cancellation tests pass
+- [ ] All retry tests pass
+- [ ] All field persistence tests pass
+- [ ] All schema consistency tests pass
+- [ ] Integration tests pass
+- [ ] Performance tests pass (if applicable)
+
+**Documentation**
+
+- [ ] Cancellation behavior documented
+- [ ] Retry configuration documented
+- [ ] Schema file approach documented
+- [ ] Code comments updated
+
+**Validation Command:**
+
+```bash
+# Run all tests
+dotnet test
+
+# Run specific test suites
+dotnet test --filter "Cancellation"
+dotnet test --filter "Retry"
+dotnet test --filter "Schema"
+```
+
+**Phase Gate**: ✅ PHASE 3.1 COMPLETE - Ready for Phase 4
 
 ---
 
@@ -805,9 +1118,12 @@ dotnet test DataAbstractionAPI.API.Tests
 ### Discuss Before Proceeding:
 
 - [ ] Review API functionality
+- [ ] **RECOMMENDED**: Complete Phase 3.1 (Limitations Remediation) first
 - [ ] Confirm API ready for UI consumption
 - [ ] Get approval to proceed
 - [ ] Define UI requirements
+
+**Note**: Phase 3.1 addresses important limitations discovered during testing. Completing it before Phase 4 will result in a more robust API for UI consumption.
 
 ---
 
@@ -1032,3 +1348,13 @@ dotnet test /p:CollectCoverage=true
 **Current Coverage**: ~60% of full specification (sufficient for MVP)
 
 **Status Tracking**: Update checkboxes as you complete each step.
+
+---
+
+## Related Documentation
+
+- **TEST_GAPS_ANALYSIS.md**: Comprehensive analysis of test coverage gaps
+- **TEST_IMPLEMENTATION_SUMMARY.md**: Summary of implemented tests (133 tests total)
+- **LIMITATIONS_REMEDIATION_PLAN.md**: Detailed plan to address discovered limitations
+- **API_USAGE.md**: REST API usage guide
+- **QUICK_API_GUIDE.md**: Quick start guide for API

@@ -27,7 +27,8 @@ public class CsvFileHandler
     /// <returns>Array of header names</returns>
     public string[] ReadHeaders()
     {
-        using var reader = new StreamReader(_filePath);
+        using var fileStream = new FileStream(_filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+        using var reader = new StreamReader(fileStream);
         using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
         
         if (csv.Read())
@@ -47,7 +48,8 @@ public class CsvFileHandler
     {
         var records = new List<Dictionary<string, object>>();
         
-        using var reader = new StreamReader(_filePath);
+        using var fileStream = new FileStream(_filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+        using var reader = new StreamReader(fileStream);
         using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
         
         // Read header
@@ -88,7 +90,8 @@ public class CsvFileHandler
         if (!appendMode)
         {
             // Write headers first
-            using var writer1 = new StreamWriter(_filePath, false);
+            using var fileStream = new FileStream(_filePath, FileMode.Create, FileAccess.Write, FileShare.Read);
+            using var writer1 = new StreamWriter(fileStream);
             using var csv1 = new CsvWriter(writer1, CultureInfo.InvariantCulture);
             
             foreach (var key in record.Keys)
@@ -117,7 +120,8 @@ public class CsvFileHandler
             }
             
             // Append record maintaining header order
-            using var writer2 = new StreamWriter(_filePath, true);
+            using var fileStream = new FileStream(_filePath, FileMode.Append, FileAccess.Write, FileShare.Read);
+            using var writer2 = new StreamWriter(fileStream);
             using var csv2 = new CsvWriter(writer2, CultureInfo.InvariantCulture);
             
             foreach (var value in orderedValues)

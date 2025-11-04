@@ -33,9 +33,13 @@ curl http://localhost:5012/api/data
 ### GET /api/data/{collection}
 List all records in a collection
 
+**Query Parameters:**
+- `limit` (optional): Maximum number of records to return (default: 100)
+
 **Example:**
 ```bash
 curl http://localhost:5012/api/data/users
+curl http://localhost:5012/api/data/users?limit=10
 ```
 
 ### GET /api/data/{collection}/{id}
@@ -82,6 +86,55 @@ Delete a record
 curl -X DELETE http://localhost:5012/api/data/users/{id}
 ```
 
+### POST /api/data/upload
+Upload a CSV file to create or replace a collection
+
+**Content-Type**: `multipart/form-data`
+
+**Form Fields:**
+- `collection` (string): The name of the collection (CSV file name without extension)
+- `file` (file): The CSV file to upload (.csv files only)
+
+**Example using Swagger UI:**
+1. Navigate to `http://localhost:5012/swagger`
+2. Find `POST /api/data/upload`
+3. Click "Try it out"
+4. Enter collection name (e.g., "products")
+5. Click "Choose File" and select your CSV file
+6. Click "Execute"
+
+**Example using PowerShell:**
+```powershell
+$formData = @{
+    collection = "products"
+    file = Get-Item "C:\path\to\products.csv"
+}
+
+Invoke-RestMethod -Uri http://localhost:5012/api/data/upload -Method POST -Form $formData
+```
+
+**Example using curl:**
+```bash
+curl -X POST http://localhost:5012/api/data/upload \
+  -F "collection=products" \
+  -F "file=@/path/to/products.csv"
+```
+
+**Response:**
+```json
+{
+  "message": "CSV file uploaded successfully as collection 'products'",
+  "collection": "products",
+  "filePath": "C:\\path\\to\\testdata\\products.csv"
+}
+```
+
+**Note**: 
+- The uploaded CSV file will be saved to the `testdata` directory
+- If a collection with the same name already exists, it will be replaced
+- Only `.csv` files are accepted
+- Collection names must be valid (no path traversal characters like `..` or `/`)
+
 ## Test Data
 
 The API uses the existing test data:
@@ -120,18 +173,24 @@ The API uses the existing test data:
 ✅ Full CRUD operations (Create, Read, Update, Delete)  
 ✅ Get collection schema  
 ✅ List all collections  
+✅ **CSV file upload** - Upload CSV files to create or replace collections  
+✅ Pagination (limit parameter)  
 ✅ Swagger documentation  
 ✅ Works with existing testdata/users.csv  
+✅ File upload via Swagger UI with file picker  
+
+**Note**: The underlying adapter supports filtering, sorting, field selection, and offset pagination, but these are not yet exposed via REST API query parameters. They can be added in future updates.  
 
 ## Next Steps
 
-This is a minimal API. To add more features, implement:
-- Authentication (API keys)
-- Request validation
-- Advanced filtering (query parameters)
-- Pagination with offset/limit
-- DTOs for request/response
-- Error handling middleware
+The API is currently a basic implementation. To add more features:
+- **Query Parameters**: Expose filtering, sorting, field selection, and offset pagination from the adapter
+- **Authentication**: Add API key authentication
+- **Request Validation**: Add validation middleware
+- **DTOs**: Create DTOs for request/response (currently using models directly)
+- **Error Handling**: Add global error handling middleware
+- **Bulk Operations**: Add bulk create/update/delete endpoints
+- **Aggregations**: Add summary and aggregation endpoints
 
-See `IMPLEMENTATION_PLAN.md` Phase 3 for the full implementation plan.
+See `IMPLEMENTATION_PLAN.md` and `data-abstraction-api.md` for the full specification.
 

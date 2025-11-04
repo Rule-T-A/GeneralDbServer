@@ -91,14 +91,16 @@ dotnet test
 ## Key Features
 
 ### Data Operations
-- **List**: Query with filters, pagination, sorting, field selection
+- **List**: Query records with pagination (limit parameter via API; adapter supports filtering, sorting, field selection)
 - **Get**: Retrieve single record by ID
-- **Create**: Add new records with auto-generated IDs
+- **Create**: Add new records with auto-generated GUID IDs
 - **Update**: Modify existing records (partial updates supported)
 - **Delete**: Remove records by ID
 - **Schema**: Get collection schema, list collections
-- **Field projection**: Request only specific fields
-- **Filtering**: Basic equality filters on any field
+- **Upload**: Upload CSV files to create or replace collections via Swagger UI or API
+- **Field projection**: Available in adapter layer (not yet exposed via REST API)
+- **Filtering**: Available in adapter layer (not yet exposed via REST API)
+- **Sorting**: Available in adapter layer (not yet exposed via REST API)
 
 ### Security
 - **Path traversal protection**: Collection names validated
@@ -151,12 +153,14 @@ dotnet sln list
 ```csharp
 var adapter = new CsvAdapter(@"C:\data\csv");
 
-// List all users with pagination
+// List all users with pagination and filtering
 var options = new QueryOptions
 {
-    Fields = new[] { "id", "name", "email" },
+    Fields = new[] { "id", "name", "email" },  // Field projection
+    Filter = new Dictionary<string, object> { { "status", "active" } },  // Filtering
     Limit = 10,
-    Offset = 0
+    Offset = 0,
+    Sort = "name:asc"  // Sorting
 };
 var result = await adapter.ListAsync("users", options);
 ```
@@ -166,13 +170,14 @@ var result = await adapter.ListAsync("users", options);
 // Get single record
 var user = await adapter.GetAsync("users", "123");
 
-// Create new record
+// Create new record (ID is auto-generated)
 var newRecord = new Dictionary<string, object>
 {
     { "name", "John Doe" },
     { "email", "john@example.com" }
 };
 var created = await adapter.CreateAsync("users", newRecord);
+// created.Id contains the generated GUID
 ```
 
 ---
@@ -219,25 +224,30 @@ CsvAdapterTests
 - [x] ListCollectionsAsync implementation
 - [x] Additional test coverage
 
-### Phase 2: Services Layer 🚧 IN PROGRESS
+### Phase 2: Services Layer ✅ PARTIAL
 - [x] Core types prepared (Step 2.0)
 - [x] CsvAdapter refactored for injection (Step 2.05)
 - [x] Services project created (Step 2.1)
-- [ ] DefaultGenerator service (Step 2.2) ← Next
+- [x] DefaultGenerator service (Step 2.2) ✅ COMPLETE
 - [ ] TypeConverter service (Step 2.3)
 - [ ] FilterEvaluator service (Step 2.4)
 - [ ] ValidationService (Step 2.5)
 - [ ] Integration tests (Step 2.6)
 
-### Phase 3: REST API ✅ COMPLETE
+**Note**: DefaultGenerator service is implemented and ready for use, but not yet integrated into the API endpoints.
+
+### Phase 3: REST API ✅ COMPLETE (Basic Implementation)
 - [x] REST API with ASP.NET Core Web API
 - [x] Swagger documentation
-- [x] Full CRUD endpoints
+- [x] Basic CRUD endpoints (Create, Read, Update, Delete)
 - [x] Collections listing endpoint
-- [x] Schema endpoints
+- [x] Schema endpoint
+- [x] **CSV file upload endpoint** - Upload CSV files to create or replace collections
 - [x] DI integration
 - [x] HTTPS support
 - Port: http://localhost:5012, https://localhost:7128
+
+**Note**: The current API implementation is a basic version. The adapter supports filtering, sorting, pagination, and field selection via QueryOptions, but the REST API controller currently only exposes the `limit` query parameter. Full query parameter support can be added in future iterations.
 
 ### Upcoming Phases
 - **Phase 4**: Management UI (Blazor Server)
