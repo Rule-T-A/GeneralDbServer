@@ -80,3 +80,5 @@ coverage/
 *.vsidx
 *.testlog
 *.manifest
+*.vsidx
+*.v2

@@ -14,6 +14,7 @@
   <ItemGroup>
     <ProjectReference Include="..\DataAbstractionAPI.Adapters.Csv\DataAbstractionAPI.Adapters.Csv.csproj" />
     <ProjectReference Include="..\DataAbstractionAPI.Core\DataAbstractionAPI.Core.csproj" />
+    <ProjectReference Include="..\DataAbstractionAPI.Services\DataAbstractionAPI.Services.csproj" />
   </ItemGroup>
 
 </Project>
