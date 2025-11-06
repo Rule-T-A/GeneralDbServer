@@ -76,3 +76,7 @@ coverage/
 *.suo
 *.userosscache
 *.sln.docstates
+*.vsidx
+*.vsidx
+*.testlog
+*.manifest
