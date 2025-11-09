@@ -494,6 +494,558 @@ public class FilterEvaluatorTests
         Assert.False(result);
     }
 
+    [Fact]
+    public void FilterEvaluator_WithNullFilter_ReturnsTrue()
+    {
+        // Arrange
+        var record = CreateRecord("1", new Dictionary<string, object> { { "status", "active" } });
+        Dictionary<string, object>? filter = null;
+
+        // Act
+        var result = _evaluator.Evaluate(record, filter!);
+
+        // Assert
+        Assert.True(result); // Null filter should match all
+    }
+
+    #endregion
+
+    #region Compound Filter Edge Cases
+
+    [Fact]
+    public void FilterEvaluator_CompoundFilter_EmptyAnd_ReturnsTrue()
+    {
+        // Arrange
+        var record = CreateRecord("1", new Dictionary<string, object> { { "status", "active" } });
+        var filter = new Dictionary<string, object>
+        {
+            { "and", new List<Dictionary<string, object>>() }
+        };
+
+        // Act
+        var result = _evaluator.Evaluate(record, filter);
+
+        // Assert
+        Assert.True(result); // Empty AND matches all
+    }
+
+    [Fact]
+    public void FilterEvaluator_CompoundFilter_EmptyOr_ReturnsFalse()
+    {
+        // Arrange
+        var record = CreateRecord("1", new Dictionary<string, object> { { "status", "active" } });
+        var filter = new Dictionary<string, object>
+        {
+            { "or", new List<Dictionary<string, object>>() }
+        };
+
+        // Act
+        var result = _evaluator.Evaluate(record, filter);
+
+        // Assert
+        Assert.False(result); // Empty OR matches nothing
+    }
+
+    [Fact]
+    public void FilterEvaluator_CompoundFilter_NullAndList_ReturnsTrue()
+    {
+        // Arrange
+        var record = CreateRecord("1", new Dictionary<string, object> { { "status", "active" } });
+        var filter = new Dictionary<string, object>
+        {
+            { "and", null! }
+        };
+
+        // Act
+        var result = _evaluator.Evaluate(record, filter);
+
+        // Assert - Should handle null gracefully, treat as empty
+        Assert.True(result);
+    }
+
+    [Fact]
+    public void FilterEvaluator_CompoundFilter_DeeplyNested_Works()
+    {
+        // Arrange
+        var record = CreateRecord("1", new Dictionary<string, object>
+        {
+            { "status", "active" },
+            { "age", 25 },
+            { "role", "admin" }
+        });
+        var filter = new Dictionary<string, object>
+        {
+            { "or", new List<Dictionary<string, object>>
+                {
+                    new Dictionary<string, object>
+                    {
+                        { "and", new List<Dictionary<string, object>>
+                            {
+                                new Dictionary<string, object> { { "status", "active" } },
+                                new Dictionary<string, object>
+                                {
+                                    { "or", new List<Dictionary<string, object>>
+                                        {
+                                            new Dictionary<string, object>
+                                            {
+                                                { "field", "age" },
+                                                { "operator", "gte" },
+                                                { "value", 18 }
+                                            },
+                                            new Dictionary<string, object> { { "role", "admin" } }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        };
+
+        // Act
+        var result = _evaluator.Evaluate(record, filter);
+
+        // Assert
+        Assert.True(result);
+    }
+
+    #endregion
+
+    #region Null Value Handling Tests
+
+    [Fact]
+    public void FilterEvaluator_OperatorFilter_Eq_WithNullValues_Matches()
+    {
+        // Arrange
+        var record = CreateRecord("1", new Dictionary<string, object> { { "field", null! } });
+        var filter = new Dictionary<string, object>
+        {
+            { "field", "field" },
+            { "operator", "eq" },
+            { "value", null! }
+        };
+
+        // Act
+        var result = _evaluator.Evaluate(record, filter);
+
+        // Assert
+        Assert.True(result);
+    }
+
+    [Fact]
+    public void FilterEvaluator_OperatorFilter_Ne_WithNullValues_DoesNotMatch()
+    {
+        // Arrange
+        var record = CreateRecord("1", new Dictionary<string, object> { { "field", null! } });
+        var filter = new Dictionary<string, object>
+        {
+            { "field", "field" },
+            { "operator", "ne" },
+            { "value", "value" }
+        };
+
+        // Act
+        var result = _evaluator.Evaluate(record, filter);
+
+        // Assert
+        Assert.True(result); // null != "value"
+    }
+
+    [Fact]
+    public void FilterEvaluator_OperatorFilter_Gt_WithNullValue_HandlesGracefully()
+    {
+        // Arrange
+        var record = CreateRecord("1", new Dictionary<string, object> { { "age", 25 } });
+        var filter = new Dictionary<string, object>
+        {
+            { "field", "age" },
+            { "operator", "gt" },
+            { "value", null! }
+        };
+
+        // Act
+        var result = _evaluator.Evaluate(record, filter);
+
+        // Assert - Null converts to 0, so 25 > 0 is true
+        Assert.True(result);
+    }
+
+    [Fact]
+    public void FilterEvaluator_OperatorFilter_Contains_WithNullValue_HandlesGracefully()
+    {
+        // Arrange
+        var record = CreateRecord("1", new Dictionary<string, object> { { "name", "John" } });
+        var filter = new Dictionary<string, object>
+        {
+            { "field", "name" },
+            { "operator", "contains" },
+            { "value", null! }
+        };
+
+        // Act
+        var result = _evaluator.Evaluate(record, filter);
+
+        // Assert - Null.ToString() returns empty string, so "John".Contains("") is true
+        Assert.True(result);
+    }
+
+    [Fact]
+    public void FilterEvaluator_OperatorFilter_In_WithNullValue_HandlesGracefully()
+    {
+        // Arrange
+        var record = CreateRecord("1", new Dictionary<string, object> { { "status", "active" } });
+        var filter = new Dictionary<string, object>
+        {
+            { "field", "status" },
+            { "operator", "in" },
+            { "value", null! }
+        };
+
+        // Act
+        var result = _evaluator.Evaluate(record, filter);
+
+        // Assert
+        Assert.False(result);
+    }
+
+    #endregion
+
+    #region Type Coercion Edge Cases
+
+    [Fact]
+    public void FilterEvaluator_OperatorFilter_Gt_WithStringNumber_Works()
+    {
+        // Arrange
+        var record = CreateRecord("1", new Dictionary<string, object> { { "age", "30" } });
+        var filter = new Dictionary<string, object>
+        {
+            { "field", "age" },
+            { "operator", "gt" },
+            { "value", 25 }
+        };
+
+        // Act
+        var result = _evaluator.Evaluate(record, filter);
+
+        // Assert
+        Assert.True(result);
+    }
+
+    [Fact]
+    public void FilterEvaluator_OperatorFilter_Gt_WithInvalidString_HandlesGracefully()
+    {
+        // Arrange
+        var record = CreateRecord("1", new Dictionary<string, object> { { "age", "not-a-number" } });
+        var filter = new Dictionary<string, object>
+        {
+            { "field", "age" },
+            { "operator", "gt" },
+            { "value", 25 }
+        };
+
+        // Act
+        var result = _evaluator.Evaluate(record, filter);
+
+        // Assert - Falls back to string comparison, "not-a-number" > "25" is true (lexicographically)
+        Assert.True(result);
+    }
+
+    [Fact]
+    public void FilterEvaluator_OperatorFilter_Gt_WithDecimal_Works()
+    {
+        // Arrange
+        var record = CreateRecord("1", new Dictionary<string, object> { { "price", 19.99m } });
+        var filter = new Dictionary<string, object>
+        {
+            { "field", "price" },
+            { "operator", "gt" },
+            { "value", 10.0 }
+        };
+
+        // Act
+        var result = _evaluator.Evaluate(record, filter);
+
+        // Assert
+        Assert.True(result);
+    }
+
+    [Fact]
+    public void FilterEvaluator_OperatorFilter_Gt_WithFloat_Works()
+    {
+        // Arrange
+        var record = CreateRecord("1", new Dictionary<string, object> { { "price", 19.99f } });
+        var filter = new Dictionary<string, object>
+        {
+            { "field", "price" },
+            { "operator", "gt" },
+            { "value", 10.0 }
+        };
+
+        // Act
+        var result = _evaluator.Evaluate(record, filter);
+
+        // Assert
+        Assert.True(result);
+    }
+
+    [Fact]
+    public void FilterEvaluator_OperatorFilter_Gt_WithLong_Works()
+    {
+        // Arrange
+        var record = CreateRecord("1", new Dictionary<string, object> { { "count", 100L } });
+        var filter = new Dictionary<string, object>
+        {
+            { "field", "count" },
+            { "operator", "gt" },
+            { "value", 50 }
+        };
+
+        // Act
+        var result = _evaluator.Evaluate(record, filter);
+
+        // Assert
+        Assert.True(result);
+    }
+
+    #endregion
+
+    #region String Operator Edge Cases
+
+    [Fact]
+    public void FilterEvaluator_OperatorFilter_Contains_WithEmptyString_Works()
+    {
+        // Arrange
+        var record = CreateRecord("1", new Dictionary<string, object> { { "name", "John" } });
+        var filter = new Dictionary<string, object>
+        {
+            { "field", "name" },
+            { "operator", "contains" },
+            { "value", "" }
+        };
+
+        // Act
+        var result = _evaluator.Evaluate(record, filter);
+
+        // Assert - Empty string should match (contains empty string)
+        Assert.True(result);
+    }
+
+    [Fact]
+    public void FilterEvaluator_OperatorFilter_StartsWith_WithEmptyString_Works()
+    {
+        // Arrange
+        var record = CreateRecord("1", new Dictionary<string, object> { { "name", "John" } });
+        var filter = new Dictionary<string, object>
+        {
+            { "field", "name" },
+            { "operator", "startswith" },
+            { "value", "" }
+        };
+
+        // Act
+        var result = _evaluator.Evaluate(record, filter);
+
+        // Assert - Empty string should match (starts with empty string)
+        Assert.True(result);
+    }
+
+    [Fact]
+    public void FilterEvaluator_OperatorFilter_EndsWith_WithEmptyString_Works()
+    {
+        // Arrange
+        var record = CreateRecord("1", new Dictionary<string, object> { { "name", "John" } });
+        var filter = new Dictionary<string, object>
+        {
+            { "field", "name" },
+            { "operator", "endswith" },
+            { "value", "" }
+        };
+
+        // Act
+        var result = _evaluator.Evaluate(record, filter);
+
+        // Assert - Empty string should match (ends with empty string)
+        Assert.True(result);
+    }
+
+    [Fact]
+    public void FilterEvaluator_OperatorFilter_Contains_WithSpecialCharacters_Works()
+    {
+        // Arrange
+        var record = CreateRecord("1", new Dictionary<string, object> { { "email", "user@example.com" } });
+        var filter = new Dictionary<string, object>
+        {
+            { "field", "email" },
+            { "operator", "contains" },
+            { "value", "@" }
+        };
+
+        // Act
+        var result = _evaluator.Evaluate(record, filter);
+
+        // Assert
+        Assert.True(result);
+    }
+
+    #endregion
+
+    #region Array/Collection Edge Cases
+
+    [Fact]
+    public void FilterEvaluator_OperatorFilter_In_WithEmptyArray_ReturnsFalse()
+    {
+        // Arrange
+        var record = CreateRecord("1", new Dictionary<string, object> { { "status", "active" } });
+        var filter = new Dictionary<string, object>
+        {
+            { "field", "status" },
+            { "operator", "in" },
+            { "value", new string[0] }
+        };
+
+        // Act
+        var result = _evaluator.Evaluate(record, filter);
+
+        // Assert
+        Assert.False(result);
+    }
+
+    [Fact]
+    public void FilterEvaluator_OperatorFilter_In_WithSingleElementArray_Works()
+    {
+        // Arrange
+        var record = CreateRecord("1", new Dictionary<string, object> { { "status", "active" } });
+        var filter = new Dictionary<string, object>
+        {
+            { "field", "status" },
+            { "operator", "in" },
+            { "value", new[] { "active" } }
+        };
+
+        // Act
+        var result = _evaluator.Evaluate(record, filter);
+
+        // Assert
+        Assert.True(result);
+    }
+
+    [Fact]
+    public void FilterEvaluator_OperatorFilter_In_WithList_Works()
+    {
+        // Arrange
+        var record = CreateRecord("1", new Dictionary<string, object> { { "status", "active" } });
+        var filter = new Dictionary<string, object>
+        {
+            { "field", "status" },
+            { "operator", "in" },
+            { "value", new List<string> { "active", "pending" } }
+        };
+
+        // Act
+        var result = _evaluator.Evaluate(record, filter);
+
+        // Assert
+        Assert.True(result);
+    }
+
+    [Fact]
+    public void FilterEvaluator_OperatorFilter_In_WithHashSet_Works()
+    {
+        // Arrange
+        var record = CreateRecord("1", new Dictionary<string, object> { { "status", "active" } });
+        var filter = new Dictionary<string, object>
+        {
+            { "field", "status" },
+            { "operator", "in" },
+            { "value", new HashSet<string> { "active", "pending" } }
+        };
+
+        // Act
+        var result = _evaluator.Evaluate(record, filter);
+
+        // Assert
+        Assert.True(result);
+    }
+
+    [Fact]
+    public void FilterEvaluator_OperatorFilter_In_WithString_DoesNotTreatAsEnumerable()
+    {
+        // Arrange
+        var record = CreateRecord("1", new Dictionary<string, object> { { "name", "John" } });
+        var filter = new Dictionary<string, object>
+        {
+            { "field", "name" },
+            { "operator", "in" },
+            { "value", "John" } // String should be treated as single value, not enumerable
+        };
+
+        // Act
+        var result = _evaluator.Evaluate(record, filter);
+
+        // Assert - Should match as single value
+        Assert.True(result);
+    }
+
+    #endregion
+
+    #region Malformed Filter Tests
+
+    [Fact]
+    public void FilterEvaluator_OperatorFilter_WithMissingFieldKey_TreatsAsSimpleFilter()
+    {
+        // Arrange
+        var record = CreateRecord("1", new Dictionary<string, object> { { "status", "active" } });
+        var filter = new Dictionary<string, object>
+        {
+            { "operator", "eq" },
+            { "value", "active" }
+        };
+
+        // Act
+        var result = _evaluator.Evaluate(record, filter);
+
+        // Assert - Should treat as simple filter, won't match
+        Assert.False(result);
+    }
+
+    [Fact]
+    public void FilterEvaluator_OperatorFilter_WithMissingOperatorKey_TreatsAsSimpleFilter()
+    {
+        // Arrange
+        var record = CreateRecord("1", new Dictionary<string, object> { { "status", "active" } });
+        var filter = new Dictionary<string, object>
+        {
+            { "field", "status" },
+            { "value", "active" }
+        };
+
+        // Act
+        var result = _evaluator.Evaluate(record, filter);
+
+        // Assert - Without "operator" key, it's not an operator filter, so treated as simple filter
+        // Simple filter requires "field" key to match, but record has "status" not "field"
+        Assert.False(result);
+    }
+
+    [Fact]
+    public void FilterEvaluator_CompoundFilter_Malformed_FallsBackToSimpleFilter()
+    {
+        // Arrange
+        var record = CreateRecord("1", new Dictionary<string, object> { { "status", "active" } });
+        var filter = new Dictionary<string, object>
+        {
+            { "and", "not-a-list" }, // Invalid type
+            { "status", "active" }
+        };
+
+        // Act
+        var result = _evaluator.Evaluate(record, filter);
+
+        // Assert - Should fall back to simple filter
+        Assert.True(result);
+    }
+
     #endregion
 
     #region Integration Tests

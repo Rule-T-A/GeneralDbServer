@@ -84,3 +84,8 @@ coverage/
 *.v2
 *.v2
 .vs/DataAbstractionAPI/v17/.suo
+*.db-shm
+*.db-wal
+*.db
+*.db
+*.db
