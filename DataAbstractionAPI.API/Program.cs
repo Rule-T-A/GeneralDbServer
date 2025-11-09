@@ -90,6 +90,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+// Add Global Exception Handler Middleware (should be early in pipeline)
+app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
+
 // Add API Key Authentication Middleware (before UseAuthorization)
 app.UseMiddleware<ApiKeyAuthenticationMiddleware>();
 
@@ -97,3 +100,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+// Make Program class accessible for integration tests
+public partial class Program { }
