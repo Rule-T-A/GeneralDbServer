@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DataAbstractionAPI.Services\DataAbstractionAPI.Services.csproj" />
+    <ProjectReference Include="..\DataAbstractionAPI.Adapters.Csv\DataAbstractionAPI.Adapters.Csv.csproj" />
   </ItemGroup>
 
 </Project>

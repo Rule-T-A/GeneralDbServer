@@ -12,6 +12,7 @@ public class CsvAdapter : IDataAdapter
     private readonly string _baseDirectory;
     private readonly IDefaultGenerator? _defaultGenerator;
     private readonly ITypeConverter? _typeConverter;
+    private readonly IFilterEvaluator? _filterEvaluator;
 
     /// <summary>
     /// Initializes a new instance of CsvAdapter with optional service dependencies.
@@ -19,11 +20,13 @@ public class CsvAdapter : IDataAdapter
     /// <param name="baseDirectory">The base directory for CSV files</param>
     /// <param name="defaultGenerator">Optional default value generator</param>
     /// <param name="typeConverter">Optional type converter</param>
-    public CsvAdapter(string baseDirectory, IDefaultGenerator? defaultGenerator = null, ITypeConverter? typeConverter = null)
+    /// <param name="filterEvaluator">Optional filter evaluator</param>
+    public CsvAdapter(string baseDirectory, IDefaultGenerator? defaultGenerator = null, ITypeConverter? typeConverter = null, IFilterEvaluator? filterEvaluator = null)
     {
         _baseDirectory = baseDirectory;
         _defaultGenerator = defaultGenerator;
         _typeConverter = typeConverter;
+        _filterEvaluator = filterEvaluator;
     }
 
     /// <summary>
@@ -50,10 +53,19 @@ public class CsvAdapter : IDataAdapter
             Data = dict
         }).ToList();
 
-        // Apply filtering (basic - just checking if field exists and matches)
+        // Apply filtering
         if (options.Filter != null && options.Filter.Count > 0)
         {
-            records = FilterRecords(records, options.Filter);
+            if (_filterEvaluator != null)
+            {
+                // Use FilterEvaluator service if available (supports operator-based and compound filters)
+                records = records.Where(record => _filterEvaluator.Evaluate(record, options.Filter)).ToList();
+            }
+            else
+            {
+                // Fall back to simple filter logic (backward compatibility)
+                records = FilterRecords(records, options.Filter);
+            }
         }
 
         var total = records.Count;
