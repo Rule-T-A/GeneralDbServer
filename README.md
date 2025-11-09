@@ -72,6 +72,232 @@ GeneralDbServer/
 
 ---
 
+## Service Patterns and Examples
+
+### DefaultGenerator Patterns
+
+The `DefaultGenerator` service automatically generates intelligent default values based on field naming patterns:
+
+#### Boolean Patterns
+Fields starting with `is_`, `has_`, or `can_` default to `false`:
+- `is_active` → `false`
+- `has_permission` → `false`
+- `can_edit` → `false`
+
+#### DateTime/Date Patterns
+Fields ending with `_at` or `_date`, or starting with `created_`, `updated_`, or `deleted_` default to current UTC timestamp:
+- `created_at` → `DateTime.UtcNow`
+- `updated_at` → `DateTime.UtcNow`
+- `deleted_at` → `DateTime.UtcNow`
+- `purchase_date` → `DateTime.UtcNow`
+
+#### ID Patterns
+Fields ending with `_id` or `_key` default to `null`:
+- `user_id` → `null`
+- `order_key` → `null`
+
+#### Count Patterns
+Fields ending with `_count` or `_total`, or starting with `num_` default to `0`:
+- `item_count` → `0`
+- `total_amount` → `0`
+- `num_items` → `0`
+
+#### Type-Based Defaults
+If no pattern matches, defaults are based on field type:
+- `String` → `""` (empty string)
+- `Integer` → `0`
+- `Float` → `0.0`
+- `Boolean` → `false`
+- `DateTime` → `DateTime.UtcNow`
+- `Date` → `DateTime.UtcNow.Date`
+- `Array` → `[]` (empty array)
+- `Object` → `{}` (empty dictionary)
+
+### TypeConverter Examples
+
+The `TypeConverter` service converts values between types using different strategies:
+
+#### Conversion Strategies
+
+**Cast** (default): Attempts direct conversion, throws exception on failure
+```csharp
+// String to Integer
+"123" → 123 (success)
+"abc" → ConversionException (failure)
+```
+
+**Truncate**: Truncates values when possible
+```csharp
+// Float to Integer
+3.7 → 3 (truncated)
+```
+
+**FailOnError**: Explicitly throws exception on failure (same as Cast)
+```csharp
+// String to Integer
+"123" → 123 (success)
+"abc" → ConversionException (failure)
+```
+
+**SetNull**: Returns null on conversion failure
+```csharp
+// String to Integer
+"123" → 123 (success)
+"abc" → null (failure, returns null)
+```
+
+#### Supported Conversions
+
+- String ↔ Integer, Float, Boolean, DateTime, Date
+- Integer ↔ String, Float, Boolean
+- Float ↔ String, Integer (truncates)
+- Boolean ↔ String, Integer (0/1)
+- DateTime ↔ String (ISO 8601 format)
+- Date ↔ String (yyyy-MM-dd format)
+
+### FilterEvaluator Examples
+
+The `FilterEvaluator` service supports three types of filters:
+
+#### Simple Filters (AND logic)
+All conditions must match:
+```json
+{
+  "status": "active",
+  "age": 25
+}
+```
+Matches records where `status == "active"` AND `age == 25`
+
+#### Operator-Based Filters
+Single condition with operator:
+```json
+{
+  "field": "age",
+  "operator": "gte",
+  "value": 18
+}
+```
+Matches records where `age >= 18`
+
+**Supported Operators:**
+- `eq` - equals
+- `ne` - not equals
+- `gt` - greater than
+- `gte` - greater than or equal
+- `lt` - less than
+- `lte` - less than or equal
+- `in` - value in array
+- `nin` - value not in array
+- `contains` - string contains substring
+- `startswith` - string starts with
+- `endswith` - string ends with
+
+#### Compound Filters (AND/OR)
+```json
+{
+  "and": [
+    { "status": "active" },
+    {
+      "or": [
+        { "field": "age", "operator": "gte", "value": 18 },
+        { "field": "age", "operator": "lt", "value": 65 }
+      ]
+    }
+  ]
+}
+```
+Matches records where `status == "active"` AND (`age >= 18` OR `age < 65`)
+
+### ValidationService Examples
+
+The `ValidationService` validates records against schemas:
+
+#### Required Fields
+Fields with `nullable: false` must be present and non-null:
+```csharp
+// Schema
+{
+  "name": "users",
+  "fields": [
+    { "name": "email", "type": "String", "nullable": false }
+  ]
+}
+
+// Valid record
+{ "email": "user@example.com" }
+
+// Invalid record (missing required field)
+{ } // throws ValidationException
+```
+
+#### Type Validation
+Field values must match the schema type:
+```csharp
+// Schema
+{
+  "fields": [
+    { "name": "age", "type": "Integer", "nullable": true }
+  ]
+}
+
+// Valid records
+{ "age": 25 }
+{ "age": "25" } // String can be coerced to Integer
+{ } // nullable field can be omitted
+
+// Invalid record
+{ "age": "not-a-number" } // throws ValidationException
+```
+
+#### Type Compatibility
+Some types are compatible:
+- `Integer` ↔ `Float` (numeric compatibility)
+- `DateTime` ↔ `Date` (date compatibility)
+- `String` can be coerced to `Integer`, `Float`, `Boolean`, `DateTime`, `Date` if parseable
+
+### Service Integration Example
+
+All services work together when injected into `CsvAdapter`:
+
+```csharp
+// Setup with dependency injection
+var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+var defaultGenerator = new DefaultGenerator(loggerFactory.CreateLogger<DefaultGenerator>());
+var typeConverter = new TypeConverter(loggerFactory.CreateLogger<TypeConverter>());
+var filterEvaluator = new FilterEvaluator(loggerFactory.CreateLogger<FilterEvaluator>());
+var validationService = new ValidationService(loggerFactory.CreateLogger<ValidationService>());
+
+var adapter = new CsvAdapter(
+    baseDirectory: "./data",
+    defaultGenerator: defaultGenerator,
+    typeConverter: typeConverter,
+    filterEvaluator: filterEvaluator
+);
+
+// Create record - DefaultGenerator provides defaults for missing fields
+var record = await adapter.CreateAsync("users", new Dictionary<string, object>
+{
+    { "name", "John Doe" }
+    // is_active will default to false
+    // created_at will default to DateTime.UtcNow
+});
+
+// List with filter - FilterEvaluator handles complex filtering
+var options = new QueryOptions
+{
+    Filter = new Dictionary<string, object>
+    {
+        { "field", "age" },
+        { "operator", "gte" },
+        { "value", 18 }
+    }
+};
+var results = await adapter.ListAsync("users", options);
+```
+
+---
+
 ## Test Results
 
 ```bash
@@ -307,4 +533,4 @@ Historical and outdated documentation has been moved to the `archive/` folder fo
 
 This is an active development project. See `IMPLEMENTATION_PLAN.md` for detailed implementation roadmap.
 
-**Current Focus**: Phase 2 in progress - implementing services layer. Ready for DefaultGenerator implementation.
+**Current Focus**: Phase 2 complete - all services implemented with logging support. Ready for Phase 3.1 or Phase 4.

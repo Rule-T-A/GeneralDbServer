@@ -3,23 +3,40 @@ namespace DataAbstractionAPI.Services;
 using DataAbstractionAPI.Core.Interfaces;
 using DataAbstractionAPI.Core.Models;
 using DataAbstractionAPI.Core.Enums;
+using Microsoft.Extensions.Logging;
 
 /// <summary>
 /// Generates intelligent default values for fields based on naming patterns, context, and type.
 /// </summary>
 public class DefaultGenerator : IDefaultGenerator
 {
+    private readonly ILogger<DefaultGenerator>? _logger;
+
+    public DefaultGenerator(ILogger<DefaultGenerator>? logger = null)
+    {
+        _logger = logger;
+    }
+
     public object GenerateDefault(string fieldName, FieldType fieldType, DefaultGenerationContext context)
     {
-        var strategy = DetermineStrategy(fieldName, fieldType);
+        _logger?.LogDebug("Generating default value for field '{FieldName}' of type {FieldType} in collection '{Collection}'", 
+            fieldName, fieldType, context?.CollectionName ?? "unknown");
 
-        return strategy switch
+        var strategy = DetermineStrategy(fieldName, fieldType);
+        _logger?.LogDebug("Determined strategy: {Strategy} for field '{FieldName}'", strategy, fieldName);
+
+        var result = strategy switch
         {
             DefaultGenerationStrategy.PatternMatch => GeneratePatternBasedDefault(fieldName, fieldType),
             DefaultGenerationStrategy.TypeBased => GenerateTypeBasedDefault(fieldType),
             DefaultGenerationStrategy.ContextAnalysis => GenerateContextBasedDefault(fieldName, fieldType, context),
             _ => (object?)null
         };
+
+        _logger?.LogDebug("Generated default value '{Value}' for field '{FieldName}' using strategy {Strategy}", 
+            result, fieldName, strategy);
+
+        return result;
     }
 
     public DefaultGenerationStrategy DetermineStrategy(string fieldName, FieldType fieldType)

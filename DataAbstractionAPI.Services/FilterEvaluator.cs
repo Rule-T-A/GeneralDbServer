@@ -3,6 +3,7 @@ namespace DataAbstractionAPI.Services;
 using DataAbstractionAPI.Core.Interfaces;
 using DataAbstractionAPI.Core.Models;
 using System.Globalization;
+using Microsoft.Extensions.Logging;
 
 /// <summary>
 /// Evaluates whether records match filter criteria, supporting simple, operator-based, and compound filters.
@@ -11,28 +12,47 @@ public class FilterEvaluator : IFilterEvaluator
 {
     private static readonly HashSet<string> CompoundFilterKeys = new() { "and", "or" };
     private static readonly HashSet<string> OperatorFilterKeys = new() { "field", "operator", "value" };
+    private readonly ILogger<FilterEvaluator>? _logger;
+
+    public FilterEvaluator(ILogger<FilterEvaluator>? logger = null)
+    {
+        _logger = logger;
+    }
 
     public bool Evaluate(Record record, Dictionary<string, object> filter)
     {
         if (filter == null || filter.Count == 0)
         {
+            _logger?.LogDebug("Empty filter provided, matching all records");
             return true; // Empty filter matches all records
         }
+
+        _logger?.LogDebug("Evaluating filter with {Count} conditions for record {RecordId}", 
+            filter.Count, record.Id);
 
         // Check for compound filters (AND/OR)
         if (HasCompoundFilter(filter))
         {
-            return EvaluateCompoundFilter(record, filter);
+            _logger?.LogDebug("Detected compound filter");
+            var result = EvaluateCompoundFilter(record, filter);
+            _logger?.LogDebug("Compound filter evaluation result: {Result}", result);
+            return result;
         }
 
         // Check for operator-based filter
         if (IsOperatorFilter(filter))
         {
-            return EvaluateOperatorFilter(record, filter);
+            _logger?.LogDebug("Detected operator-based filter");
+            var result = EvaluateOperatorFilter(record, filter);
+            _logger?.LogDebug("Operator filter evaluation result: {Result}", result);
+            return result;
         }
 
         // Otherwise, treat as simple filter (multiple conditions are ANDed)
-        return EvaluateSimpleFilter(record, filter);
+        _logger?.LogDebug("Treating as simple filter");
+        var simpleResult = EvaluateSimpleFilter(record, filter);
+        _logger?.LogDebug("Simple filter evaluation result: {Result}", simpleResult);
+        return simpleResult;
     }
 
     private bool HasCompoundFilter(Dictionary<string, object> filter)

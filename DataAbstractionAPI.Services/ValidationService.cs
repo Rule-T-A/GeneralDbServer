@@ -5,12 +5,20 @@ using DataAbstractionAPI.Core.Models;
 using DataAbstractionAPI.Core.Enums;
 using DataAbstractionAPI.Core.Exceptions;
 using System.Globalization;
+using Microsoft.Extensions.Logging;
 
 /// <summary>
 /// Validates records against collection schemas, checking required fields and type compatibility.
 /// </summary>
 public class ValidationService : IValidationService
 {
+    private readonly ILogger<ValidationService>? _logger;
+
+    public ValidationService(ILogger<ValidationService>? logger = null)
+    {
+        _logger = logger;
+    }
+
     public void Validate(Dictionary<string, object> record, CollectionSchema schema)
     {
         if (record == null)
@@ -23,11 +31,16 @@ public class ValidationService : IValidationService
             throw new ArgumentNullException(nameof(schema));
         }
 
+        _logger?.LogDebug("Validating record against schema '{SchemaName}' with {FieldCount} fields", 
+            schema.Name, schema.Fields.Count);
+
         // Validate each field in the schema
         foreach (var field in schema.Fields)
         {
             ValidateField(record, field);
         }
+
+        _logger?.LogDebug("Record validation passed for schema '{SchemaName}'", schema.Name);
     }
 
     private void ValidateField(Dictionary<string, object> record, FieldDefinition field)
@@ -41,6 +54,7 @@ public class ValidationService : IValidationService
         {
             if (!hasField || fieldValue == null)
             {
+                _logger?.LogWarning("Validation failed: Required field '{FieldName}' is missing or null", field.Name);
                 throw new ValidationException(
                     field.Name,
                     $"Required field '{field.Name}' is missing or null");
@@ -72,6 +86,8 @@ public class ValidationService : IValidationService
         }
 
         // Type mismatch
+        _logger?.LogWarning("Validation failed: Field '{FieldName}' has invalid type. Expected {ExpectedType}, but got {ActualType} (value: {Value})", 
+            field.Name, expectedType, actualType, value);
         throw new ValidationException(
             field.Name,
             $"Field '{field.Name}' has invalid type. Expected {expectedType}, but got {actualType} (value: {value})");

@@ -4,32 +4,50 @@ using DataAbstractionAPI.Core.Interfaces;
 using DataAbstractionAPI.Core.Enums;
 using DataAbstractionAPI.Core.Exceptions;
 using System.Globalization;
+using Microsoft.Extensions.Logging;
 
 /// <summary>
 /// Converts values between different types using various conversion strategies.
 /// </summary>
 public class TypeConverter : ITypeConverter
 {
+    private readonly ILogger<TypeConverter>? _logger;
+
+    public TypeConverter(ILogger<TypeConverter>? logger = null)
+    {
+        _logger = logger;
+    }
+
     public object Convert(object value, FieldType fromType, FieldType toType, ConversionStrategy strategy)
     {
+        _logger?.LogDebug("Converting value '{Value}' from {FromType} to {ToType} using strategy {Strategy}", 
+            value, fromType, toType, strategy);
+
         // Handle null values
         if (value == null)
         {
+            _logger?.LogDebug("Value is null, returning null");
             return null!;
         }
 
         // Handle same-type conversion (no conversion needed)
         if (fromType == toType)
         {
+            _logger?.LogDebug("Source and target types are the same, no conversion needed");
             return value;
         }
 
         try
         {
-            return PerformConversion(value, fromType, toType);
+            var result = PerformConversion(value, fromType, toType);
+            _logger?.LogDebug("Successfully converted value '{Value}' from {FromType} to {ToType}, result: '{Result}'", 
+                value, fromType, toType, result);
+            return result;
         }
         catch (Exception ex)
         {
+            _logger?.LogWarning(ex, "Conversion failed for value '{Value}' from {FromType} to {ToType} using strategy {Strategy}", 
+                value, fromType, toType, strategy);
             // Handle conversion failure based on strategy
             return HandleConversionFailure(value, fromType, toType, strategy, ex);
         }
@@ -306,6 +324,7 @@ public class TypeConverter : ITypeConverter
                     ex);
 
             case ConversionStrategy.SetNull:
+                _logger?.LogDebug("Conversion strategy is SetNull, returning null for failed conversion");
                 return null!;
 
             case ConversionStrategy.Truncate:
