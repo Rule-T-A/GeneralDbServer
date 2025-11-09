@@ -66,6 +66,48 @@ public class CsvSchemaManager
         return File.Exists(filePath);
     }
 
+    /// <summary>
+    /// Updates an existing schema by adding or updating a field definition.
+    /// </summary>
+    /// <param name="collectionName">Name of the collection</param>
+    /// <param name="field">Field definition to add or update</param>
+    public void UpdateSchemaField(string collectionName, FieldDefinition field)
+    {
+        var schema = LoadSchema(collectionName);
+        if (schema == null)
+        {
+            // Create new schema if it doesn't exist
+            schema = new CollectionSchema
+            {
+                Name = collectionName,
+                Fields = new List<FieldDefinition> { field }
+            };
+        }
+        else
+        {
+            // Update or add field
+            if (schema.Fields == null)
+            {
+                schema.Fields = new List<FieldDefinition>();
+            }
+            
+            var existingField = schema.Fields.FirstOrDefault(f => f.Name == field.Name);
+            if (existingField != null)
+            {
+                // Update existing field
+                var index = schema.Fields.IndexOf(existingField);
+                schema.Fields[index] = field;
+            }
+            else
+            {
+                // Add new field
+                schema.Fields.Add(field);
+            }
+        }
+        
+        SaveSchema(collectionName, schema);
+    }
+
     private string GetSchemaFilePath(string collectionName)
     {
         return Path.Combine(_schemaDirectory, $"{collectionName}.json");

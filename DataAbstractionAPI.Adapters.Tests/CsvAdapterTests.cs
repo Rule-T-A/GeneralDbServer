@@ -761,20 +761,31 @@ public class CsvAdapterTests : IDisposable
     }
 
     [Fact]
-    public async Task CsvAdapter_ListAsync_SelectFields_WithDuplicateFields_ThrowsException()
+    public async Task CsvAdapter_ListAsync_SelectFields_WithDuplicateFields_DeduplicatesFields()
     {
-        // Arrange - Current implementation doesn't handle duplicate fields
+        // Arrange - Test that duplicate fields are deduplicated
         var options = new QueryOptions
         {
             Fields = new[] { "name", "name", "email" }, // Duplicate "name"
             Limit = 100
         };
 
-        // Act & Assert - Current implementation throws ArgumentException
-        // This is a known limitation - should be fixed to deduplicate fields
-        await Assert.ThrowsAsync<ArgumentException>(
-            () => _adapter.ListAsync("users", options)
-        );
+        // Act - Should not throw exception, should deduplicate fields
+        var result = await _adapter.ListAsync("users", options);
+
+        // Assert - Should return records with only unique fields
+        Assert.NotNull(result);
+        Assert.NotEmpty(result.Data);
+        
+        // Verify that each record has only unique fields (name and email, not duplicate name)
+        var firstRecord = result.Data.First();
+        var fieldCount = firstRecord.Data.Keys.Count;
+        var uniqueFieldCount = firstRecord.Data.Keys.Distinct().Count();
+        Assert.Equal(fieldCount, uniqueFieldCount); // No duplicate keys
+        
+        // Verify expected fields are present
+        Assert.True(firstRecord.Data.ContainsKey("name"));
+        Assert.True(firstRecord.Data.ContainsKey("email"));
     }
 
     // ============================================
@@ -935,8 +946,6 @@ public class CsvAdapterTests : IDisposable
     public async Task CsvAdapter_UpdateAsync_WithNewField_AddsFieldToRecord()
     {
         // Arrange - Get existing record
-        // Note: UpdateAsync adds new fields to the record in memory, but they may not be
-        // persisted to CSV headers. This test verifies the in-memory behavior.
         var listResult = await _adapter.ListAsync("users", new QueryOptions { Limit = 1 });
         var recordId = listResult.Data.First().Id;
 
@@ -948,12 +957,15 @@ public class CsvAdapterTests : IDisposable
         // Act
         await _adapter.UpdateAsync("users", recordId, updates);
 
-        // Assert - The field is added to the record data
-        // Note: The CSV file may not have this field in headers, but the data is stored
+        // Assert - The field should be persisted to CSV headers and be retrievable
         var updatedRecord = await _adapter.GetAsync("users", recordId);
-        // The field might be in the data, but CSV reading may not include it if not in headers
-        // This is a known limitation - new fields added via UpdateAsync may not persist properly
         Assert.NotNull(updatedRecord);
+        Assert.True(updatedRecord.Data.ContainsKey("new_field"));
+        Assert.Equal("new_value", updatedRecord.Data["new_field"]?.ToString());
+        
+        // Verify the field is in the schema (headers)
+        var schema = await _adapter.GetSchemaAsync("users");
+        Assert.Contains(schema.Fields, f => f.Name == "new_field");
     }
 
     [Fact]

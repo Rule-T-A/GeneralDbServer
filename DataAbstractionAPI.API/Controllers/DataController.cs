@@ -23,52 +23,52 @@ public class DataController : ControllerBase
     }
 
     [HttpGet("{collection}")]
-    public async Task<ActionResult<ListResult>> GetCollection(string collection, [FromQuery] int? limit = 100)
+    public async Task<ActionResult<ListResult>> GetCollection(string collection, [FromQuery] int? limit = 100, CancellationToken cancellationToken = default)
     {
         var options = new QueryOptions { Limit = limit ?? 100 };
-        var result = await _adapter.ListAsync(collection, options);
+        var result = await _adapter.ListAsync(collection, options, cancellationToken);
         return Ok(result);
     }
 
     [HttpGet("{collection}/{id}")]
-    public async Task<ActionResult<Record>> GetRecord(string collection, string id)
+    public async Task<ActionResult<Record>> GetRecord(string collection, string id, CancellationToken cancellationToken = default)
     {
-        var record = await _adapter.GetAsync(collection, id);
+        var record = await _adapter.GetAsync(collection, id, cancellationToken);
         return Ok(record);
     }
 
     [HttpPost("{collection}")]
-    public async Task<ActionResult<CreateResult>> CreateRecord(string collection, [FromBody] Dictionary<string, object> data)
+    public async Task<ActionResult<CreateResult>> CreateRecord(string collection, [FromBody] Dictionary<string, object> data, CancellationToken cancellationToken = default)
     {
-        var result = await _adapter.CreateAsync(collection, data);
+        var result = await _adapter.CreateAsync(collection, data, cancellationToken);
         return CreatedAtAction(nameof(GetRecord), new { collection, id = result.Id }, result);
     }
 
     [HttpPut("{collection}/{id}")]
-    public async Task<IActionResult> UpdateRecord(string collection, string id, [FromBody] Dictionary<string, object> data)
+    public async Task<IActionResult> UpdateRecord(string collection, string id, [FromBody] Dictionary<string, object> data, CancellationToken cancellationToken = default)
     {
-        await _adapter.UpdateAsync(collection, id, data);
+        await _adapter.UpdateAsync(collection, id, data, cancellationToken);
         return NoContent();
     }
 
     [HttpDelete("{collection}/{id}")]
-    public async Task<IActionResult> DeleteRecord(string collection, string id)
+    public async Task<IActionResult> DeleteRecord(string collection, string id, CancellationToken cancellationToken = default)
     {
-        await _adapter.DeleteAsync(collection, id);
+        await _adapter.DeleteAsync(collection, id, cancellationToken);
         return NoContent();
     }
 
     [HttpGet("{collection}/schema")]
-    public async Task<ActionResult<CollectionSchema>> GetSchema(string collection)
+    public async Task<ActionResult<CollectionSchema>> GetSchema(string collection, CancellationToken cancellationToken = default)
     {
-        var schema = await _adapter.GetSchemaAsync(collection);
+        var schema = await _adapter.GetSchemaAsync(collection, cancellationToken);
         return Ok(schema);
     }
 
     [HttpGet]
-    public async Task<ActionResult<string[]>> ListCollections()
+    public async Task<ActionResult<string[]>> ListCollections(CancellationToken cancellationToken = default)
     {
-        var collections = await _adapter.ListCollectionsAsync();
+        var collections = await _adapter.ListCollectionsAsync(cancellationToken);
         return Ok(collections);
     }
 

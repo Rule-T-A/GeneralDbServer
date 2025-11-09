@@ -2,9 +2,10 @@
 
 A .NET Core implementation of a unified data abstraction layer that provides a consistent interface for interacting with data across different storage backends.
 
-**Status**: Phase 1 + 1.x + 2 + 3 Complete ✅  
+**Status**: Phase 1 + 1.x + 2 + 3 + 3.1 Complete ✅  
 **Last Updated**: November 2025  
-**Test Coverage**: 91.27% Services layer (End of Phase 2)
+**Test Coverage**: 91.27% Services layer (independently verified)  
+**Total Tests**: 316 passing (39 Core + 66 Adapter + 185 Services + 26 API)
 
 ---
 
@@ -19,7 +20,9 @@ This project implements a storage-agnostic data access API following TDD (Test-D
 - **Full CRUD operations** (Create, Read, Update, Delete)
 - **Schema operations** (Get schema, List collections)
 - **Services layer** (DefaultGenerator, TypeConverter, FilterEvaluator, ValidationService)
-- **Comprehensive test coverage** (305 tests passing, 91.27% Services coverage)
+- **REST API** with Swagger documentation
+- **Limitations remediation** (cancellation tokens, retry logic, field persistence, schema consistency)
+- **Comprehensive test coverage** (316 tests passing, 91.27% Services coverage)
 
 ---
 
@@ -36,8 +39,10 @@ GeneralDbServer/
 │   ├── CsvAdapter.cs                          # Main adapter implementation
 │   ├── CsvFileHandler.cs                      # CSV file read/write operations
 │   ├── CsvFileLock.cs                         # File locking mechanism
-│   └── CsvSchemaManager.cs                    # Schema file management
-├── DataAbstractionAPI.Services/               # Business logic services (in progress)
+│   ├── CsvSchemaManager.cs                    # Schema file management
+│   └── RetryOptions.cs                        # Retry configuration for concurrent writes
+├── DataAbstractionAPI.Services/               # Business logic services
+├── DataAbstractionAPI.API/                    # REST API with Swagger
 ├── DataAbstractionAPI.Core.Tests/             # Core model and interface tests
 ├── DataAbstractionAPI.Adapters.Tests/         # Adapter and integration tests
 └── DataAbstractionAPI.Services.Tests/         # Service tests (in progress)
@@ -70,7 +75,9 @@ GeneralDbServer/
 - **File locking**: Prevents concurrent access issues
 - **Error handling**: Proper exception handling throughout
 - **Service injection support**: Ready for dependency injection
-- **4 security tests** + **4 concurrency tests** + **3 service injection tests**
+- **Cancellation token support**: Full cancellation support throughout
+- **Retry logic**: Exponential backoff for concurrent write operations
+- **4 security tests** + **4 concurrency tests** + **3 service injection tests** + **3 cancellation tests**
 
 ---
 
@@ -303,17 +310,17 @@ var results = await adapter.ListAsync("users", options);
 ## Test Results
 
 ```bash
-Test Run Summary (End of Phase 2):
+Test Run Summary (End of Phase 3.1):
 ✓ Core.Tests: 39 tests passed
 ✓ Adapters.Tests: 66 tests passed
 ✓ Services.Tests: 185 tests passed
-✓ API.Tests: 15 tests passed
-Total: 305 tests, 305 passed, 0 failed
+✓ API.Tests: 26 tests passed
+Total: 316 tests, 316 passed, 0 failed
 ```
 
 ### Test Coverage (End of Phase 2)
 
-**Services Layer Coverage**:
+**Services Layer Coverage** (independently verified November 2025):
 - **Overall Services Package**: 91.27% line coverage, 86.03% branch coverage ✅
 - **DefaultGenerator**: 87.50% line, 80.45% branch ✅
 - **TypeConverter**: 82.80% line, 88.88% branch ✅
@@ -321,6 +328,8 @@ Total: 305 tests, 305 passed, 0 failed
 - **ValidationService**: 97.95% line, 90.90% branch ✅
 
 All services exceed the >85% line coverage target requirement.
+
+**Verification**: Coverage percentages have been independently verified using coverlet and ReportGenerator tools. See `TEST_COVERAGE_VERIFICATION_REPORT.md` for detailed verification results.
 
 Run tests:
 ```bash
@@ -352,7 +361,10 @@ dotnet test
 - **Read**: Parse CSV files to dictionaries
 - **Write**: Append records maintaining column order
 - **Headers**: Automatic header detection and preservation
+- **Header updates**: Headers automatically updated when new fields added
 - **Schemas**: JSON-based schema management (`.schema` directory)
+- **Schema consistency**: CSV headers are source of truth, schema files optional metadata
+- **Type inference**: Automatic type inference from data
 
 ---
 
@@ -484,14 +496,24 @@ CsvAdapterTests
 - [x] Collections listing endpoint
 - [x] Schema endpoint
 - [x] **CSV file upload endpoint** - Upload CSV files to create or replace collections
+- [x] API key authentication (optional, configurable)
 - [x] DI integration
 - [x] HTTPS support
+- [x] Cancellation token support
 - Port: http://localhost:5012, https://localhost:7128
 
 **Note**: The current API implementation is a basic version. The adapter supports filtering, sorting, pagination, and field selection via QueryOptions, but the REST API controller currently only exposes the `limit` query parameter. Full query parameter support can be added in future iterations.
 
+### Phase 3.1: Limitations Remediation ✅ COMPLETE
+- [x] **Cancellation token support**: Full cancellation support in all async methods
+- [x] **Duplicate field handling**: Automatic deduplication in field selection
+- [x] **Concurrent write retry logic**: Exponential backoff retry mechanism
+- [x] **New field persistence**: Headers updated when new fields added via UpdateAsync
+- [x] **Intelligent defaults**: DefaultGenerator integration for new field defaults
+- [x] **Schema file consistency**: CSV headers as source of truth, schema files as optional metadata
+
 ### Upcoming Phases
-- **Phase 4**: Management UI (Blazor Server)
+- **Phase 4**: Management UI (Blazor Server) - Ready to start
 
 ---
 
@@ -502,11 +524,13 @@ Collection names are validated to prevent directory traversal attacks:
 - ✅ Blocks: `../`, `/`, `\`, absolute paths
 - ✅ Allows: Alphanumeric, hyphens, underscores
 
-### File Locking
+### File Locking & Concurrency
 CSV operations use file locking to prevent concurrent access:
 - Exclusive locks per file
 - Automatic cleanup on dispose
 - Process information recorded for debugging
+- **Retry logic**: Exponential backoff retry for concurrent write operations
+- **Configurable retry**: RetryOptions class with customizable retry parameters
 
 ---
 
@@ -536,10 +560,10 @@ MIT License - see LICENSE file for details
 ### Active Documentation
 - **README.md** - This file, project overview
 - **IMPLEMENTATION_PLAN.md** - Detailed TDD implementation plan
+- **TEST_COVERAGE_VERIFICATION_REPORT.md** - Independent verification of test coverage claims
 - **API_USAGE.md** - REST API usage guide
 - **QUICK_API_GUIDE.md** - Quick start for the API
 - **data-abstraction-api.md** - API specification
-- **TEST_COVERAGE_REPORT.md** - Test coverage status
 
 ### Archived Documentation
 Historical and outdated documentation has been moved to the `archive/` folder for reference.
@@ -548,4 +572,4 @@ Historical and outdated documentation has been moved to the `archive/` folder fo
 
 This is an active development project. See `IMPLEMENTATION_PLAN.md` for detailed implementation roadmap.
 
-**Current Focus**: Phase 2 complete - all services implemented with logging support. Ready for Phase 3.1 or Phase 4.
+**Current Focus**: Phase 3.1 complete - all limitations remediated, API robust and ready. Ready for Phase 4 (Management UI).
