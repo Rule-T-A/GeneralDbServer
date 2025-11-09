@@ -1,8 +1,14 @@
 using DataAbstractionAPI.Adapters.Csv;
+using DataAbstractionAPI.API.Configuration;
+using DataAbstractionAPI.API.Middleware;
 using DataAbstractionAPI.Core.Interfaces;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configure API Key Authentication
+builder.Services.Configure<ApiKeyAuthenticationOptions>(
+    builder.Configuration.GetSection("ApiKeyAuthentication"));
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -13,6 +19,33 @@ builder.Services.AddSwaggerGen(c =>
         Title = "Data Abstraction API",
         Version = "v1",
         Description = "API for managing data collections with CSV storage"
+    });
+    
+    // Add API Key authentication to Swagger
+    c.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
+    {
+        Description = "API Key authentication using the X-API-Key header",
+        Name = "X-API-Key",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "ApiKeyScheme"
+    });
+
+    // Apply API Key requirement to all endpoints
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "ApiKey"
+                },
+                In = ParameterLocation.Header
+            },
+            Array.Empty<string>()
+        }
     });
     
     // Map Dictionary<string, object> to a generic object schema
@@ -56,6 +89,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Add API Key Authentication Middleware (before UseAuthorization)
+app.UseMiddleware<ApiKeyAuthenticationMiddleware>();
+
 app.UseAuthorization();
 app.MapControllers();
 
