@@ -82,3 +82,5 @@ coverage/
 *.manifest
 *.vsidx
 *.v2
+*.v2
+.vs/DataAbstractionAPI/v17/.suo
