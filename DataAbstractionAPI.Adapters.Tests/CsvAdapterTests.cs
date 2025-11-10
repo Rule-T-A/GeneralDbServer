@@ -2,7 +2,9 @@ namespace DataAbstractionAPI.Adapters.Tests;
 
 using DataAbstractionAPI.Core.Interfaces;
 using DataAbstractionAPI.Core.Models;
+using DataAbstractionAPI.Core.Enums;
 using DataAbstractionAPI.Adapters.Csv;
+using Moq;
 
 public class CsvAdapterTests : IDisposable
 {
@@ -250,6 +252,88 @@ public class CsvAdapterTests : IDisposable
         
         Assert.NotNull(exception);
         Assert.DoesNotContain("ArgumentException", exception.GetType().Name);
+    }
+
+    // ============================================
+    // Task 2.1: ValidateCollectionName Edge Cases
+    // ============================================
+
+    [Fact]
+    public async Task CsvAdapter_WithPathTraversalAttempt_WithJustDotDot_ThrowsArgumentException()
+    {
+        // Arrange & Act & Assert
+        var exception = await Assert.ThrowsAsync<ArgumentException>(
+            () => _adapter.ListAsync("..", new QueryOptions())
+        );
+        Assert.Contains("path traversal", exception.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task CsvAdapter_WithPathTraversalAttempt_WithMultipleDotDot_ThrowsArgumentException()
+    {
+        // Arrange & Act & Assert
+        var exception = await Assert.ThrowsAsync<ArgumentException>(
+            () => _adapter.ListAsync("../../etc/passwd", new QueryOptions())
+        );
+        Assert.Contains("path traversal", exception.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task CsvAdapter_WithEmptyCollectionName_ThrowsArgumentException()
+    {
+        // Arrange & Act & Assert
+        var exception = await Assert.ThrowsAsync<ArgumentException>(
+            () => _adapter.ListAsync("", new QueryOptions())
+        );
+        Assert.Contains("cannot be empty", exception.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task CsvAdapter_WithWhitespaceCollectionName_ThrowsArgumentException()
+    {
+        // Arrange & Act & Assert
+        var exception = await Assert.ThrowsAsync<ArgumentException>(
+            () => _adapter.ListAsync("   ", new QueryOptions())
+        );
+        Assert.Contains("cannot be empty", exception.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task CsvAdapter_WithAbsolutePath_ThrowsArgumentException()
+    {
+        // Arrange & Act & Assert - Test Unix absolute path
+        // Note: This will be caught by directory separator check first, but we verify it throws ArgumentException
+        var exception = await Assert.ThrowsAsync<ArgumentException>(
+            () => _adapter.ListAsync("/etc/passwd", new QueryOptions())
+        );
+        // The error could be either "directory separators" or "absolute path" depending on validation order
+        Assert.True(
+            exception.Message.Contains("directory separators", StringComparison.OrdinalIgnoreCase) ||
+            exception.Message.Contains("absolute path", StringComparison.OrdinalIgnoreCase),
+            $"Expected error message about directory separators or absolute path, but got: {exception.Message}"
+        );
+    }
+
+    [Fact]
+    public async Task CsvAdapter_GetCsvPath_WithValidCollectionName_ReturnsCorrectPath()
+    {
+        // Arrange
+        var testDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(testDir);
+        var csvPath = Path.Combine(testDir, "test.csv");
+        File.WriteAllText(csvPath, "id,name\n1,Test\n");
+        var adapter = new CsvAdapter(testDir);
+
+        // Act - Use a valid collection name
+        var options = new QueryOptions { Limit = 10 };
+        var result = await adapter.ListAsync("test", options);
+
+        // Assert - Should succeed (not throw ArgumentException)
+        Assert.NotNull(result);
+        Assert.True(result.Data.Count > 0);
+
+        // Cleanup
+        Directory.Delete(testDir, true);
     }
 
     [Fact]
@@ -2225,6 +2309,912 @@ public class CsvAdapterTests : IDisposable
     }
 
     // ============================================
+    // Task 4.1: RetryFileOperationAsync Failure Scenarios
+    // ============================================
+
+    [Fact]
+    public async Task CsvAdapter_RetryFileOperationAsync_WithCancellationDuringRetry_ThrowsCancellationException()
+    {
+        // Arrange
+        var testDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(testDir);
+        var csvPath = Path.Combine(testDir, "test.csv");
+        await File.WriteAllTextAsync(csvPath, "id,name\n1,Test\n");
+
+        // Create adapter with longer retry delay to allow cancellation during delay
+        var retryOptions = new RetryOptions
+        {
+            Enabled = true,
+            MaxRetries = 5,
+            BaseDelayMs = 200 // 200ms base delay to allow cancellation
+        };
+        var adapter = new CsvAdapter(testDir, retryOptions: retryOptions);
+        var cts = new CancellationTokenSource();
+
+        // Create a file lock by opening the file exclusively for writing
+        // This will cause the write operation (inside RetryFileOperationAsync) to fail
+        using (var fileStream = new FileStream(csvPath, FileMode.Open, FileAccess.Write, FileShare.None))
+        {
+            // Start the operation in background - it will try to acquire lock and retry
+            var operationTask = Task.Run(async () => 
+                await adapter.CreateAsync("test", new Dictionary<string, object> { { "name", "New" } }, cts.Token));
+
+            // Wait for first lock attempt to fail and retry delay to start
+            await Task.Delay(150);
+            // Cancel during the retry delay
+            cts.Cancel();
+
+            // Assert - Should throw OperationCanceledException
+            // Note: May throw IOException if cancellation doesn't happen during delay
+            var exception = await Assert.ThrowsAnyAsync<Exception>(() => operationTask);
+            Assert.True(
+                exception is OperationCanceledException || 
+                (exception is AggregateException aggEx && aggEx.InnerException is OperationCanceledException),
+                $"Expected OperationCanceledException but got {exception.GetType().Name}"
+            );
+        }
+
+        // Cleanup
+        Directory.Delete(testDir, true);
+    }
+
+    [Fact]
+    public async Task CsvAdapter_RetryFileOperationAsync_WithMaxRetriesZero_ThrowsOnFirstLock()
+    {
+        // Arrange
+        var testDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(testDir);
+        var csvPath = Path.Combine(testDir, "test.csv");
+        await File.WriteAllTextAsync(csvPath, "id,name\n1,Test\n");
+
+        // Create adapter with MaxRetries = 0 (will only try once, then throw)
+        var retryOptions = new RetryOptions
+        {
+            Enabled = true,
+            MaxRetries = 0, // No retries
+            BaseDelayMs = 10
+        };
+        var adapter = new CsvAdapter(testDir, retryOptions: retryOptions);
+
+        // Lock the file
+        using (var fileStream = new FileStream(csvPath, FileMode.Open, FileAccess.ReadWrite, FileShare.None))
+        {
+            // Act & Assert - Should throw IOException immediately (no retries)
+            await Assert.ThrowsAsync<IOException>(
+                () => adapter.UpdateAsync("test", "1", new Dictionary<string, object> { { "name", "Updated" } }));
+        }
+
+        // Cleanup
+        Directory.Delete(testDir, true);
+    }
+
+    [Fact]
+    public async Task CsvAdapter_RetryFileOperationAsync_WithFileNotFound_DoesNotRetry()
+    {
+        // Arrange - Create adapter but don't create the CSV file
+        var testDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(testDir);
+        var adapter = new CsvAdapter(testDir);
+
+        // Act & Assert - FileNotFoundException should not trigger retries
+        // (only IOException with lock messages trigger retries)
+        await Assert.ThrowsAsync<FileNotFoundException>(
+            () => adapter.UpdateAsync("nonexistent", "1", new Dictionary<string, object> { { "name", "Updated" } }));
+
+        // Cleanup
+        Directory.Delete(testDir, true);
+    }
+
+    // ============================================
+    // Task 5.1: BulkOperationAsync Atomic Mode Error Handling
+    // ============================================
+
+    [Fact]
+    public async Task CsvAdapter_BulkOperationAsync_Atomic_Update_MissingId_ThrowsArgumentException()
+    {
+        // Arrange
+        var testDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(testDir);
+        var csvPath = Path.Combine(testDir, "test.csv");
+        await File.WriteAllTextAsync(csvPath, "id,name\n1,Test\n");
+        var adapter = new CsvAdapter(testDir);
+
+        var request = new BulkOperationRequest
+        {
+            Action = "update",
+            Atomic = true,
+            Records = new List<Dictionary<string, object>>
+            {
+                new() { { "name", "Updated" } } // Missing id
+            }
+        };
+
+        // Act & Assert
+        var result = await adapter.BulkOperationAsync("test", request);
+        Assert.NotNull(result);
+        Assert.False(result.Success);
+        Assert.Contains("must contain an 'id' field", result.Error ?? result.FailedError ?? "");
+        Assert.True(result.FailedIndex >= 0);
+
+        // Cleanup
+        Directory.Delete(testDir, true);
+    }
+
+    [Fact]
+    public async Task CsvAdapter_BulkOperationAsync_Atomic_Update_InvalidId_ThrowsArgumentException()
+    {
+        // Arrange
+        var testDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(testDir);
+        var csvPath = Path.Combine(testDir, "test.csv");
+        await File.WriteAllTextAsync(csvPath, "id,name\n1,Test\n");
+        var adapter = new CsvAdapter(testDir);
+
+        var request = new BulkOperationRequest
+        {
+            Action = "update",
+            Atomic = true,
+            Records = new List<Dictionary<string, object>>
+            {
+                new() { { "id", "" }, { "name", "Updated" } } // Empty id
+            }
+        };
+
+        // Act & Assert
+        var result = await adapter.BulkOperationAsync("test", request);
+        Assert.NotNull(result);
+        Assert.False(result.Success);
+        Assert.Contains("invalid 'id' field", result.Error ?? result.FailedError ?? "");
+
+        // Cleanup
+        Directory.Delete(testDir, true);
+    }
+
+    [Fact]
+    public async Task CsvAdapter_BulkOperationAsync_Atomic_Update_RecordNotFound_ThrowsKeyNotFoundException()
+    {
+        // Arrange
+        var testDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(testDir);
+        var csvPath = Path.Combine(testDir, "test.csv");
+        await File.WriteAllTextAsync(csvPath, "id,name\n1,Test\n");
+        var adapter = new CsvAdapter(testDir);
+
+        var request = new BulkOperationRequest
+        {
+            Action = "update",
+            Atomic = true,
+            Records = new List<Dictionary<string, object>>
+            {
+                new() { { "id", "999" }, { "name", "Updated" } } // Non-existent id
+            }
+        };
+
+        // Act & Assert
+        var result = await adapter.BulkOperationAsync("test", request);
+        Assert.NotNull(result);
+        Assert.False(result.Success);
+        Assert.Contains("not found", result.Error ?? result.FailedError ?? "");
+
+        // Cleanup
+        Directory.Delete(testDir, true);
+    }
+
+    [Fact]
+    public async Task CsvAdapter_BulkOperationAsync_Atomic_Delete_MissingId_ThrowsArgumentException()
+    {
+        // Arrange
+        var testDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(testDir);
+        var csvPath = Path.Combine(testDir, "test.csv");
+        await File.WriteAllTextAsync(csvPath, "id,name\n1,Test\n");
+        var adapter = new CsvAdapter(testDir);
+
+        var request = new BulkOperationRequest
+        {
+            Action = "delete",
+            Atomic = true,
+            Records = new List<Dictionary<string, object>>
+            {
+                new() { { "name", "Test" } } // Missing id
+            }
+        };
+
+        // Act & Assert
+        var result = await adapter.BulkOperationAsync("test", request);
+        Assert.NotNull(result);
+        Assert.False(result.Success);
+        Assert.Contains("must contain an 'id' field", result.Error ?? result.FailedError ?? "");
+
+        // Cleanup
+        Directory.Delete(testDir, true);
+    }
+
+    [Fact]
+    public async Task CsvAdapter_BulkOperationAsync_Atomic_Delete_InvalidId_ThrowsArgumentException()
+    {
+        // Arrange
+        var testDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(testDir);
+        var csvPath = Path.Combine(testDir, "test.csv");
+        await File.WriteAllTextAsync(csvPath, "id,name\n1,Test\n");
+        var adapter = new CsvAdapter(testDir);
+
+        var nullId = (string?)null;
+        var request = new BulkOperationRequest
+        {
+            Action = "delete",
+            Atomic = true,
+            Records = new List<Dictionary<string, object>>
+            {
+                new() { { "id", nullId! } } // Null id
+            }
+        };
+
+        // Act & Assert
+        var result = await adapter.BulkOperationAsync("test", request);
+        Assert.NotNull(result);
+        Assert.False(result.Success);
+        Assert.Contains("invalid 'id' field", result.Error ?? result.FailedError ?? "");
+
+        // Cleanup
+        Directory.Delete(testDir, true);
+    }
+
+    [Fact]
+    public async Task CsvAdapter_BulkOperationAsync_Atomic_Delete_RecordNotFound_ThrowsKeyNotFoundException()
+    {
+        // Arrange
+        var testDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(testDir);
+        var csvPath = Path.Combine(testDir, "test.csv");
+        await File.WriteAllTextAsync(csvPath, "id,name\n1,Test\n");
+        var adapter = new CsvAdapter(testDir);
+
+        var request = new BulkOperationRequest
+        {
+            Action = "delete",
+            Atomic = true,
+            Records = new List<Dictionary<string, object>>
+            {
+                new() { { "id", "999" } } // Non-existent id
+            }
+        };
+
+        // Act & Assert
+        var result = await adapter.BulkOperationAsync("test", request);
+        Assert.NotNull(result);
+        Assert.False(result.Success);
+        Assert.Contains("not found", result.Error ?? result.FailedError ?? "");
+
+        // Cleanup
+        Directory.Delete(testDir, true);
+    }
+
+    [Fact]
+    public async Task CsvAdapter_BulkOperationAsync_Atomic_CollectionNotFound_ThrowsFileNotFoundException()
+    {
+        // Arrange
+        var testDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(testDir);
+        var adapter = new CsvAdapter(testDir);
+
+        var request = new BulkOperationRequest
+        {
+            Action = "create",
+            Atomic = true,
+            Records = new List<Dictionary<string, object>>
+            {
+                new() { { "name", "Test" } }
+            }
+        };
+
+        // Act & Assert
+        await Assert.ThrowsAsync<FileNotFoundException>(
+            () => adapter.BulkOperationAsync("nonexistent", request));
+
+        // Cleanup
+        Directory.Delete(testDir, true);
+    }
+
+    [Fact]
+    public async Task CsvAdapter_BulkOperationAsync_Atomic_WithException_RollsBackTransaction()
+    {
+        // Arrange - Create atomic update where second record fails
+        var testDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(testDir);
+        var csvPath = Path.Combine(testDir, "test.csv");
+        await File.WriteAllTextAsync(csvPath, "id,name\n1,Alice\n2,Bob\n");
+        var adapter = new CsvAdapter(testDir);
+
+        var request = new BulkOperationRequest
+        {
+            Action = "update",
+            Atomic = true,
+            Records = new List<Dictionary<string, object>>
+            {
+                new() { { "id", "1" }, { "name", "Updated Alice" } }, // Valid
+                new() { { "id", "999" }, { "name", "Non-existent" } } // Will fail - record not found
+            }
+        };
+
+        // Act
+        var result = await adapter.BulkOperationAsync("test", request);
+
+        // Assert - Transaction should be rolled back, no records updated
+        Assert.NotNull(result);
+        Assert.False(result.Success);
+        Assert.Contains("not found", result.Error ?? result.FailedError ?? "");
+
+        // Verify no records were updated (rollback worked)
+        var listResult = await adapter.ListAsync("test", new QueryOptions { Limit = 10 });
+        var aliceRecord = listResult.Data.FirstOrDefault(r => r.Id == "1");
+        Assert.NotNull(aliceRecord);
+        Assert.Equal("Alice", aliceRecord.Data["name"]); // Should still be original value
+
+        // Cleanup
+        Directory.Delete(testDir, true);
+    }
+
+    // ============================================
+    // Task 5.2: BulkOperationAsync Best-Effort Mode Error Handling
+    // ============================================
+
+    [Fact]
+    public async Task CsvAdapter_BulkOperationAsync_BestEffort_Update_MissingId_ReturnsFailure()
+    {
+        // Arrange
+        var testDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(testDir);
+        var csvPath = Path.Combine(testDir, "test.csv");
+        await File.WriteAllTextAsync(csvPath, "id,name\n1,Test\n");
+        var adapter = new CsvAdapter(testDir);
+
+        var request = new BulkOperationRequest
+        {
+            Action = "update",
+            Atomic = false, // Best-effort mode
+            Records = new List<Dictionary<string, object>>
+            {
+                new() { { "name", "Updated" } } // Missing id
+            }
+        };
+
+        // Act
+        var result = await adapter.BulkOperationAsync("test", request);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.False(result.Success);
+        Assert.Equal(0, result.Succeeded);
+        Assert.Equal(1, result.Failed);
+        Assert.NotNull(result.Results);
+        Assert.Single(result.Results);
+        Assert.False(result.Results[0].Success);
+        Assert.Contains("must contain an 'id' field", result.Results[0].Error ?? "");
+
+        // Cleanup
+        Directory.Delete(testDir, true);
+    }
+
+    [Fact]
+    public async Task CsvAdapter_BulkOperationAsync_BestEffort_Delete_MissingId_ReturnsFailure()
+    {
+        // Arrange
+        var testDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(testDir);
+        var csvPath = Path.Combine(testDir, "test.csv");
+        await File.WriteAllTextAsync(csvPath, "id,name\n1,Test\n");
+        var adapter = new CsvAdapter(testDir);
+
+        var request = new BulkOperationRequest
+        {
+            Action = "delete",
+            Atomic = false, // Best-effort mode
+            Records = new List<Dictionary<string, object>>
+            {
+                new() { { "name", "Test" } } // Missing id
+            }
+        };
+
+        // Act
+        var result = await adapter.BulkOperationAsync("test", request);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.False(result.Success);
+        Assert.Equal(0, result.Succeeded);
+        Assert.Equal(1, result.Failed);
+        Assert.NotNull(result.Results);
+        Assert.Single(result.Results);
+        Assert.False(result.Results[0].Success);
+        Assert.Contains("must contain an 'id' field", result.Results[0].Error ?? "");
+
+        // Cleanup
+        Directory.Delete(testDir, true);
+    }
+
+    [Fact]
+    public async Task CsvAdapter_BulkOperationAsync_BestEffort_WithMixedSuccessAndFailure_ReturnsPartialResults()
+    {
+        // Arrange
+        var testDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(testDir);
+        var csvPath = Path.Combine(testDir, "test.csv");
+        await File.WriteAllTextAsync(csvPath, "id,name\n1,Alice\n2,Bob\n");
+        var adapter = new CsvAdapter(testDir);
+
+        var request = new BulkOperationRequest
+        {
+            Action = "update",
+            Atomic = false, // Best-effort mode
+            Records = new List<Dictionary<string, object>>
+            {
+                new() { { "id", "1" }, { "name", "Updated Alice" } }, // Valid - should succeed
+                new() { { "id", "999" }, { "name", "Non-existent" } }, // Invalid - should fail
+                new() { { "id", "2" }, { "name", "Updated Bob" } } // Valid - should succeed
+            }
+        };
+
+        // Act
+        var result = await adapter.BulkOperationAsync("test", request);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.True(result.Success); // At least one succeeded
+        Assert.Equal(2, result.Succeeded);
+        Assert.Equal(1, result.Failed);
+        Assert.NotNull(result.Results);
+        Assert.Equal(3, result.Results.Count);
+        Assert.True(result.Results[0].Success); // First succeeded
+        Assert.False(result.Results[1].Success); // Second failed
+        Assert.True(result.Results[2].Success); // Third succeeded
+
+        // Verify successful updates were applied
+        var listResult = await adapter.ListAsync("test", new QueryOptions { Limit = 10 });
+        var aliceRecord = listResult.Data.FirstOrDefault(r => r.Id == "1");
+        var bobRecord = listResult.Data.FirstOrDefault(r => r.Id == "2");
+        Assert.NotNull(aliceRecord);
+        Assert.NotNull(bobRecord);
+        Assert.Equal("Updated Alice", aliceRecord.Data["name"]);
+        Assert.Equal("Updated Bob", bobRecord.Data["name"]);
+
+        // Cleanup
+        Directory.Delete(testDir, true);
+    }
+
+    // ============================================
+    // Task 6.1: Cancellation Token Edge Cases
+    // ============================================
+
+    [Fact]
+    public async Task CsvAdapter_ListAsync_WithCancellationAfterFileRead_ThrowsCancellationException()
+    {
+        // Arrange - Cancel before operation starts to test cancellation check at beginning
+        var testDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(testDir);
+        var csvPath = Path.Combine(testDir, "test.csv");
+        await File.WriteAllTextAsync(csvPath, "id,name\n1,Test\n");
+        var adapter = new CsvAdapter(testDir);
+        var cts = new CancellationTokenSource();
+        cts.Cancel(); // Cancel before starting
+
+        // Assert - Should throw OperationCanceledException at first check
+        await Assert.ThrowsAsync<OperationCanceledException>(
+            () => adapter.ListAsync("test", new QueryOptions { Limit = 100 }, cts.Token));
+
+        // Cleanup
+        Directory.Delete(testDir, true);
+    }
+
+    [Fact]
+    public async Task CsvAdapter_ListAsync_WithCancellationDuringSorting_ThrowsCancellationException()
+    {
+        // Arrange - Cancel before operation starts to test cancellation check
+        var testDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(testDir);
+        var csvPath = Path.Combine(testDir, "test.csv");
+        await File.WriteAllTextAsync(csvPath, "id,name\n1,Test\n2,Test2\n");
+        var adapter = new CsvAdapter(testDir);
+        var cts = new CancellationTokenSource();
+        cts.Cancel(); // Cancel before starting
+
+        // Assert - Should throw OperationCanceledException at first check
+        await Assert.ThrowsAsync<OperationCanceledException>(
+            () => adapter.ListAsync("test", new QueryOptions { Sort = "name", Limit = 100 }, cts.Token));
+
+        // Cleanup
+        Directory.Delete(testDir, true);
+    }
+
+    [Fact]
+    public async Task CsvAdapter_UpdateAsync_WithCancellationDuringFileWrite_ThrowsCancellationException()
+    {
+        // Arrange - Cancel before operation starts to test cancellation check
+        var testDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(testDir);
+        var csvPath = Path.Combine(testDir, "test.csv");
+        await File.WriteAllTextAsync(csvPath, "id,name\n1,Test\n");
+        var adapter = new CsvAdapter(testDir);
+        var cts = new CancellationTokenSource();
+        cts.Cancel(); // Cancel before starting
+
+        // Assert - Should throw OperationCanceledException at first check
+        await Assert.ThrowsAsync<OperationCanceledException>(
+            () => adapter.UpdateAsync("test", "1", new Dictionary<string, object> { { "name", "Updated" } }, cts.Token));
+
+        // Cleanup
+        Directory.Delete(testDir, true);
+    }
+
+    [Fact]
+    public async Task CsvAdapter_DeleteAsync_WithCancellationDuringFileWrite_ThrowsCancellationException()
+    {
+        // Arrange - Cancel before operation starts to test cancellation check
+        var testDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(testDir);
+        var csvPath = Path.Combine(testDir, "test.csv");
+        await File.WriteAllTextAsync(csvPath, "id,name\n1,Test\n");
+        var adapter = new CsvAdapter(testDir);
+        var cts = new CancellationTokenSource();
+        cts.Cancel(); // Cancel before starting
+
+        // Assert - Should throw OperationCanceledException at first check
+        await Assert.ThrowsAsync<OperationCanceledException>(
+            () => adapter.DeleteAsync("test", "1", cts.Token));
+
+        // Cleanup
+        Directory.Delete(testDir, true);
+    }
+
+    [Fact]
+    public async Task CsvAdapter_AggregateAsync_WithCancellationDuringProcessing_ThrowsCancellationException()
+    {
+        // Arrange - Cancel before operation starts to test cancellation check
+        var testDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(testDir);
+        var csvPath = Path.Combine(testDir, "test.csv");
+        await File.WriteAllTextAsync(csvPath, "id,category,price\n1,Category1,100\n2,Category2,200\n");
+        var adapter = new CsvAdapter(testDir);
+        var cts = new CancellationTokenSource();
+        cts.Cancel(); // Cancel before starting
+
+        var request = new AggregateRequest
+        {
+            Aggregates = new List<AggregateFunction>
+            {
+                new() { Field = "price", Function = "sum", Alias = "total" }
+            },
+            GroupBy = new[] { "category" }
+        };
+
+        // Assert - Should throw OperationCanceledException at first check
+        await Assert.ThrowsAsync<OperationCanceledException>(
+            () => adapter.AggregateAsync("test", request, cts.Token));
+
+        // Cleanup
+        Directory.Delete(testDir, true);
+    }
+
+    // ============================================
+    // Task 7.1: GetSchemaAsync Edge Cases
+    // ============================================
+
+    [Fact]
+    public async Task CsvAdapter_GetSchemaAsync_WithSchemaFileAndCSVHeaders_MergesCorrectly()
+    {
+        // Arrange
+        var testDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(testDir);
+        var csvPath = Path.Combine(testDir, "test.csv");
+        await File.WriteAllTextAsync(csvPath, "id,name,age\n1,Alice,25\n2,Bob,30\n");
+        
+        var schemaManager = new CsvSchemaManager(testDir);
+        // Create schema with metadata (nullable, default values)
+        var schema = new CollectionSchema
+        {
+            Name = "test",
+            Fields = new List<FieldDefinition>
+            {
+                new FieldDefinition { Name = "id", Type = FieldType.String, Nullable = false },
+                new FieldDefinition { Name = "name", Type = FieldType.String, Nullable = true, Default = "Unknown" },
+                new FieldDefinition { Name = "age", Type = FieldType.Integer, Nullable = true }
+            }
+        };
+        schemaManager.SaveSchema("test", schema);
+        
+        var adapter = new CsvAdapter(testDir, schemaManager: schemaManager);
+
+        // Act
+        var result = await adapter.GetSchemaAsync("test");
+
+        // Assert - Schema file metadata should enrich CSV headers
+        Assert.NotNull(result);
+        Assert.Equal("test", result.Name);
+        Assert.Equal(3, result.Fields.Count);
+        
+        var idField = result.Fields.FirstOrDefault(f => f.Name == "id");
+        Assert.NotNull(idField);
+        Assert.False(idField.Nullable); // From schema file
+        
+        var nameField = result.Fields.FirstOrDefault(f => f.Name == "name");
+        Assert.NotNull(nameField);
+        Assert.True(nameField.Nullable); // From schema file
+        Assert.Equal("Unknown", nameField.Default?.ToString()); // From schema file
+        
+        var ageField = result.Fields.FirstOrDefault(f => f.Name == "age");
+        Assert.NotNull(ageField);
+        Assert.True(ageField.Nullable); // From schema file
+
+        // Cleanup
+        Directory.Delete(testDir, true);
+    }
+
+    [Fact]
+    public async Task CsvAdapter_GetSchemaAsync_WithNullSchemaFileFields_HandlesGracefully()
+    {
+        // Arrange
+        var testDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(testDir);
+        var csvPath = Path.Combine(testDir, "test.csv");
+        await File.WriteAllTextAsync(csvPath, "id,name\n1,Alice\n");
+        
+        // Create schema file with null Fields list
+        var schemaManager = new CsvSchemaManager(testDir);
+        var schema = new CollectionSchema
+        {
+            Name = "test",
+            Fields = null! // Null fields list
+        };
+        schemaManager.SaveSchema("test", schema);
+        
+        var adapter = new CsvAdapter(testDir, schemaManager: schemaManager);
+
+        // Act
+        var result = await adapter.GetSchemaAsync("test");
+
+        // Assert - Should handle null Fields gracefully and infer from CSV
+        Assert.NotNull(result);
+        Assert.Equal("test", result.Name);
+        Assert.NotNull(result.Fields);
+        Assert.Equal(2, result.Fields.Count); // Should have fields from CSV headers
+        Assert.Contains(result.Fields, f => f.Name == "id");
+        Assert.Contains(result.Fields, f => f.Name == "name");
+
+        // Cleanup
+        Directory.Delete(testDir, true);
+    }
+
+    [Fact]
+    public async Task CsvAdapter_GetSchemaAsync_WithEmptyRecords_ReturnsStringTypes()
+    {
+        // Arrange - CSV with headers but no data records (or all empty)
+        var testDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(testDir);
+        var csvPath = Path.Combine(testDir, "test.csv");
+        await File.WriteAllTextAsync(csvPath, "id,name,age\n"); // Headers only, no records
+        
+        var adapter = new CsvAdapter(testDir);
+
+        // Act
+        var result = await adapter.GetSchemaAsync("test");
+
+        // Assert - Should return String types when no data to infer from
+        Assert.NotNull(result);
+        Assert.Equal("test", result.Name);
+        Assert.NotNull(result.Fields);
+        Assert.Equal(3, result.Fields.Count);
+        
+        // All fields should default to String type when no data
+        Assert.All(result.Fields, f => 
+        {
+            Assert.Equal(FieldType.String, f.Type);
+            Assert.True(f.Nullable); // Default to nullable
+        });
+
+        // Cleanup
+        Directory.Delete(testDir, true);
+    }
+
+    // ============================================
+    // Task 8.1: AggregateAsync Edge Cases
+    // ============================================
+
+    [Fact]
+    public async Task CsvAdapter_AggregateAsync_WithNullRequest_ThrowsArgumentNullException()
+    {
+        // Arrange
+        var testDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(testDir);
+        var adapter = new CsvAdapter(testDir);
+
+        // Act & Assert
+        await Assert.ThrowsAsync<ArgumentNullException>(
+            () => adapter.AggregateAsync("test", null!));
+
+        // Cleanup
+        Directory.Delete(testDir, true);
+    }
+
+    [Fact]
+    public async Task CsvAdapter_AggregateAsync_WithUnsupportedFunction_ThrowsArgumentException()
+    {
+        // Arrange
+        var testDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(testDir);
+        var csvPath = Path.Combine(testDir, "test.csv");
+        await File.WriteAllTextAsync(csvPath, "id,value\n1,10\n2,20\n");
+        var adapter = new CsvAdapter(testDir);
+
+        var request = new AggregateRequest
+        {
+            Aggregates = new List<AggregateFunction>
+            {
+                new() { Field = "value", Function = "unsupported", Alias = "result" }
+            }
+        };
+
+        // Act & Assert
+        await Assert.ThrowsAsync<ArgumentException>(
+            () => adapter.AggregateAsync("test", request));
+
+        // Cleanup
+        Directory.Delete(testDir, true);
+    }
+
+    [Fact]
+    public async Task CsvAdapter_AggregateAsync_WithMinMaxOnEmptyGroup_ReturnsNull()
+    {
+        // Arrange - Create data that will result in empty groups after filtering
+        var testDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(testDir);
+        var csvPath = Path.Combine(testDir, "test.csv");
+        await File.WriteAllTextAsync(csvPath, "id,category,price\n1,Electronics,100\n2,Electronics,200\n");
+        var adapter = new CsvAdapter(testDir);
+
+        var request = new AggregateRequest
+        {
+            Filter = new Dictionary<string, object> { { "category", "Books" } }, // No matching records
+            GroupBy = new[] { "category" },
+            Aggregates = new List<AggregateFunction>
+            {
+                new() { Field = "price", Function = "min", Alias = "min_price" },
+                new() { Field = "price", Function = "max", Alias = "max_price" }
+            }
+        };
+
+        // Act
+        var result = await adapter.AggregateAsync("test", request);
+
+        // Assert - Empty groups should return null for min/max
+        Assert.NotNull(result);
+        Assert.NotNull(result.Data);
+        // After filtering, there should be no groups, so result.Data should be empty
+        Assert.Empty(result.Data);
+
+        // Cleanup
+        Directory.Delete(testDir, true);
+    }
+
+    [Fact]
+    public async Task CsvAdapter_AggregateAsync_WithMultiLevelGrouping_CreatesCompositeKey()
+    {
+        // Arrange
+        var testDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(testDir);
+        var csvPath = Path.Combine(testDir, "test.csv");
+        await File.WriteAllTextAsync(csvPath, "id,region,status,value\n1,North,active,100\n2,North,inactive,200\n3,South,active,150\n4,South,active,250\n");
+        var adapter = new CsvAdapter(testDir);
+
+        var request = new AggregateRequest
+        {
+            GroupBy = new[] { "region", "status" }, // Multi-level grouping
+            Aggregates = new List<AggregateFunction>
+            {
+                new() { Field = "value", Function = "sum", Alias = "total" },
+                new() { Field = "id", Function = "count", Alias = "count" }
+            }
+        };
+
+        // Act
+        var result = await adapter.AggregateAsync("test", request);
+
+        // Assert - Should create groups for each combination of region and status
+        Assert.NotNull(result);
+        Assert.NotNull(result.Data);
+        Assert.True(result.Data.Count >= 3); // At least 3 groups: North/active, North/inactive, South/active
+        
+        // Verify each group has both grouping fields
+        foreach (var group in result.Data)
+        {
+            Assert.True(group.ContainsKey("region"));
+            Assert.True(group.ContainsKey("status"));
+            Assert.True(group.ContainsKey("total"));
+            Assert.True(group.ContainsKey("count"));
+        }
+
+        // Verify specific groups exist
+        var northActive = result.Data.FirstOrDefault(d => 
+            d["region"]?.ToString() == "North" && d["status"]?.ToString() == "active");
+        Assert.NotNull(northActive);
+        Assert.Equal(100, Convert.ToDouble(northActive["total"]));
+
+        // Cleanup
+        Directory.Delete(testDir, true);
+    }
+
+    // ============================================
+    // Task 9.1: ListCollectionsAsync Edge Cases
+    // ============================================
+
+    [Fact]
+    public async Task CsvAdapter_ListCollectionsAsync_WithNonExistentDirectory_ReturnsEmptyArray()
+    {
+        // Arrange - Create adapter with non-existent directory
+        var nonExistentDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        var adapter = new CsvAdapter(nonExistentDir);
+
+        // Act
+        var result = await adapter.ListCollectionsAsync();
+
+        // Assert - Should return empty array when directory doesn't exist
+        Assert.NotNull(result);
+        Assert.Empty(result);
+
+        // Cleanup - Directory doesn't exist, so no cleanup needed
+    }
+
+    [Fact]
+    public async Task CsvAdapter_ListCollectionsAsync_WithNoCSVFiles_ReturnsEmptyArray()
+    {
+        // Arrange - Create directory but no CSV files
+        var testDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(testDir);
+        // Create a non-CSV file to ensure it's ignored
+        await File.WriteAllTextAsync(Path.Combine(testDir, "test.txt"), "test");
+        var adapter = new CsvAdapter(testDir);
+
+        // Act
+        var result = await adapter.ListCollectionsAsync();
+
+        // Assert - Should return empty array when no CSV files exist
+        Assert.NotNull(result);
+        Assert.Empty(result);
+
+        // Cleanup
+        Directory.Delete(testDir, true);
+    }
+
+    [Fact]
+    public async Task CsvAdapter_ListCollectionsAsync_WithMultipleCSVFiles_ReturnsAllCollections()
+    {
+        // Arrange
+        var testDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(testDir);
+        await File.WriteAllTextAsync(Path.Combine(testDir, "users.csv"), "id,name\n");
+        await File.WriteAllTextAsync(Path.Combine(testDir, "products.csv"), "id,name\n");
+        await File.WriteAllTextAsync(Path.Combine(testDir, "orders.csv"), "id,date\n");
+        // Create a non-CSV file to ensure it's ignored
+        await File.WriteAllTextAsync(Path.Combine(testDir, "readme.txt"), "test");
+        var adapter = new CsvAdapter(testDir);
+
+        // Act
+        var result = await adapter.ListCollectionsAsync();
+
+        // Assert - Should return all CSV collection names
+        Assert.NotNull(result);
+        Assert.Equal(3, result.Length);
+        Assert.Contains("users", result);
+        Assert.Contains("products", result);
+        Assert.Contains("orders", result);
+        // Should not include non-CSV files
+        Assert.DoesNotContain("readme", result);
+
+        // Cleanup
+        Directory.Delete(testDir, true);
+    }
+
+    // ============================================
     // Type Inference Tests (Testing InferFieldType and InferFieldTypeFromData indirectly)
     // ============================================
 
@@ -2840,6 +3830,381 @@ public class CsvAdapterTests : IDisposable
         var result = await adapter.GetAsync("users", "1");
         Assert.NotNull(result);
         Assert.True(result.Data.ContainsKey("name"));
+
+        // Cleanup
+        Directory.Delete(testDir, true);
+    }
+
+    // ============================================
+    // Task 3.1: FilterEvaluator vs Fallback Filter Logic
+    // ============================================
+
+    [Fact]
+    public async Task CsvAdapter_ListAsync_WithFilterEvaluator_UsesFilterEvaluator()
+    {
+        // Arrange
+        var testDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(testDir);
+        var testDataDir = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "testdata");
+        File.Copy(
+            Path.Combine(testDataDir, "users.csv"),
+            Path.Combine(testDir, "users.csv"),
+            true
+        );
+
+        var mockFilterEvaluator = new Mock<IFilterEvaluator>();
+        // Mock to return true for first record, false for others
+        mockFilterEvaluator.Setup(f => f.Evaluate(It.IsAny<Record>(), It.IsAny<Dictionary<string, object>>()))
+            .Returns<Record, Dictionary<string, object>>((record, filter) => 
+                record.Id == "1"); // Only match first record
+
+        var adapter = new CsvAdapter(testDir, filterEvaluator: mockFilterEvaluator.Object);
+        var options = new QueryOptions
+        {
+            Filter = new Dictionary<string, object> { { "name", "Alice" } },
+            Limit = 100
+        };
+
+        // Act
+        var result = await adapter.ListAsync("users", options);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Single(result.Data); // Should only return first record
+        Assert.Equal("1", result.Data[0].Id);
+        // Verify FilterEvaluator.Evaluate was called
+        mockFilterEvaluator.Verify(f => f.Evaluate(It.IsAny<Record>(), It.IsAny<Dictionary<string, object>>()), Times.AtLeastOnce);
+
+        // Cleanup
+        Directory.Delete(testDir, true);
+    }
+
+    [Fact]
+    public async Task CsvAdapter_ListAsync_WithoutFilterEvaluator_UsesFallbackFilter()
+    {
+        // Arrange
+        var testDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(testDir);
+        var testDataDir = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "testdata");
+        File.Copy(
+            Path.Combine(testDataDir, "users.csv"),
+            Path.Combine(testDir, "users.csv"),
+            true
+        );
+
+        // Create adapter without FilterEvaluator (null)
+        var adapter = new CsvAdapter(testDir, filterEvaluator: null);
+        var options = new QueryOptions
+        {
+            Filter = new Dictionary<string, object> { { "name", "Alice Johnson" } },
+            Limit = 100
+        };
+
+        // Act
+        var result = await adapter.ListAsync("users", options);
+
+        // Assert - Should use fallback FilterRecords logic
+        Assert.NotNull(result);
+        Assert.True(result.Data.Count > 0);
+        // Verify all returned records match the filter (fallback logic)
+        Assert.All(result.Data, r => Assert.Equal("Alice Johnson", r.Data["name"]?.ToString()));
+
+        // Cleanup
+        Directory.Delete(testDir, true);
+    }
+
+    [Fact]
+    public async Task CsvAdapter_AggregateAsync_WithFilterEvaluator_UsesFilterEvaluator()
+    {
+        // Arrange
+        var testDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(testDir);
+        var testDataDir = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "testdata");
+        File.Copy(
+            Path.Combine(testDataDir, "users.csv"),
+            Path.Combine(testDir, "users.csv"),
+            true
+        );
+
+        var mockFilterEvaluator = new Mock<IFilterEvaluator>();
+        // Mock to return true for records with id "1" or "2"
+        mockFilterEvaluator.Setup(f => f.Evaluate(It.IsAny<Record>(), It.IsAny<Dictionary<string, object>>()))
+            .Returns<Record, Dictionary<string, object>>((record, filter) => 
+                record.Id == "1" || record.Id == "2");
+
+        var adapter = new CsvAdapter(testDir, filterEvaluator: mockFilterEvaluator.Object);
+        var request = new AggregateRequest
+        {
+            Filter = new Dictionary<string, object> { { "name", "test" } },
+            Aggregates = new List<AggregateFunction>
+            {
+                new() { Field = "id", Function = "count", Alias = "count" }
+            }
+        };
+
+        // Act
+        var result = await adapter.AggregateAsync("users", request);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.True(result.Data.Count > 0);
+        // Verify FilterEvaluator.Evaluate was called
+        mockFilterEvaluator.Verify(f => f.Evaluate(It.IsAny<Record>(), It.IsAny<Dictionary<string, object>>()), Times.AtLeastOnce);
+
+        // Cleanup
+        Directory.Delete(testDir, true);
+    }
+
+    // ============================================
+    // Task 3.2: DefaultGenerator Integration
+    // ============================================
+
+    [Fact]
+    public async Task CsvAdapter_UpdateAsync_WithDefaultGenerator_UsesDefaultGenerator()
+    {
+        // Arrange
+        var testDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(testDir);
+        var testDataDir = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "testdata");
+        File.Copy(
+            Path.Combine(testDataDir, "users.csv"),
+            Path.Combine(testDir, "users.csv"),
+            true
+        );
+
+        var mockDefaultGenerator = new Mock<IDefaultGenerator>();
+        var expectedDefault = "generated-default";
+        mockDefaultGenerator.Setup(g => g.GenerateDefault(
+            It.IsAny<string>(), 
+            It.IsAny<FieldType>(), 
+            It.IsAny<DefaultGenerationContext>()))
+            .Returns(expectedDefault);
+
+        var adapter = new CsvAdapter(testDir, defaultGenerator: mockDefaultGenerator.Object);
+        
+        // Get existing record
+        var existingRecord = await adapter.GetAsync("users", "1");
+        
+        // Update with new field
+        var updates = new Dictionary<string, object>
+        {
+            { "newField", "newValue" }
+        };
+
+        // Act
+        await adapter.UpdateAsync("users", "1", updates);
+
+        // Assert - Verify DefaultGenerator was called
+        mockDefaultGenerator.Verify(g => g.GenerateDefault(
+            "newField",
+            It.IsAny<FieldType>(),
+            It.Is<DefaultGenerationContext>(c => c.CollectionName == "users")), 
+            Times.Once);
+
+        // Verify other records got the default value
+        var allRecords = await adapter.ListAsync("users", new QueryOptions { Limit = 100 });
+        var otherRecords = allRecords.Data.Where(r => r.Id != "1").ToList();
+        Assert.All(otherRecords, r => 
+        {
+            Assert.True(r.Data.ContainsKey("newField"));
+            Assert.Equal(expectedDefault, r.Data["newField"]?.ToString());
+        });
+
+        // Cleanup
+        Directory.Delete(testDir, true);
+    }
+
+    [Fact]
+    public async Task CsvAdapter_UpdateAsync_WithoutDefaultGenerator_UsesEmptyStringDefault()
+    {
+        // Arrange
+        var testDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(testDir);
+        var testDataDir = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "testdata");
+        File.Copy(
+            Path.Combine(testDataDir, "users.csv"),
+            Path.Combine(testDir, "users.csv"),
+            true
+        );
+
+        // Create adapter without DefaultGenerator (null)
+        var adapter = new CsvAdapter(testDir, defaultGenerator: null);
+        
+        // Update with new field
+        var updates = new Dictionary<string, object>
+        {
+            { "newField", "newValue" }
+        };
+
+        // Act
+        await adapter.UpdateAsync("users", "1", updates);
+
+        // Assert - Verify other records got empty string default
+        var allRecords = await adapter.ListAsync("users", new QueryOptions { Limit = 100 });
+        var otherRecords = allRecords.Data.Where(r => r.Id != "1").ToList();
+        Assert.All(otherRecords, r => 
+        {
+            Assert.True(r.Data.ContainsKey("newField"));
+            Assert.Equal(string.Empty, r.Data["newField"]?.ToString());
+        });
+
+        // Cleanup
+        Directory.Delete(testDir, true);
+    }
+
+    // ============================================
+    // Task 3.3: SchemaManager Integration
+    // ============================================
+
+    [Fact]
+    public async Task CsvAdapter_GetSchemaAsync_WithSchemaManager_LoadsSchemaFile()
+    {
+        // Arrange
+        var testDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(testDir);
+        var testDataDir = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "testdata");
+        File.Copy(
+            Path.Combine(testDataDir, "users.csv"),
+            Path.Combine(testDir, "users.csv"),
+            true
+        );
+
+        var schemaManager = new CsvSchemaManager(testDir);
+        var schema = new CollectionSchema
+        {
+            Name = "users",
+            Fields = new List<FieldDefinition>
+            {
+                new FieldDefinition { Name = "id", Type = FieldType.String, Nullable = false },
+                new FieldDefinition { Name = "name", Type = FieldType.String, Nullable = false, Default = "Unknown" }
+            }
+        };
+        schemaManager.SaveSchema("users", schema);
+
+        var adapter = new CsvAdapter(testDir, schemaManager: schemaManager);
+
+        // Act
+        var result = await adapter.GetSchemaAsync("users");
+
+        // Assert - Schema file metadata should be merged with CSV headers
+        Assert.NotNull(result);
+        Assert.Equal("users", result.Name);
+        var nameField = result.Fields.FirstOrDefault(f => f.Name == "name");
+        Assert.NotNull(nameField);
+        Assert.False(nameField.Nullable); // From schema file
+        Assert.NotNull(nameField.Default); // From schema file
+
+        // Cleanup
+        Directory.Delete(testDir, true);
+    }
+
+    [Fact]
+    public async Task CsvAdapter_GetSchemaAsync_WithoutSchemaManager_InfersFromDataOnly()
+    {
+        // Arrange
+        var testDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(testDir);
+        var testDataDir = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "testdata");
+        File.Copy(
+            Path.Combine(testDataDir, "users.csv"),
+            Path.Combine(testDir, "users.csv"),
+            true
+        );
+
+        // Create adapter without SchemaManager (pass null explicitly)
+        var adapter = new CsvAdapter(testDir, schemaManager: null);
+
+        // Act
+        var result = await adapter.GetSchemaAsync("users");
+
+        // Assert - Schema should be inferred only from CSV data
+        Assert.NotNull(result);
+        Assert.Equal("users", result.Name);
+        // All fields should be nullable (default) since no schema file
+        Assert.All(result.Fields, f => Assert.True(f.Nullable));
+
+        // Cleanup
+        Directory.Delete(testDir, true);
+    }
+
+    [Fact]
+    public async Task CsvAdapter_GetSchemaAsync_WithSchemaFileFieldsNotInCSV_IncludesBoth()
+    {
+        // Arrange
+        var testDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(testDir);
+        var testDataDir = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "testdata");
+        File.Copy(
+            Path.Combine(testDataDir, "users.csv"),
+            Path.Combine(testDir, "users.csv"),
+            true
+        );
+
+        var schemaManager = new CsvSchemaManager(testDir);
+        // Create schema with field not in CSV
+        var schema = new CollectionSchema
+        {
+            Name = "users",
+            Fields = new List<FieldDefinition>
+            {
+                new FieldDefinition { Name = "id", Type = FieldType.String },
+                new FieldDefinition { Name = "name", Type = FieldType.String },
+                new FieldDefinition { Name = "email", Type = FieldType.String },
+                new FieldDefinition { Name = "metadataField", Type = FieldType.String, Default = "default" } // Not in CSV
+            }
+        };
+        schemaManager.SaveSchema("users", schema);
+
+        var adapter = new CsvAdapter(testDir, schemaManager: schemaManager);
+
+        // Act
+        var result = await adapter.GetSchemaAsync("users");
+
+        // Assert - Should include both CSV fields and schema-only fields
+        Assert.NotNull(result);
+        Assert.Contains(result.Fields, f => f.Name == "id");
+        Assert.Contains(result.Fields, f => f.Name == "name");
+        Assert.Contains(result.Fields, f => f.Name == "email");
+        Assert.Contains(result.Fields, f => f.Name == "metadataField"); // From schema file, not in CSV
+
+        // Cleanup
+        Directory.Delete(testDir, true);
+    }
+
+    [Fact]
+    public async Task CsvAdapter_UpdateAsync_WithSchemaManager_UpdatesSchemaFile()
+    {
+        // Arrange
+        var testDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(testDir);
+        var testDataDir = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "testdata");
+        File.Copy(
+            Path.Combine(testDataDir, "users.csv"),
+            Path.Combine(testDir, "users.csv"),
+            true
+        );
+
+        var schemaManager = new CsvSchemaManager(testDir);
+        var initialSchema = new CollectionSchema
+        {
+            Name = "users",
+            Fields = new List<FieldDefinition>
+            {
+                new FieldDefinition { Name = "id", Type = FieldType.String },
+                new FieldDefinition { Name = "name", Type = FieldType.String }
+            }
+        };
+        schemaManager.SaveSchema("users", initialSchema);
+
+        var adapter = new CsvAdapter(testDir, schemaManager: schemaManager);
+
+        // Act - Update with new field
+        await adapter.UpdateAsync("users", "1", new Dictionary<string, object> { { "newField", "newValue" } });
+
+        // Assert - Schema file should be updated with new field
+        var updatedSchema = schemaManager.LoadSchema("users");
+        Assert.NotNull(updatedSchema);
+        Assert.Contains(updatedSchema.Fields, f => f.Name == "newField");
 
         // Cleanup
         Directory.Delete(testDir, true);

@@ -630,5 +630,75 @@ public class CsvSchemaManagerTests
         // Cleanup
         Directory.Delete(tempDir, true);
     }
+
+    // ============================================
+    // Task 1.1: SchemaExists Method Tests
+    // ============================================
+
+    [Fact]
+    public void CsvSchemaManager_SchemaExists_WhenFileExists_ReturnsTrue()
+    {
+        // Arrange
+        var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(tempDir);
+        
+        var manager = new CsvSchemaManager(tempDir);
+        var schema = new CollectionSchema
+        {
+            Name = "test",
+            Fields = new List<FieldDefinition>
+            {
+                new FieldDefinition { Name = "id", Type = FieldType.String }
+            }
+        };
+        manager.SaveSchema("test", schema);
+
+        // Act
+        var exists = manager.SchemaExists("test");
+
+        // Assert
+        Assert.True(exists, "SchemaExists should return true when schema file exists");
+
+        // Cleanup
+        Directory.Delete(tempDir, true);
+    }
+
+    [Fact]
+    public void CsvSchemaManager_SchemaExists_WhenFileDoesNotExist_ReturnsFalse()
+    {
+        // Arrange
+        var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(tempDir);
+        
+        var manager = new CsvSchemaManager(tempDir);
+
+        // Act
+        var exists = manager.SchemaExists("nonexistent");
+
+        // Assert
+        Assert.False(exists, "SchemaExists should return false when schema file does not exist");
+
+        // Cleanup
+        Directory.Delete(tempDir, true);
+    }
+
+    [Fact]
+    public void CsvSchemaManager_SchemaExists_WithEmptyCollectionName_ReturnsFalse()
+    {
+        // Arrange
+        var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(tempDir);
+        
+        var manager = new CsvSchemaManager(tempDir);
+
+        // Act
+        var exists = manager.SchemaExists("");
+
+        // Assert
+        Assert.False(exists, "SchemaExists should return false for empty collection name");
+
+        // Cleanup
+        Directory.Delete(tempDir, true);
+    }
 }
 

@@ -63,6 +63,7 @@ nunit-*.xml
 coverage/
 *.coverage
 *.coverage.xml
+coverage.json
 
 # IDE - Visual Studio Code
 .vscode/
