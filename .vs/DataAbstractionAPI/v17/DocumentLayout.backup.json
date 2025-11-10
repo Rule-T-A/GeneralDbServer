@@ -3,6 +3,14 @@
   "WorkspaceRootPath": "C:\\Users\\katie\\Project Files\\GeneralDbServer\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{D244FDA6-9ECE-4F35-8286-2BB3C39CF825}|DataAbstractionAPI.API\\DataAbstractionAPI.API.csproj|c:\\users\\katie\\project files\\generaldbserver\\dataabstractionapi.api\\controllers\\datacontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D244FDA6-9ECE-4F35-8286-2BB3C39CF825}|DataAbstractionAPI.API\\DataAbstractionAPI.API.csproj|solutionrelative:dataabstractionapi.api\\controllers\\datacontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D244FDA6-9ECE-4F35-8286-2BB3C39CF825}|DataAbstractionAPI.API\\DataAbstractionAPI.API.csproj|c:\\users\\katie\\project files\\generaldbserver\\dataabstractionapi.api\\dataabstractionapi.api.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{D244FDA6-9ECE-4F35-8286-2BB3C39CF825}|DataAbstractionAPI.API\\DataAbstractionAPI.API.csproj|solutionrelative:dataabstractionapi.api\\dataabstractionapi.api.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{5ABD718C-5307-46EA-95E5-94BF4DBD38DA}|DataAbstractionAPI.Core\\DataAbstractionAPI.Core.csproj|c:\\users\\katie\\project files\\generaldbserver\\dataabstractionapi.core\\enums\\defaultgenerationstrategy.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{5ABD718C-5307-46EA-95E5-94BF4DBD38DA}|DataAbstractionAPI.Core\\DataAbstractionAPI.Core.csproj|solutionrelative:dataabstractionapi.core\\enums\\defaultgenerationstrategy.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -39,20 +47,12 @@
       "RelativeMoniker": "D:0:0:{D244FDA6-9ECE-4F35-8286-2BB3C39CF825}|DataAbstractionAPI.API\\DataAbstractionAPI.API.csproj|solutionrelative:dataabstractionapi.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{D244FDA6-9ECE-4F35-8286-2BB3C39CF825}|DataAbstractionAPI.API\\DataAbstractionAPI.API.csproj|c:\\users\\katie\\project files\\generaldbserver\\dataabstractionapi.api\\controllers\\datacontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{D244FDA6-9ECE-4F35-8286-2BB3C39CF825}|DataAbstractionAPI.API\\DataAbstractionAPI.API.csproj|solutionrelative:dataabstractionapi.api\\controllers\\datacontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{D8981CA8-61AC-4FE5-A8DA-05876DEE68D8}|DataAbstractionAPI.Core.Tests\\DataAbstractionAPI.Core.Tests.csproj|c:\\users\\katie\\project files\\generaldbserver\\dataabstractionapi.core.tests\\enums\\storagetypetests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{D8981CA8-61AC-4FE5-A8DA-05876DEE68D8}|DataAbstractionAPI.Core.Tests\\DataAbstractionAPI.Core.Tests.csproj|solutionrelative:dataabstractionapi.core.tests\\enums\\storagetypetests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{1BEF58B1-F5C6-4647-8470-BFFCA88C72A2}|DataAbstractionAPI.API.Tests\\DataAbstractionAPI.API.Tests.csproj|c:\\users\\katie\\project files\\generaldbserver\\dataabstractionapi.api.tests\\datacontrollertests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{1BEF58B1-F5C6-4647-8470-BFFCA88C72A2}|DataAbstractionAPI.API.Tests\\DataAbstractionAPI.API.Tests.csproj|solutionrelative:dataabstractionapi.api.tests\\datacontrollertests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{D244FDA6-9ECE-4F35-8286-2BB3C39CF825}|DataAbstractionAPI.API\\DataAbstractionAPI.API.csproj|c:\\users\\katie\\project files\\generaldbserver\\dataabstractionapi.api\\dataabstractionapi.api.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
-      "RelativeMoniker": "D:0:0:{D244FDA6-9ECE-4F35-8286-2BB3C39CF825}|DataAbstractionAPI.API\\DataAbstractionAPI.API.csproj|solutionrelative:dataabstractionapi.api\\dataabstractionapi.api.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
     },
     {
       "AbsoluteMoniker": "D:0:0:{D8981CA8-61AC-4FE5-A8DA-05876DEE68D8}|DataAbstractionAPI.Core.Tests\\DataAbstractionAPI.Core.Tests.csproj|c:\\users\\katie\\project files\\generaldbserver\\dataabstractionapi.core.tests\\exceptions\\conversionexceptiontests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -103,30 +103,6 @@
             {
               "$type": "Document",
               "DocumentIndex": 2,
-              "Title": "ConversionException.cs",
-              "DocumentMoniker": "C:\\Users\\katie\\Project Files\\GeneralDbServer\\DataAbstractionAPI.Core\\Exceptions\\ConversionException.cs",
-              "RelativeDocumentMoniker": "DataAbstractionAPI.Core\\Exceptions\\ConversionException.cs",
-              "ToolTip": "C:\\Users\\katie\\Project Files\\GeneralDbServer\\DataAbstractionAPI.Core\\Exceptions\\ConversionException.cs",
-              "RelativeToolTip": "DataAbstractionAPI.Core\\Exceptions\\ConversionException.cs",
-              "ViewState": "AgIAACAAAAAAAAAAAABFwAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-06T04:25:34.537Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "ConversionStrategy.cs",
-              "DocumentMoniker": "C:\\Users\\katie\\Project Files\\GeneralDbServer\\DataAbstractionAPI.Core\\Enums\\ConversionStrategy.cs",
-              "RelativeDocumentMoniker": "DataAbstractionAPI.Core\\Enums\\ConversionStrategy.cs",
-              "ToolTip": "C:\\Users\\katie\\Project Files\\GeneralDbServer\\DataAbstractionAPI.Core\\Enums\\ConversionStrategy.cs",
-              "RelativeToolTip": "DataAbstractionAPI.Core\\Enums\\ConversionStrategy.cs",
-              "ViewState": "AgIAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-06T04:24:26.88Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
               "Title": "DefaultGenerationStrategy.cs",
               "DocumentMoniker": "C:\\Users\\katie\\Project Files\\GeneralDbServer\\DataAbstractionAPI.Core\\Enums\\DefaultGenerationStrategy.cs",
               "RelativeDocumentMoniker": "DataAbstractionAPI.Core\\Enums\\DefaultGenerationStrategy.cs",
@@ -139,7 +115,57 @@
             },
             {
               "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "DataAbstractionAPI.API.csproj",
+              "DocumentMoniker": "C:\\Users\\katie\\Project Files\\GeneralDbServer\\DataAbstractionAPI.API\\DataAbstractionAPI.API.csproj",
+              "RelativeDocumentMoniker": "DataAbstractionAPI.API\\DataAbstractionAPI.API.csproj",
+              "ToolTip": "C:\\Users\\katie\\Project Files\\GeneralDbServer\\DataAbstractionAPI.API\\DataAbstractionAPI.API.csproj",
+              "RelativeToolTip": "DataAbstractionAPI.API\\DataAbstractionAPI.API.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2025-11-04T03:38:23.679Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "DataController.cs",
+              "DocumentMoniker": "C:\\Users\\katie\\Project Files\\GeneralDbServer\\DataAbstractionAPI.API\\Controllers\\DataController.cs",
+              "RelativeDocumentMoniker": "DataAbstractionAPI.API\\Controllers\\DataController.cs",
+              "ToolTip": "C:\\Users\\katie\\Project Files\\GeneralDbServer\\DataAbstractionAPI.API\\Controllers\\DataController.cs",
+              "RelativeToolTip": "DataAbstractionAPI.API\\Controllers\\DataController.cs",
+              "ViewState": "AgIAAEoAAAAAAAAAAAA7wAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-06T04:24:04.448Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 3,
+              "Title": "ConversionStrategy.cs",
+              "DocumentMoniker": "C:\\Users\\katie\\Project Files\\GeneralDbServer\\DataAbstractionAPI.Core\\Enums\\ConversionStrategy.cs",
+              "RelativeDocumentMoniker": "DataAbstractionAPI.Core\\Enums\\ConversionStrategy.cs",
+              "ToolTip": "C:\\Users\\katie\\Project Files\\GeneralDbServer\\DataAbstractionAPI.Core\\Enums\\ConversionStrategy.cs",
+              "RelativeToolTip": "DataAbstractionAPI.Core\\Enums\\ConversionStrategy.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-06T04:24:26.88Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "ConversionException.cs",
+              "DocumentMoniker": "C:\\Users\\katie\\Project Files\\GeneralDbServer\\DataAbstractionAPI.Core\\Exceptions\\ConversionException.cs",
+              "RelativeDocumentMoniker": "DataAbstractionAPI.Core\\Exceptions\\ConversionException.cs",
+              "ToolTip": "C:\\Users\\katie\\Project Files\\GeneralDbServer\\DataAbstractionAPI.Core\\Exceptions\\ConversionException.cs",
+              "RelativeToolTip": "DataAbstractionAPI.Core\\Exceptions\\ConversionException.cs",
+              "ViewState": "AgIAACAAAAAAAAAAAABFwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-06T04:25:34.537Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
               "Title": "CollectionSchemaTests.cs",
               "DocumentMoniker": "C:\\Users\\katie\\Project Files\\GeneralDbServer\\DataAbstractionAPI.Core.Tests\\Models\\CollectionSchemaTests.cs",
               "RelativeDocumentMoniker": "DataAbstractionAPI.Core.Tests\\Models\\CollectionSchemaTests.cs",
@@ -151,7 +177,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 6,
               "Title": "CreateResult.cs",
               "DocumentMoniker": "C:\\Users\\katie\\Project Files\\GeneralDbServer\\DataAbstractionAPI.Core\\Models\\CreateResult.cs",
               "RelativeDocumentMoniker": "DataAbstractionAPI.Core\\Models\\CreateResult.cs",
@@ -163,7 +189,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 7,
               "Title": "CollectionSchema.cs",
               "DocumentMoniker": "C:\\Users\\katie\\Project Files\\GeneralDbServer\\DataAbstractionAPI.Core\\Models\\CollectionSchema.cs",
               "RelativeDocumentMoniker": "DataAbstractionAPI.Core\\Models\\CollectionSchema.cs",
@@ -175,7 +201,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 8,
               "Title": "StorageType.cs",
               "DocumentMoniker": "C:\\Users\\katie\\Project Files\\GeneralDbServer\\DataAbstractionAPI.Core\\Enums\\StorageType.cs",
               "RelativeDocumentMoniker": "DataAbstractionAPI.Core\\Enums\\StorageType.cs",
@@ -187,7 +213,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 9,
               "Title": "FieldType.cs",
               "DocumentMoniker": "C:\\Users\\katie\\Project Files\\GeneralDbServer\\DataAbstractionAPI.Core\\Enums\\FieldType.cs",
               "RelativeDocumentMoniker": "DataAbstractionAPI.Core\\Enums\\FieldType.cs",
@@ -199,7 +225,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 10,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\katie\\Project Files\\GeneralDbServer\\DataAbstractionAPI.API\\Program.cs",
               "RelativeDocumentMoniker": "DataAbstractionAPI.API\\Program.cs",
@@ -208,30 +234,6 @@
               "ViewState": "AgIAAC0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-11-06T04:24:15.215Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 9,
-              "Title": "DataController.cs",
-              "DocumentMoniker": "C:\\Users\\katie\\Project Files\\GeneralDbServer\\DataAbstractionAPI.API\\Controllers\\DataController.cs",
-              "RelativeDocumentMoniker": "DataAbstractionAPI.API\\Controllers\\DataController.cs",
-              "ToolTip": "C:\\Users\\katie\\Project Files\\GeneralDbServer\\DataAbstractionAPI.API\\Controllers\\DataController.cs",
-              "RelativeToolTip": "DataAbstractionAPI.API\\Controllers\\DataController.cs",
-              "ViewState": "AgIAACcAAAAAAAAAAAA4wAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-06T04:24:04.448Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 12,
-              "Title": "DataAbstractionAPI.API.csproj",
-              "DocumentMoniker": "C:\\Users\\katie\\Project Files\\GeneralDbServer\\DataAbstractionAPI.API\\DataAbstractionAPI.API.csproj",
-              "RelativeDocumentMoniker": "DataAbstractionAPI.API\\DataAbstractionAPI.API.csproj",
-              "ToolTip": "C:\\Users\\katie\\Project Files\\GeneralDbServer\\DataAbstractionAPI.API\\DataAbstractionAPI.API.csproj",
-              "RelativeToolTip": "DataAbstractionAPI.API\\DataAbstractionAPI.API.csproj",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2025-11-04T03:38:23.679Z"
             },
             {
               "$type": "Document",
@@ -247,7 +249,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 11,
               "Title": "StorageTypeTests.cs",
               "DocumentMoniker": "C:\\Users\\katie\\Project Files\\GeneralDbServer\\DataAbstractionAPI.Core.Tests\\Enums\\StorageTypeTests.cs",
               "RelativeDocumentMoniker": "DataAbstractionAPI.Core.Tests\\Enums\\StorageTypeTests.cs",
@@ -259,7 +261,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 12,
               "Title": "DataControllerTests.cs",
               "DocumentMoniker": "C:\\Users\\katie\\Project Files\\GeneralDbServer\\DataAbstractionAPI.API.Tests\\DataControllerTests.cs",
               "RelativeDocumentMoniker": "DataAbstractionAPI.API.Tests\\DataControllerTests.cs",

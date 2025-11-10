@@ -2,10 +2,10 @@
 
 A .NET Core implementation of a unified data abstraction layer that provides a consistent interface for interacting with data across different storage backends.
 
-**Status**: Phase 1 + 1.x + 2 + 3 + 3.1 Complete ✅  
+**Status**: Phase 1 + 1.x + 2 + 3 + 3.1 + Advanced Data Endpoints Complete ✅  
 **Last Updated**: November 2025  
 **Test Coverage**: 91.27% Services layer (independently verified)  
-**Total Tests**: 316 passing (39 Core + 66 Adapter + 185 Services + 26 API)
+**Total Tests**: 403 passing (39 Core + 87 Adapter + 185 Services + 92 API)
 
 ---
 
@@ -18,11 +18,12 @@ This project implements a storage-agnostic data access API following TDD (Test-D
 - **File locking** for concurrency safety
 - **Security validation** to prevent path traversal attacks
 - **Full CRUD operations** (Create, Read, Update, Delete)
+- **Advanced Data Endpoints** (Bulk Operations, Summary, Aggregate)
 - **Schema operations** (Get schema, List collections)
 - **Services layer** (DefaultGenerator, TypeConverter, FilterEvaluator, ValidationService)
 - **REST API** with Swagger documentation
 - **Limitations remediation** (cancellation tokens, retry logic, field persistence, schema consistency)
-- **Comprehensive test coverage** (316 tests passing, 91.27% Services coverage)
+- **Comprehensive test coverage** (403 tests passing, 91.27% Services coverage)
 
 ---
 
@@ -310,12 +311,12 @@ var results = await adapter.ListAsync("users", options);
 ## Test Results
 
 ```bash
-Test Run Summary (End of Phase 3.1):
+Test Run Summary (End of Advanced Data Endpoints):
 ✓ Core.Tests: 39 tests passed
-✓ Adapters.Tests: 66 tests passed
+✓ Adapters.Tests: 87 tests passed (21 new tests for Advanced Data Endpoints)
 ✓ Services.Tests: 185 tests passed
-✓ API.Tests: 26 tests passed
-Total: 316 tests, 316 passed, 0 failed
+✓ API.Tests: 92 tests passed (66 new tests including Advanced Data Endpoints integration tests)
+Total: 403 tests, 403 passed, 0 failed
 ```
 
 ### Test Coverage (End of Phase 2)
@@ -346,6 +347,9 @@ dotnet test
 - **Create**: Add new records with auto-generated GUID IDs
 - **Update**: Modify existing records (partial updates supported)
 - **Delete**: Remove records by ID
+- **Bulk Operations**: Batch create/update/delete with atomic or best-effort mode
+- **Summary**: Get field value counts for simple aggregations
+- **Aggregate**: Complex aggregations with grouping and multiple functions (count, sum, avg, min, max)
 - **Schema**: Get collection schema, list collections
 - **Upload**: Upload CSV files to create or replace collections via Swagger UI or API
 - **Field projection**: Available in adapter layer (not yet exposed via REST API)
@@ -433,6 +437,65 @@ var created = await adapter.CreateAsync("users", newRecord);
 // created.Id contains the generated GUID
 ```
 
+### Advanced Data Operations
+
+#### Bulk Operations
+```csharp
+// Bulk create with atomic mode (all succeed or all fail)
+var bulkRequest = new BulkOperationRequest
+{
+    Action = "create",
+    Atomic = true,
+    Records = new List<Dictionary<string, object>>
+    {
+        new() { { "name", "Alice" }, { "email", "alice@example.com" } },
+        new() { { "name", "Bob" }, { "email", "bob@example.com" } }
+    }
+};
+var bulkResult = await adapter.BulkOperationAsync("users", bulkRequest);
+// bulkResult.Success indicates if all operations succeeded
+// bulkResult.Ids contains all created IDs
+
+// Bulk update with best-effort mode (partial success allowed)
+var updateRequest = new BulkOperationRequest
+{
+    Action = "update",
+    Atomic = false,
+    Records = new List<Dictionary<string, object>>
+    {
+        new() { { "id", "123" }, { "status", "active" } },
+        new() { { "id", "456" }, { "status", "inactive" } }
+    }
+};
+var updateResult = await adapter.BulkOperationAsync("users", updateRequest);
+// updateResult.Results contains per-item success/failure details
+```
+
+#### Summary (Field Value Counts)
+```csharp
+// Get count of values for a specific field
+var summary = await adapter.GetSummaryAsync("users", "status");
+// summary.Counts contains: { "active": 45, "inactive": 12, "pending": 8 }
+```
+
+#### Aggregate Operations
+```csharp
+// Group by category and calculate aggregates
+var aggregateRequest = new AggregateRequest
+{
+    GroupBy = new[] { "category" },
+    Aggregates = new List<AggregateFunction>
+    {
+        new() { Field = "id", Function = "count", Alias = "count" },
+        new() { Field = "price", Function = "sum", Alias = "total_price" },
+        new() { Field = "price", Function = "avg", Alias = "avg_price" }
+    },
+    Filter = new Dictionary<string, object> { { "status", "active" } }
+};
+var aggregateResult = await adapter.AggregateAsync("products", aggregateRequest);
+// aggregateResult.Data contains grouped and aggregated results
+```
+
 ---
 
 ## Architecture
@@ -489,13 +552,18 @@ CsvAdapterTests
 
 **Note**: DefaultGenerator service is implemented and ready for use, but not yet integrated into the API endpoints.
 
-### Phase 3: REST API ✅ COMPLETE (Basic Implementation)
+### Phase 3: REST API ✅ COMPLETE (Basic Implementation + Advanced Data Endpoints)
 - [x] REST API with ASP.NET Core Web API
 - [x] Swagger documentation
 - [x] Basic CRUD endpoints (Create, Read, Update, Delete)
+- [x] **Advanced Data Endpoints**:
+  - [x] **Bulk Operations** (`POST /api/data/{collection}/bulk`) - Batch create/update/delete with atomic or best-effort mode
+  - [x] **Summary** (`GET /api/data/{collection}/summary?field={fieldName}`) - Field value counts
+  - [x] **Aggregate** (`POST /api/data/{collection}/aggregate`) - Complex aggregations with grouping and multiple functions
 - [x] Collections listing endpoint
 - [x] Schema endpoint
 - [x] **CSV file upload endpoint** - Upload CSV files to create or replace collections
+- [x] **Agent Discovery Endpoint** (`GET /api/data/help`) - Machine-readable API information
 - [x] API key authentication (optional, configurable)
 - [x] DI integration
 - [x] HTTPS support
@@ -503,7 +571,7 @@ CsvAdapterTests
 - [x] **CORS configuration** - Cross-Origin Resource Sharing support for web clients
 - Port: http://localhost:5012, https://localhost:7128
 
-**Note**: The current API implementation is a basic version. The adapter supports filtering, sorting, pagination, and field selection via QueryOptions, but the REST API controller currently only exposes the `limit` query parameter. Full query parameter support can be added in future iterations.
+**Note**: The current API implementation includes advanced data operations. The adapter supports filtering, sorting, pagination, and field selection via QueryOptions, but the REST API controller currently only exposes the `limit` query parameter. Full query parameter support can be added in future iterations.
 
 #### CORS Configuration
 
@@ -529,6 +597,13 @@ For detailed CORS configuration options, see `DataAbstractionAPI.API/Configurati
 - [x] **New field persistence**: Headers updated when new fields added via UpdateAsync
 - [x] **Intelligent defaults**: DefaultGenerator integration for new field defaults
 - [x] **Schema file consistency**: CSV headers as source of truth, schema files as optional metadata
+
+### Phase 3.2: Advanced Data Endpoints ✅ COMPLETE
+- [x] **Bulk Operations**: Batch create/update/delete operations with atomic or best-effort mode
+- [x] **Summary Endpoint**: Simple field aggregation (value counts)
+- [x] **Aggregate Endpoint**: Complex aggregations with grouping and multiple functions (count, sum, avg, min, max)
+- [x] **Comprehensive test coverage**: 22 new adapter tests + 66 new API integration tests
+- [x] **Swagger documentation**: All endpoints fully documented with XML comments
 
 ### Upcoming Phases
 - **Phase 4**: Management UI (Blazor Server) - Ready to start
@@ -590,4 +665,4 @@ Historical and outdated documentation has been moved to the `archive/` folder fo
 
 This is an active development project. See `IMPLEMENTATION_PLAN.md` for detailed implementation roadmap.
 
-**Current Focus**: Phase 3.1 complete - all limitations remediated, API robust and ready. Ready for Phase 4 (Management UI).
+**Current Focus**: Phase 3.2 complete - Advanced Data Endpoints implemented with full test coverage. Ready for Phase 4 (Management UI).

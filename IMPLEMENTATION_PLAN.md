@@ -1,6 +1,6 @@
 # Data Abstraction API - TDD Implementation Plan
 
-**Status**: Phase 1 + Phase 1.x + Phase 2 + Phase 3 + Phase 3.1 COMPLETE ✅ (Full CRUD operations, Services Layer, REST API, and Limitations Remediation implemented)
+**Status**: Phase 1 + Phase 1.x + Phase 2 + Phase 3 + Phase 3.1 + Phase 3.2 COMPLETE ✅ (Full CRUD operations, Services Layer, REST API, Limitations Remediation, and Advanced Data Endpoints implemented)
 **Last Updated**: November 2025
 
 ## Overview
@@ -25,7 +25,8 @@ This plan follows Test-Driven Development (TDD) principles:
 - ✅ **Phase 2**: COMPLETE - All services implemented (DefaultGenerator, TypeConverter, FilterEvaluator, ValidationService) + Integration tests
 - ✅ **Phase 3**: COMPLETE - REST API with Swagger implemented (running on localhost:5012)
 - ✅ **Phase 3.1**: COMPLETE - Limitations remediation implemented (all 6 steps completed)
-- ⏸️ **Phase 4**: READY TO START - Management UI (recommended after Phase 3.1)
+- ✅ **Phase 3.2**: COMPLETE - Advanced Data Endpoints implemented (Bulk, Summary, Aggregate)
+- ⏸️ **Phase 4**: READY TO START - Management UI (recommended after Phase 3.2)
 - ⏸️ **Phase 5**: WAITING FOR PHASE 4
 
 **Phase 3.1 Completed Items**:
@@ -37,7 +38,7 @@ This plan follows Test-Driven Development (TDD) principles:
 - ✅ Intelligent defaults (DefaultGenerator integration)
 - ✅ Schema file consistency (CSV headers as source of truth)
 
-**Total Tests**: 330 passing (39 Core + 66 Adapter + 185 Services + 40 API tests: 15 controller + 11 auth + 15 error handling)
+**Total Tests**: 403 passing (39 Core + 87 Adapter + 185 Services + 92 API tests: 15 controller + 11 auth + 15 error handling + 51 advanced endpoints)
 
 **Note**: Comprehensive test suite added (Phase 3.1 preparation) - see `TEST_IMPLEMENTATION_SUMMARY.md`
 
@@ -59,8 +60,11 @@ The current `IDataAdapter` interface is simplified to ~60% of the full specifica
 **Not in Current Interface (Available as needed):**
 
 - Schema operations: AddFieldAsync, ModifyFieldAsync, DeleteFieldAsync, etc.
-- Bulk operations: BulkOperationAsync, GetSummaryAsync, AggregateAsync
-- Result models: UpdateResult, DeleteResult, BulkResult, AggregateResult, SchemaResult
+
+**Recently Added (Phase 3.2):**
+
+- ✅ Bulk operations: BulkOperationAsync, GetSummaryAsync, AggregateAsync
+- ✅ Result models: BulkResult, SummaryResult, AggregateResult, BulkOperationItemResult
 
 **Strategic Decision:**
 
@@ -1197,7 +1201,53 @@ dotnet test --filter "Schema"
 
 **Test Results**: ✅ All 316 tests passing
 
-**Phase Gate**: ✅ PHASE 3.1 COMPLETE - Ready for Phase 4
+**Phase Gate**: ✅ PHASE 3.1 COMPLETE
+
+---
+
+## Phase 3.2: Advanced Data Endpoints (Week 5)
+
+**Status**: ✅ COMPLETE
+
+**Goal**: Implement advanced data operation endpoints (Bulk Operations, Summary, Aggregate)
+
+### ✅ Step 3.2.1: Extend Core Interface - COMPLETE
+
+- [X] Added `BulkOperationAsync` method to `IDataAdapter` ✅
+- [X] Added `GetSummaryAsync` method to `IDataAdapter` ✅
+- [X] Added `AggregateAsync` method to `IDataAdapter` ✅
+- [X] Created core models: `BulkOperationRequest`, `BulkResult`, `BulkOperationItemResult`, `SummaryResult`, `AggregateRequest`, `AggregateFunction`, `AggregateResult` ✅
+
+### ✅ Step 3.2.2: Implement CsvAdapter Methods - COMPLETE
+
+- [X] Implemented `BulkOperationAsync` with atomic and best-effort modes ✅
+- [X] Implemented `GetSummaryAsync` for field value counts ✅
+- [X] Implemented `AggregateAsync` with grouping and multiple aggregate functions ✅
+- [X] Added comprehensive error handling and cancellation token support ✅
+
+### ✅ Step 3.2.3: Create API Controller Endpoints - COMPLETE
+
+- [X] `POST /api/data/{collection}/bulk` - Bulk operations endpoint ✅
+- [X] `GET /api/data/{collection}/summary?field={fieldName}` - Summary endpoint ✅
+- [X] `POST /api/data/{collection}/aggregate` - Aggregate endpoint ✅
+- [X] Added DTOs with `[JsonPropertyName]` attributes for API responses ✅
+- [X] Added XML documentation comments for Swagger ✅
+
+### ✅ Step 3.2.4: Write Tests - COMPLETE
+
+**Adapter Tests** (22 new tests):
+- [X] BulkOperationAsync tests (8 tests: atomic/best-effort, create/update/delete, error handling) ✅
+- [X] GetSummaryAsync tests (5 tests: field counts, null handling, error cases) ✅
+- [X] AggregateAsync tests (9 tests: grouping, multiple aggregates, filters, error cases) ✅
+
+**API Integration Tests** (51 new tests):
+- [X] Bulk operation integration tests ✅
+- [X] Summary endpoint integration tests ✅
+- [X] Aggregate endpoint integration tests ✅
+
+**Test Results**: ✅ All 403 tests passing (39 Core + 87 Adapter + 185 Services + 92 API)
+
+**Phase Gate**: ✅ PHASE 3.2 COMPLETE - Ready for Phase 4
 
 ---
 
@@ -1207,17 +1257,18 @@ dotnet test --filter "Schema"
 
 **Goal**: Create Blazor Server UI for management and debugging
 
-**Status**: ⏸️ READY TO START - Phase 3.1 complete, API is robust and ready
+**Status**: ⏸️ READY TO START - Phase 3.2 complete, API is robust and ready with advanced data operations
 
 ### Discuss Before Proceeding:
 
 - [ ] Review API functionality (discussion item - API is functional)
 - [X] **RECOMMENDED**: Complete Phase 3.1 (Limitations Remediation) first ✅ **COMPLETE**
+- [X] **RECOMMENDED**: Complete Phase 3.2 (Advanced Data Endpoints) first ✅ **COMPLETE**
 - [ ] Confirm API ready for UI consumption (discussion item)
 - [ ] Get approval to proceed (discussion item)
 - [ ] Define UI requirements (discussion item)
 
-**Note**: Phase 3.1 has been completed, addressing important limitations discovered during testing. The API is now robust and ready for UI consumption.
+**Note**: Phase 3.1 and Phase 3.2 have been completed. Phase 3.1 addressed important limitations discovered during testing, and Phase 3.2 added advanced data operation endpoints (Bulk, Summary, Aggregate). The API is now robust and feature-complete, ready for UI consumption.
 
 ---
 
