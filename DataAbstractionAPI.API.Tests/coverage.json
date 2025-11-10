@@ -4,24 +4,24 @@
       "DataAbstractionAPI.Adapters.Csv.CsvAdapter": {
         "System.String DataAbstractionAPI.Adapters.Csv.CsvAdapter::GenerateId()": {
           "Lines": {
-            "537": 6,
-            "538": 6,
-            "539": 6
+            "537": 8,
+            "538": 8,
+            "539": 8
           },
           "Branches": []
         },
         "System.String DataAbstractionAPI.Adapters.Csv.CsvAdapter::GetCsvPath(System.String)": {
           "Lines": {
-            "542": 53,
-            "544": 53,
-            "546": 53,
-            "549": 53,
-            "550": 53,
-            "552": 53,
+            "542": 63,
+            "544": 63,
+            "546": 63,
+            "549": 63,
+            "550": 63,
+            "552": 63,
             "553": 0,
             "554": 0,
-            "557": 53,
-            "558": 53
+            "557": 63,
+            "558": 63
           },
           "Branches": [
             {
@@ -38,26 +38,26 @@
               "EndOffset": 83,
               "Path": 1,
               "Ordinal": 1,
-              "Hits": 53
+              "Hits": 63
             }
           ]
         },
         "System.Void DataAbstractionAPI.Adapters.Csv.CsvAdapter::ValidateCollectionName(System.String)": {
           "Lines": {
-            "564": 53,
-            "565": 53,
+            "564": 63,
+            "565": 63,
             "566": 0,
             "567": 0,
-            "571": 53,
+            "571": 63,
             "572": 0,
             "573": 0,
-            "577": 53,
+            "577": 63,
             "578": 0,
             "579": 0,
-            "583": 53,
+            "583": 63,
             "584": 0,
             "585": 0,
-            "587": 53
+            "587": 63
           },
           "Branches": [
             {
@@ -74,7 +74,7 @@
               "EndOffset": 28,
               "Path": 1,
               "Ordinal": 1,
-              "Hits": 53
+              "Hits": 63
             },
             {
               "Line": 571,
@@ -82,7 +82,7 @@
               "EndOffset": 41,
               "Path": 0,
               "Ordinal": 2,
-              "Hits": 53
+              "Hits": 63
             },
             {
               "Line": 571,
@@ -106,7 +106,7 @@
               "EndOffset": 76,
               "Path": 1,
               "Ordinal": 5,
-              "Hits": 53
+              "Hits": 63
             },
             {
               "Line": 577,
@@ -114,7 +114,7 @@
               "EndOffset": 86,
               "Path": 0,
               "Ordinal": 6,
-              "Hits": 53
+              "Hits": 63
             },
             {
               "Line": 577,
@@ -138,7 +138,7 @@
               "EndOffset": 118,
               "Path": 1,
               "Ordinal": 9,
-              "Hits": 53
+              "Hits": 63
             },
             {
               "Line": 583,
@@ -154,7 +154,7 @@
               "EndOffset": 145,
               "Path": 1,
               "Ordinal": 11,
-              "Hits": 53
+              "Hits": 63
             }
           ]
         },
@@ -899,15 +899,15 @@
         },
         "System.Void DataAbstractionAPI.Adapters.Csv.CsvAdapter::.ctor(System.String,DataAbstractionAPI.Core.Interfaces.IDefaultGenerator,DataAbstractionAPI.Core.Interfaces.ITypeConverter,DataAbstractionAPI.Core.Interfaces.IFilterEvaluator,DataAbstractionAPI.Adapters.Csv.RetryOptions,DataAbstractionAPI.Adapters.Csv.CsvSchemaManager)": {
           "Lines": {
-            "28": 91,
-            "29": 91,
-            "30": 91,
-            "31": 91,
-            "32": 91,
-            "33": 91,
-            "34": 91,
-            "35": 91,
-            "36": 91
+            "28": 110,
+            "29": 110,
+            "30": 110,
+            "31": 110,
+            "32": 110,
+            "33": 110,
+            "34": 110,
+            "35": 110,
+            "36": 110
           },
           "Branches": [
             {
@@ -916,7 +916,7 @@
               "EndOffset": 43,
               "Path": 0,
               "Ordinal": 0,
-              "Hits": 91
+              "Hits": 110
             },
             {
               "Line": 34,
@@ -924,7 +924,7 @@
               "EndOffset": 49,
               "Path": 1,
               "Ordinal": 1,
-              "Hits": 91
+              "Hits": 110
             },
             {
               "Line": 35,
@@ -932,7 +932,7 @@
               "EndOffset": 60,
               "Path": 0,
               "Ordinal": 2,
-              "Hits": 91
+              "Hits": 110
             },
             {
               "Line": 35,
@@ -940,7 +940,7 @@
               "EndOffset": 67,
               "Path": 1,
               "Ordinal": 3,
-              "Hits": 91
+              "Hits": 110
             }
           ]
         }
@@ -948,11 +948,11 @@
       "DataAbstractionAPI.Adapters.Csv.CsvAdapter/<>c": {
         "DataAbstractionAPI.Core.Models.Record DataAbstractionAPI.Adapters.Csv.CsvAdapter/<>c::<ListAsync>b__7_0(System.Collections.Generic.Dictionary`2<System.String,System.Object>,System.Int32)": {
           "Lines": {
-            "59": 44,
-            "60": 44,
-            "61": 44,
-            "62": 44,
-            "63": 44
+            "59": 56,
+            "60": 56,
+            "61": 56,
+            "62": 56,
+            "63": 56
           },
           "Branches": [
             {
@@ -969,7 +969,7 @@
               "EndOffset": 28,
               "Path": 1,
               "Ordinal": 1,
-              "Hits": 33
+              "Hits": 42
             },
             {
               "Line": 59,
@@ -985,7 +985,7 @@
               "EndOffset": 55,
               "Path": 1,
               "Ordinal": 3,
-              "Hits": 33
+              "Hits": 42
             }
           ]
         },
@@ -1615,7 +1615,7 @@
       "DataAbstractionAPI.Adapters.Csv.CsvAdapter/<>c__DisplayClass8_0": {
         "System.Boolean DataAbstractionAPI.Adapters.Csv.CsvAdapter/<>c__DisplayClass8_0::<GetAsync>b__0(System.Collections.Generic.Dictionary`2<System.String,System.Object>)": {
           "Lines": {
-            "129": 15
+            "129": 19
           },
           "Branches": [
             {
@@ -1624,7 +1624,7 @@
               "EndOffset": 13,
               "Path": 0,
               "Ordinal": 0,
-              "Hits": 9
+              "Hits": 12
             },
             {
               "Line": 129,
@@ -1640,7 +1640,7 @@
               "EndOffset": 31,
               "Path": 1,
               "Ordinal": 3,
-              "Hits": 9
+              "Hits": 12
             },
             {
               "Line": 129,
@@ -1656,14 +1656,14 @@
       "DataAbstractionAPI.Adapters.Csv.CsvAdapter/<>c__DisplayClass9_0/<<CreateAsync>b__0>d": {
         "System.Void DataAbstractionAPI.Adapters.Csv.CsvAdapter/<>c__DisplayClass9_0/<<CreateAsync>b__0>d::MoveNext()": {
           "Lines": {
-            "169": 4,
-            "170": 4,
-            "171": 4,
-            "172": 4,
-            "173": 4,
-            "174": 4,
-            "175": 4,
-            "176": 8
+            "169": 5,
+            "170": 5,
+            "171": 5,
+            "172": 5,
+            "173": 5,
+            "174": 5,
+            "175": 5,
+            "176": 10
           },
           "Branches": []
         }
@@ -2221,9 +2221,9 @@
       "DataAbstractionAPI.Adapters.Csv.CsvAdapter/<BulkOperationAsync>d__24": {
         "System.Void DataAbstractionAPI.Adapters.Csv.CsvAdapter/<BulkOperationAsync>d__24::MoveNext()": {
           "Lines": {
-            "737": 6,
-            "738": 6,
-            "739": 6,
+            "737": 7,
+            "738": 7,
+            "739": 7,
             "742": 6,
             "743": 6,
             "744": 1,
@@ -2438,7 +2438,7 @@
               "EndOffset": 71,
               "Path": 0,
               "Ordinal": 0,
-              "Hits": 6
+              "Hits": 7
             },
             {
               "Line": 738,
@@ -2446,7 +2446,7 @@
               "EndOffset": 139,
               "Path": 1,
               "Ordinal": 1,
-              "Hits": 6
+              "Hits": 7
             },
             {
               "Line": 742,
@@ -3158,33 +3158,33 @@
       "DataAbstractionAPI.Adapters.Csv.CsvAdapter/<CreateAsync>d__9": {
         "System.Void DataAbstractionAPI.Adapters.Csv.CsvAdapter/<CreateAsync>d__9::MoveNext()": {
           "Lines": {
-            "144": 6,
-            "145": 6,
-            "146": 6,
-            "148": 6,
-            "150": 6,
-            "151": 2,
-            "152": 2,
-            "155": 4,
-            "157": 4,
-            "160": 4,
-            "161": 4,
-            "162": 4,
-            "163": 4,
-            "165": 4,
-            "167": 4,
-            "168": 4,
-            "178": 4,
-            "179": 4,
-            "180": 4,
-            "181": 4,
-            "182": 4,
-            "184": 4,
-            "185": 4,
-            "186": 4,
-            "187": 4,
-            "188": 4,
-            "189": 4
+            "144": 10,
+            "145": 10,
+            "146": 10,
+            "148": 9,
+            "150": 9,
+            "151": 3,
+            "152": 3,
+            "155": 6,
+            "157": 6,
+            "160": 6,
+            "161": 6,
+            "162": 6,
+            "163": 6,
+            "165": 5,
+            "167": 5,
+            "168": 5,
+            "178": 5,
+            "179": 5,
+            "180": 5,
+            "181": 5,
+            "182": 5,
+            "184": 5,
+            "185": 5,
+            "186": 5,
+            "187": 5,
+            "188": 5,
+            "189": 5
           },
           "Branches": [
             {
@@ -3193,7 +3193,7 @@
               "EndOffset": 77,
               "Path": 0,
               "Ordinal": 0,
-              "Hits": 6
+              "Hits": 10
             },
             {
               "Line": 145,
@@ -3201,7 +3201,7 @@
               "EndOffset": 145,
               "Path": 1,
               "Ordinal": 1,
-              "Hits": 6
+              "Hits": 10
             },
             {
               "Line": 150,
@@ -3209,7 +3209,7 @@
               "EndOffset": 223,
               "Path": 0,
               "Ordinal": 2,
-              "Hits": 2
+              "Hits": 3
             },
             {
               "Line": 150,
@@ -3217,7 +3217,7 @@
               "EndOffset": 262,
               "Path": 1,
               "Ordinal": 3,
-              "Hits": 4
+              "Hits": 6
             }
           ]
         }
@@ -3225,30 +3225,30 @@
       "DataAbstractionAPI.Adapters.Csv.CsvAdapter/<DeleteAsync>d__11": {
         "System.Void DataAbstractionAPI.Adapters.Csv.CsvAdapter/<DeleteAsync>d__11::MoveNext()": {
           "Lines": {
-            "374": 5,
-            "375": 5,
-            "376": 5,
-            "378": 5,
-            "380": 5,
+            "374": 7,
+            "375": 7,
+            "376": 7,
+            "378": 6,
+            "380": 6,
             "381": 0,
             "382": 0,
-            "385": 5,
-            "387": 5,
-            "388": 5,
-            "389": 5,
-            "391": 5,
-            "393": 5,
-            "394": 18,
-            "395": 7,
-            "396": 7,
-            "397": 7,
+            "385": 6,
+            "387": 6,
+            "388": 6,
+            "389": 6,
+            "391": 6,
+            "393": 6,
+            "394": 26,
+            "395": 10,
+            "396": 10,
+            "397": 10,
             "398": 3,
             "399": 3,
             "400": 3,
-            "402": 4,
-            "404": 5,
-            "405": 2,
-            "406": 2,
+            "402": 7,
+            "404": 6,
+            "405": 3,
+            "406": 3,
             "409": 3,
             "411": 3,
             "413": 3,
@@ -3266,7 +3266,7 @@
               "EndOffset": 77,
               "Path": 0,
               "Ordinal": 0,
-              "Hits": 5
+              "Hits": 7
             },
             {
               "Line": 375,
@@ -3274,7 +3274,7 @@
               "EndOffset": 144,
               "Path": 1,
               "Ordinal": 1,
-              "Hits": 5
+              "Hits": 7
             },
             {
               "Line": 380,
@@ -3290,7 +3290,7 @@
               "EndOffset": 261,
               "Path": 1,
               "Ordinal": 3,
-              "Hits": 5
+              "Hits": 6
             },
             {
               "Line": 394,
@@ -3298,7 +3298,7 @@
               "EndOffset": 380,
               "Path": 1,
               "Ordinal": 11,
-              "Hits": 7
+              "Hits": 10
             },
             {
               "Line": 397,
@@ -3306,7 +3306,7 @@
               "EndOffset": 432,
               "Path": 0,
               "Ordinal": 4,
-              "Hits": 7
+              "Hits": 10
             },
             {
               "Line": 397,
@@ -3322,7 +3322,7 @@
               "EndOffset": 471,
               "Path": 1,
               "Ordinal": 7,
-              "Hits": 7
+              "Hits": 10
             },
             {
               "Line": 397,
@@ -3346,7 +3346,7 @@
               "EndOffset": 511,
               "Path": 1,
               "Ordinal": 9,
-              "Hits": 4
+              "Hits": 7
             },
             {
               "Line": 394,
@@ -3354,7 +3354,7 @@
               "EndOffset": 563,
               "Path": 0,
               "Ordinal": 10,
-              "Hits": 5
+              "Hits": 6
             },
             {
               "Line": 404,
@@ -3362,7 +3362,7 @@
               "EndOffset": 578,
               "Path": 0,
               "Ordinal": 12,
-              "Hits": 2
+              "Hits": 3
             },
             {
               "Line": 404,
@@ -3378,21 +3378,21 @@
       "DataAbstractionAPI.Adapters.Csv.CsvAdapter/<GetAsync>d__8": {
         "System.Void DataAbstractionAPI.Adapters.Csv.CsvAdapter/<GetAsync>d__8::MoveNext()": {
           "Lines": {
-            "111": 6,
-            "112": 6,
-            "113": 6,
-            "115": 6,
-            "117": 6,
+            "111": 8,
+            "112": 8,
+            "113": 8,
+            "115": 7,
+            "117": 7,
             "118": 0,
             "119": 0,
-            "122": 6,
-            "123": 6,
-            "124": 6,
-            "126": 6,
-            "128": 6,
-            "131": 6,
-            "132": 3,
-            "133": 3,
+            "122": 7,
+            "123": 7,
+            "124": 7,
+            "126": 7,
+            "128": 7,
+            "131": 7,
+            "132": 4,
+            "133": 4,
             "136": 3,
             "137": 3,
             "138": 3,
@@ -3407,7 +3407,7 @@
               "EndOffset": 66,
               "Path": 0,
               "Ordinal": 0,
-              "Hits": 6
+              "Hits": 8
             },
             {
               "Line": 112,
@@ -3415,7 +3415,7 @@
               "EndOffset": 134,
               "Path": 1,
               "Ordinal": 1,
-              "Hits": 6
+              "Hits": 8
             },
             {
               "Line": 117,
@@ -3431,7 +3431,7 @@
               "EndOffset": 231,
               "Path": 1,
               "Ordinal": 3,
-              "Hits": 6
+              "Hits": 7
             },
             {
               "Line": 131,
@@ -3439,7 +3439,7 @@
               "EndOffset": 338,
               "Path": 0,
               "Ordinal": 4,
-              "Hits": 3
+              "Hits": 4
             },
             {
               "Line": 131,
@@ -3455,9 +3455,9 @@
       "DataAbstractionAPI.Adapters.Csv.CsvAdapter/<GetSchemaAsync>d__12": {
         "System.Void DataAbstractionAPI.Adapters.Csv.CsvAdapter/<GetSchemaAsync>d__12::MoveNext()": {
           "Lines": {
-            "448": 4,
-            "449": 4,
-            "450": 4,
+            "448": 5,
+            "449": 5,
+            "450": 5,
             "452": 4,
             "454": 4,
             "455": 2,
@@ -3508,7 +3508,7 @@
               "EndOffset": 38,
               "Path": 0,
               "Ordinal": 0,
-              "Hits": 4
+              "Hits": 5
             },
             {
               "Line": 449,
@@ -3516,7 +3516,7 @@
               "EndOffset": 106,
               "Path": 1,
               "Ordinal": 1,
-              "Hits": 4
+              "Hits": 5
             },
             {
               "Line": 454,
@@ -3788,18 +3788,18 @@
       "DataAbstractionAPI.Adapters.Csv.CsvAdapter/<ListAsync>d__7": {
         "System.Void DataAbstractionAPI.Adapters.Csv.CsvAdapter/<ListAsync>d__7::MoveNext()": {
           "Lines": {
-            "42": 13,
-            "43": 13,
-            "44": 13,
-            "46": 13,
-            "48": 13,
-            "49": 2,
-            "50": 2,
-            "53": 11,
-            "54": 11,
-            "55": 11,
-            "57": 11,
-            "66": 11,
+            "42": 18,
+            "43": 18,
+            "44": 18,
+            "46": 17,
+            "48": 17,
+            "49": 3,
+            "50": 3,
+            "53": 14,
+            "54": 14,
+            "55": 14,
+            "57": 14,
+            "66": 14,
             "67": 0,
             "68": 0,
             "69": 0,
@@ -3808,28 +3808,28 @@
             "76": 0,
             "77": 0,
             "78": 0,
-            "80": 11,
-            "82": 11,
-            "84": 11,
+            "80": 14,
+            "82": 14,
+            "84": 14,
             "85": 0,
             "86": 0,
             "87": 0,
-            "89": 11,
-            "91": 11,
-            "92": 11,
-            "93": 11,
-            "94": 11,
-            "97": 11,
+            "89": 14,
+            "91": 14,
+            "92": 14,
+            "93": 14,
+            "94": 14,
+            "97": 14,
             "98": 0,
             "99": 0,
             "100": 0,
-            "102": 11,
-            "103": 11,
-            "104": 11,
-            "105": 11,
-            "106": 11,
-            "107": 11,
-            "108": 11
+            "102": 14,
+            "103": 14,
+            "104": 14,
+            "105": 14,
+            "106": 14,
+            "107": 14,
+            "108": 14
           },
           "Branches": [
             {
@@ -3838,7 +3838,7 @@
               "EndOffset": 83,
               "Path": 0,
               "Ordinal": 0,
-              "Hits": 13
+              "Hits": 18
             },
             {
               "Line": 43,
@@ -3846,7 +3846,7 @@
               "EndOffset": 151,
               "Path": 1,
               "Ordinal": 1,
-              "Hits": 13
+              "Hits": 18
             },
             {
               "Line": 48,
@@ -3854,7 +3854,7 @@
               "EndOffset": 214,
               "Path": 0,
               "Ordinal": 2,
-              "Hits": 2
+              "Hits": 3
             },
             {
               "Line": 48,
@@ -3862,7 +3862,7 @@
               "EndOffset": 248,
               "Path": 1,
               "Ordinal": 3,
-              "Hits": 11
+              "Hits": 14
             },
             {
               "Line": 66,
@@ -3878,7 +3878,7 @@
               "EndOffset": 403,
               "Path": 1,
               "Ordinal": 5,
-              "Hits": 11
+              "Hits": 14
             },
             {
               "Line": 66,
@@ -3910,7 +3910,7 @@
               "EndOffset": 516,
               "Path": 1,
               "Ordinal": 7,
-              "Hits": 11
+              "Hits": 14
             },
             {
               "Line": 84,
@@ -3926,7 +3926,7 @@
               "EndOffset": 616,
               "Path": 1,
               "Ordinal": 11,
-              "Hits": 11
+              "Hits": 14
             },
             {
               "Line": 97,
@@ -3942,7 +3942,7 @@
               "EndOffset": 778,
               "Path": 1,
               "Ordinal": 13,
-              "Hits": 11
+              "Hits": 14
             },
             {
               "Line": 97,
@@ -3958,7 +3958,7 @@
               "EndOffset": 826,
               "Path": 1,
               "Ordinal": 15,
-              "Hits": 11
+              "Hits": 14
             }
           ]
         }
@@ -3966,9 +3966,9 @@
       "DataAbstractionAPI.Adapters.Csv.CsvAdapter/<ListCollectionsAsync>d__13": {
         "System.Void DataAbstractionAPI.Adapters.Csv.CsvAdapter/<ListCollectionsAsync>d__13::MoveNext()": {
           "Lines": {
-            "512": 4,
-            "513": 4,
-            "514": 4,
+            "512": 5,
+            "513": 5,
+            "514": 5,
             "517": 4,
             "518": 0,
             "519": 0,
@@ -3987,7 +3987,7 @@
               "EndOffset": 38,
               "Path": 0,
               "Ordinal": 0,
-              "Hits": 4
+              "Hits": 5
             },
             {
               "Line": 513,
@@ -3995,7 +3995,7 @@
               "EndOffset": 106,
               "Path": 1,
               "Ordinal": 1,
-              "Hits": 4
+              "Hits": 5
             },
             {
               "Line": 517,
@@ -4019,18 +4019,18 @@
       "DataAbstractionAPI.Adapters.Csv.CsvAdapter/<RetryFileOperationAsync>d__20": {
         "System.Void DataAbstractionAPI.Adapters.Csv.CsvAdapter/<RetryFileOperationAsync>d__20::MoveNext()": {
           "Lines": {
-            "656": 10,
-            "657": 10,
+            "656": 11,
+            "657": 11,
             "658": 0,
             "659": 0,
             "660": 0,
-            "663": 10,
-            "664": 10,
-            "665": 10,
-            "667": 10,
-            "668": 10,
-            "669": 10,
-            "670": 10,
+            "663": 11,
+            "664": 11,
+            "665": 11,
+            "667": 11,
+            "668": 11,
+            "669": 11,
+            "670": 11,
             "672": 0,
             "673": 0,
             "674": 0,
@@ -4039,7 +4039,7 @@
             "677": 0,
             "678": 0,
             "681": 0,
-            "682": 10
+            "682": 11
           },
           "Branches": [
             {
@@ -4056,7 +4056,7 @@
               "EndOffset": 179,
               "Path": 1,
               "Ordinal": 1,
-              "Hits": 10
+              "Hits": 11
             },
             {
               "Line": 664,
@@ -4064,7 +4064,7 @@
               "EndOffset": 191,
               "Path": 1,
               "Ordinal": 3,
-              "Hits": 10
+              "Hits": 11
             },
             {
               "Line": 664,
@@ -4080,13 +4080,13 @@
       "DataAbstractionAPI.Adapters.Csv.CsvAdapter/<UpdateAsync>d__10": {
         "System.Void DataAbstractionAPI.Adapters.Csv.CsvAdapter/<UpdateAsync>d__10::MoveNext()": {
           "Lines": {
-            "192": 5,
-            "193": 5,
-            "194": 5,
-            "196": 5,
-            "198": 5,
-            "199": 0,
-            "200": 0,
+            "192": 7,
+            "193": 7,
+            "194": 7,
+            "196": 6,
+            "198": 6,
+            "199": 1,
+            "200": 1,
             "203": 5,
             "205": 5,
             "206": 5,
@@ -4202,7 +4202,7 @@
               "EndOffset": 77,
               "Path": 0,
               "Ordinal": 0,
-              "Hits": 5
+              "Hits": 7
             },
             {
               "Line": 193,
@@ -4210,7 +4210,7 @@
               "EndOffset": 144,
               "Path": 1,
               "Ordinal": 1,
-              "Hits": 5
+              "Hits": 7
             },
             {
               "Line": 198,
@@ -4218,7 +4218,7 @@
               "EndOffset": 222,
               "Path": 0,
               "Ordinal": 2,
-              "Hits": 0
+              "Hits": 1
             },
             {
               "Line": 198,
@@ -4620,16 +4620,16 @@
       "DataAbstractionAPI.Adapters.Csv.CsvFileHandler": {
         "System.String[] DataAbstractionAPI.Adapters.Csv.CsvFileHandler::ReadHeaders()": {
           "Lines": {
-            "29": 17,
-            "30": 17,
-            "31": 17,
-            "32": 17,
-            "34": 17,
-            "35": 17,
-            "36": 17,
-            "37": 17,
+            "29": 19,
+            "30": 19,
+            "31": 19,
+            "32": 19,
+            "34": 19,
+            "35": 19,
+            "36": 19,
+            "37": 19,
             "40": 0,
-            "41": 17
+            "41": 19
           },
           "Branches": [
             {
@@ -4638,7 +4638,7 @@
               "EndOffset": 46,
               "Path": 0,
               "Ordinal": 0,
-              "Hits": 17
+              "Hits": 19
             },
             {
               "Line": 37,
@@ -4654,7 +4654,7 @@
               "EndOffset": 69,
               "Path": 1,
               "Ordinal": 3,
-              "Hits": 17
+              "Hits": 19
             },
             {
               "Line": 34,
@@ -4668,31 +4668,31 @@
         },
         "System.Collections.Generic.List`1<System.Collections.Generic.Dictionary`2<System.String,System.Object>> DataAbstractionAPI.Adapters.Csv.CsvFileHandler::ReadRecords()": {
           "Lines": {
-            "48": 38,
-            "49": 38,
-            "51": 38,
-            "52": 38,
-            "53": 38,
-            "56": 38,
-            "57": 38,
-            "58": 38,
-            "59": 38,
-            "61": 38,
-            "62": 38,
-            "64": 163,
-            "65": 125,
-            "66": 125,
-            "68": 1673,
-            "69": 649,
-            "70": 649,
-            "71": 649,
-            "72": 649,
-            "74": 125,
-            "75": 125,
-            "76": 38,
-            "77": 38,
-            "79": 38,
-            "80": 38
+            "48": 43,
+            "49": 43,
+            "51": 43,
+            "52": 43,
+            "53": 43,
+            "56": 43,
+            "57": 43,
+            "58": 43,
+            "59": 43,
+            "61": 43,
+            "62": 43,
+            "64": 183,
+            "65": 140,
+            "66": 140,
+            "68": 1868,
+            "69": 724,
+            "70": 724,
+            "71": 724,
+            "72": 724,
+            "74": 140,
+            "75": 140,
+            "76": 43,
+            "77": 43,
+            "79": 43,
+            "80": 43
           },
           "Branches": [
             {
@@ -4701,7 +4701,7 @@
               "EndOffset": 54,
               "Path": 0,
               "Ordinal": 0,
-              "Hits": 38
+              "Hits": 43
             },
             {
               "Line": 61,
@@ -4709,7 +4709,7 @@
               "EndOffset": 81,
               "Path": 0,
               "Ordinal": 2,
-              "Hits": 38
+              "Hits": 43
             },
             {
               "Line": 64,
@@ -4717,7 +4717,7 @@
               "EndOffset": 84,
               "Path": 1,
               "Ordinal": 9,
-              "Hits": 125
+              "Hits": 140
             },
             {
               "Line": 68,
@@ -4725,7 +4725,7 @@
               "EndOffset": 102,
               "Path": 1,
               "Ordinal": 7,
-              "Hits": 649
+              "Hits": 724
             },
             {
               "Line": 70,
@@ -4741,7 +4741,7 @@
               "EndOffset": 127,
               "Path": 1,
               "Ordinal": 5,
-              "Hits": 649
+              "Hits": 724
             },
             {
               "Line": 68,
@@ -4749,7 +4749,7 @@
               "EndOffset": 156,
               "Path": 0,
               "Ordinal": 6,
-              "Hits": 125
+              "Hits": 140
             },
             {
               "Line": 64,
@@ -4757,7 +4757,7 @@
               "EndOffset": 178,
               "Path": 0,
               "Ordinal": 8,
-              "Hits": 38
+              "Hits": 43
             },
             {
               "Line": 61,
@@ -4765,7 +4765,7 @@
               "EndOffset": 179,
               "Path": 1,
               "Ordinal": 3,
-              "Hits": 38
+              "Hits": 43
             },
             {
               "Line": 56,
@@ -4773,15 +4773,15 @@
               "EndOffset": 180,
               "Path": 1,
               "Ordinal": 1,
-              "Hits": 38
+              "Hits": 43
             }
           ]
         },
         "System.Void DataAbstractionAPI.Adapters.Csv.CsvFileHandler::AppendRecord(System.Collections.Generic.Dictionary`2<System.String,System.Object>)": {
           "Lines": {
-            "87": 4,
-            "88": 4,
-            "90": 4,
+            "87": 5,
+            "88": 5,
+            "90": 5,
             "91": 0,
             "93": 0,
             "94": 0,
@@ -4797,24 +4797,24 @@
             "107": 0,
             "108": 0,
             "109": 0,
-            "111": 4,
-            "113": 4,
-            "114": 4,
-            "116": 52,
-            "117": 20,
-            "118": 20,
-            "119": 20,
-            "120": 20,
-            "123": 4,
-            "124": 4,
-            "125": 4,
-            "127": 52,
-            "128": 20,
-            "129": 20,
-            "130": 20,
-            "131": 4,
-            "132": 4,
-            "133": 4
+            "111": 5,
+            "113": 5,
+            "114": 5,
+            "116": 65,
+            "117": 25,
+            "118": 25,
+            "119": 25,
+            "120": 25,
+            "123": 5,
+            "124": 5,
+            "125": 5,
+            "127": 65,
+            "128": 25,
+            "129": 25,
+            "130": 25,
+            "131": 5,
+            "132": 5,
+            "133": 5
           },
           "Branches": [
             {
@@ -4823,7 +4823,7 @@
               "EndOffset": 14,
               "Path": 0,
               "Ordinal": 0,
-              "Hits": 4
+              "Hits": 5
             },
             {
               "Line": 88,
@@ -4911,7 +4911,7 @@
               "EndOffset": 296,
               "Path": 1,
               "Ordinal": 3,
-              "Hits": 4
+              "Hits": 5
             },
             {
               "Line": 116,
@@ -4919,7 +4919,7 @@
               "EndOffset": 322,
               "Path": 1,
               "Ordinal": 19,
-              "Hits": 20
+              "Hits": 25
             },
             {
               "Line": 118,
@@ -4927,7 +4927,7 @@
               "EndOffset": 340,
               "Path": 0,
               "Ordinal": 12,
-              "Hits": 5
+              "Hits": 8
             },
             {
               "Line": 118,
@@ -4935,7 +4935,7 @@
               "EndOffset": 347,
               "Path": 1,
               "Ordinal": 13,
-              "Hits": 15
+              "Hits": 17
             },
             {
               "Line": 118,
@@ -4951,7 +4951,7 @@
               "EndOffset": 362,
               "Path": 1,
               "Ordinal": 15,
-              "Hits": 15
+              "Hits": 17
             },
             {
               "Line": 118,
@@ -4967,7 +4967,7 @@
               "EndOffset": 376,
               "Path": 1,
               "Ordinal": 17,
-              "Hits": 20
+              "Hits": 25
             },
             {
               "Line": 116,
@@ -4975,7 +4975,7 @@
               "EndOffset": 403,
               "Path": 0,
               "Ordinal": 18,
-              "Hits": 4
+              "Hits": 5
             },
             {
               "Line": 127,
@@ -4983,7 +4983,7 @@
               "EndOffset": 455,
               "Path": 1,
               "Ordinal": 21,
-              "Hits": 20
+              "Hits": 25
             },
             {
               "Line": 127,
@@ -4991,19 +4991,19 @@
               "EndOffset": 485,
               "Path": 0,
               "Ordinal": 20,
-              "Hits": 4
+              "Hits": 5
             }
           ]
         },
         "System.Void DataAbstractionAPI.Adapters.Csv.CsvFileHandler::.ctor(System.String)": {
           "Lines": {
-            "14": 42,
-            "15": 42,
-            "16": 42,
-            "18": 42,
+            "14": 48,
+            "15": 48,
+            "16": 48,
+            "18": 48,
             "19": 0,
             "20": 0,
-            "22": 42
+            "22": 48
           },
           "Branches": [
             {
@@ -5020,7 +5020,7 @@
               "EndOffset": 51,
               "Path": 1,
               "Ordinal": 1,
-              "Hits": 42
+              "Hits": 48
             }
           ]
         }
@@ -5030,27 +5030,27 @@
       "DataAbstractionAPI.Adapters.Csv.CsvFileLock": {
         "System.Void DataAbstractionAPI.Adapters.Csv.CsvFileLock::AcquireLock()": {
           "Lines": {
-            "23": 11,
-            "25": 11,
-            "27": 11,
-            "28": 11,
-            "29": 11,
-            "30": 11,
-            "31": 11,
-            "32": 11,
-            "35": 11,
-            "36": 11,
-            "37": 11,
-            "38": 11,
-            "39": 11,
-            "40": 11,
+            "23": 12,
+            "25": 12,
+            "27": 12,
+            "28": 12,
+            "29": 12,
+            "30": 12,
+            "31": 12,
+            "32": 12,
+            "35": 12,
+            "36": 12,
+            "37": 12,
+            "38": 12,
+            "39": 12,
+            "40": 12,
             "41": 0,
             "42": 0,
             "43": 0,
             "44": 0,
             "45": 0,
             "47": 0,
-            "49": 11
+            "49": 12
           },
           "Branches": [
             {
@@ -5073,34 +5073,34 @@
         },
         "System.Void DataAbstractionAPI.Adapters.Csv.CsvFileLock::Dispose()": {
           "Lines": {
-            "55": 11,
-            "56": 11,
-            "57": 11,
-            "58": 11
+            "55": 12,
+            "56": 12,
+            "57": 12,
+            "58": 12
           },
           "Branches": []
         },
         "System.Void DataAbstractionAPI.Adapters.Csv.CsvFileLock::Dispose(System.Boolean)": {
           "Lines": {
-            "61": 11,
-            "62": 11,
-            "63": 11,
-            "64": 11,
-            "65": 11,
-            "66": 11,
-            "70": 11,
-            "71": 11,
-            "72": 11,
-            "73": 11,
-            "74": 11,
-            "75": 11,
+            "61": 12,
+            "62": 12,
+            "63": 12,
+            "64": 12,
+            "65": 12,
+            "66": 12,
+            "70": 12,
+            "71": 12,
+            "72": 12,
+            "73": 12,
+            "74": 12,
+            "75": 12,
             "76": 0,
             "77": 0,
             "79": 0,
-            "80": 11,
-            "81": 11,
-            "82": 11,
-            "83": 11
+            "80": 12,
+            "81": 12,
+            "82": 12,
+            "83": 12
           },
           "Branches": [
             {
@@ -5109,7 +5109,7 @@
               "EndOffset": 14,
               "Path": 0,
               "Ordinal": 0,
-              "Hits": 11
+              "Hits": 12
             },
             {
               "Line": 64,
@@ -5117,7 +5117,7 @@
               "EndOffset": 20,
               "Path": 0,
               "Ordinal": 2,
-              "Hits": 11
+              "Hits": 12
             },
             {
               "Line": 66,
@@ -5133,7 +5133,7 @@
               "EndOffset": 33,
               "Path": 1,
               "Ordinal": 5,
-              "Hits": 11
+              "Hits": 12
             },
             {
               "Line": 71,
@@ -5141,7 +5141,7 @@
               "EndOffset": 56,
               "Path": 0,
               "Ordinal": 6,
-              "Hits": 11
+              "Hits": 12
             },
             {
               "Line": 71,
@@ -5149,7 +5149,7 @@
               "EndOffset": 70,
               "Path": 1,
               "Ordinal": 7,
-              "Hits": 11
+              "Hits": 12
             },
             {
               "Line": 64,
@@ -5157,7 +5157,7 @@
               "EndOffset": 79,
               "Path": 1,
               "Ordinal": 3,
-              "Hits": 11
+              "Hits": 12
             },
             {
               "Line": 62,
@@ -5165,7 +5165,7 @@
               "EndOffset": 87,
               "Path": 1,
               "Ordinal": 1,
-              "Hits": 11
+              "Hits": 12
             }
           ]
         },
@@ -5179,12 +5179,12 @@
         },
         "System.Void DataAbstractionAPI.Adapters.Csv.CsvFileLock::.ctor(System.String)": {
           "Lines": {
-            "11": 11,
-            "13": 11,
-            "14": 11,
-            "15": 11,
-            "16": 11,
-            "17": 11
+            "11": 12,
+            "13": 12,
+            "14": 12,
+            "15": 12,
+            "16": 12,
+            "17": 12
           },
           "Branches": []
         }
@@ -5335,12 +5335,12 @@
         },
         "System.Void DataAbstractionAPI.Adapters.Csv.CsvSchemaManager::.ctor(System.String)": {
           "Lines": {
-            "15": 91,
-            "16": 91,
-            "17": 91,
-            "18": 91,
-            "21": 91,
-            "22": 91
+            "15": 110,
+            "16": 110,
+            "17": 110,
+            "18": 110,
+            "21": 110,
+            "22": 110
           },
           "Branches": []
         }
@@ -5350,19 +5350,19 @@
       "DataAbstractionAPI.Adapters.Csv.RetryOptions": {
         "System.Int32 DataAbstractionAPI.Adapters.Csv.RetryOptions::get_MaxRetries()": {
           "Lines": {
-            "11": 102
+            "11": 122
           },
           "Branches": []
         },
         "System.Int32 DataAbstractionAPI.Adapters.Csv.RetryOptions::get_BaseDelayMs()": {
           "Lines": {
-            "16": 91
+            "16": 110
           },
           "Branches": []
         },
         "System.Boolean DataAbstractionAPI.Adapters.Csv.RetryOptions::get_Enabled()": {
           "Lines": {
-            "21": 101
+            "21": 121
           },
           "Branches": []
         }
@@ -5684,31 +5684,31 @@
       "DataAbstractionAPI.API.Models.ErrorResponse": {
         "System.Int32 DataAbstractionAPI.API.Models.ErrorResponse::get_StatusCode()": {
           "Lines": {
-            "11": 55
+            "11": 83
           },
           "Branches": []
         },
         "System.String DataAbstractionAPI.API.Models.ErrorResponse::get_Message()": {
           "Lines": {
-            "16": 85
+            "16": 122
           },
           "Branches": []
         },
         "System.String DataAbstractionAPI.API.Models.ErrorResponse::get_FieldName()": {
           "Lines": {
-            "21": 32
+            "21": 48
           },
           "Branches": []
         },
         "System.String DataAbstractionAPI.API.Models.ErrorResponse::get_Details()": {
           "Lines": {
-            "26": 40
+            "26": 54
           },
           "Branches": []
         },
         "System.String DataAbstractionAPI.API.Models.ErrorResponse::get_StackTrace()": {
           "Lines": {
-            "31": 40
+            "31": 54
           },
           "Branches": []
         }
@@ -5760,7 +5760,7 @@
       "DataAbstractionAPI.API.Models.DTOs.AggregateResponseDto": {
         "System.Collections.Generic.List`1<System.Collections.Generic.Dictionary`2<System.String,System.Object>> DataAbstractionAPI.API.Models.DTOs.AggregateResponseDto::get_Data()": {
           "Lines": {
-            "15": 18
+            "15": 30
           },
           "Branches": []
         }
@@ -5770,25 +5770,25 @@
       "DataAbstractionAPI.API.Models.DTOs.BulkOperationRequestDto": {
         "System.String DataAbstractionAPI.API.Models.DTOs.BulkOperationRequestDto::get_Action()": {
           "Lines": {
-            "14": 43
+            "14": 46
           },
           "Branches": []
         },
         "System.Boolean DataAbstractionAPI.API.Models.DTOs.BulkOperationRequestDto::get_Atomic()": {
           "Lines": {
-            "21": 46
+            "21": 49
           },
           "Branches": []
         },
         "System.Collections.Generic.List`1<System.Collections.Generic.Dictionary`2<System.String,System.Object>> DataAbstractionAPI.API.Models.DTOs.BulkOperationRequestDto::get_Records()": {
           "Lines": {
-            "28": 42
+            "28": 45
           },
           "Branches": []
         },
         "System.Collections.Generic.Dictionary`2<System.String,System.Object> DataAbstractionAPI.API.Models.DTOs.BulkOperationRequestDto::get_UpdateData()": {
           "Lines": {
-            "35": 24
+            "35": 25
           },
           "Branches": []
         }
@@ -5798,49 +5798,49 @@
       "DataAbstractionAPI.API.Models.DTOs.BulkResponseDto": {
         "System.Boolean DataAbstractionAPI.API.Models.DTOs.BulkResponseDto::get_Success()": {
           "Lines": {
-            "14": 16
+            "14": 23
           },
           "Branches": []
         },
         "System.Int32 DataAbstractionAPI.API.Models.DTOs.BulkResponseDto::get_Succeeded()": {
           "Lines": {
-            "20": 16
+            "20": 19
           },
           "Branches": []
         },
         "System.Int32 DataAbstractionAPI.API.Models.DTOs.BulkResponseDto::get_Failed()": {
           "Lines": {
-            "26": 13
+            "26": 16
           },
           "Branches": []
         },
         "System.Collections.Generic.List`1<DataAbstractionAPI.API.Models.DTOs.BulkOperationItemResultDto> DataAbstractionAPI.API.Models.DTOs.BulkResponseDto::get_Results()": {
           "Lines": {
-            "32": 15
+            "32": 21
           },
           "Branches": []
         },
         "System.Collections.Generic.List`1<System.String> DataAbstractionAPI.API.Models.DTOs.BulkResponseDto::get_Ids()": {
           "Lines": {
-            "38": 14
+            "38": 18
           },
           "Branches": []
         },
         "System.String DataAbstractionAPI.API.Models.DTOs.BulkResponseDto::get_Error()": {
           "Lines": {
-            "44": 12
+            "44": 17
           },
           "Branches": []
         },
         "System.Nullable`1<System.Int32> DataAbstractionAPI.API.Models.DTOs.BulkResponseDto::get_FailedIndex()": {
           "Lines": {
-            "50": 12
+            "50": 15
           },
           "Branches": []
         },
         "System.String DataAbstractionAPI.API.Models.DTOs.BulkResponseDto::get_FailedError()": {
           "Lines": {
-            "56": 12
+            "56": 15
           },
           "Branches": []
         }
@@ -5848,25 +5848,25 @@
       "DataAbstractionAPI.API.Models.DTOs.BulkOperationItemResultDto": {
         "System.Int32 DataAbstractionAPI.API.Models.DTOs.BulkOperationItemResultDto::get_Index()": {
           "Lines": {
-            "68": 12
+            "68": 15
           },
           "Branches": []
         },
         "System.String DataAbstractionAPI.API.Models.DTOs.BulkOperationItemResultDto::get_Id()": {
           "Lines": {
-            "74": 12
+            "74": 16
           },
           "Branches": []
         },
         "System.Boolean DataAbstractionAPI.API.Models.DTOs.BulkOperationItemResultDto::get_Success()": {
           "Lines": {
-            "80": 14
+            "80": 18
           },
           "Branches": []
         },
         "System.String DataAbstractionAPI.API.Models.DTOs.BulkOperationItemResultDto::get_Error()": {
           "Lines": {
-            "86": 12
+            "86": 16
           },
           "Branches": []
         }
@@ -5876,13 +5876,13 @@
       "DataAbstractionAPI.API.Models.DTOs.CreateResponseDto": {
         "DataAbstractionAPI.API.Models.DTOs.RecordDto DataAbstractionAPI.API.Models.DTOs.CreateResponseDto::get_Record()": {
           "Lines": {
-            "14": 10
+            "14": 12
           },
           "Branches": []
         },
         "System.String DataAbstractionAPI.API.Models.DTOs.CreateResponseDto::get_Id()": {
           "Lines": {
-            "20": 9
+            "20": 11
           },
           "Branches": []
         }
@@ -6076,25 +6076,25 @@
       "DataAbstractionAPI.API.Models.DTOs.FieldDefinitionDto": {
         "System.String DataAbstractionAPI.API.Models.DTOs.FieldDefinitionDto::get_Name()": {
           "Lines": {
-            "14": 31
+            "14": 36
           },
           "Branches": []
         },
         "System.String DataAbstractionAPI.API.Models.DTOs.FieldDefinitionDto::get_Type()": {
           "Lines": {
-            "20": 29
+            "20": 34
           },
           "Branches": []
         },
         "System.Boolean DataAbstractionAPI.API.Models.DTOs.FieldDefinitionDto::get_Nullable()": {
           "Lines": {
-            "26": 29
+            "26": 33
           },
           "Branches": []
         },
         "System.Object DataAbstractionAPI.API.Models.DTOs.FieldDefinitionDto::get_Default()": {
           "Lines": {
-            "32": 17
+            "32": 19
           },
           "Branches": []
         }
@@ -6104,19 +6104,19 @@
       "DataAbstractionAPI.API.Models.DTOs.ListResponseDto": {
         "System.Collections.Generic.List`1<DataAbstractionAPI.API.Models.DTOs.RecordDto> DataAbstractionAPI.API.Models.DTOs.ListResponseDto::get_Data()": {
           "Lines": {
-            "14": 32
+            "14": 39
           },
           "Branches": []
         },
         "System.Int32 DataAbstractionAPI.API.Models.DTOs.ListResponseDto::get_Total()": {
           "Lines": {
-            "20": 19
+            "20": 21
           },
           "Branches": []
         },
         "System.Boolean DataAbstractionAPI.API.Models.DTOs.ListResponseDto::get_More()": {
           "Lines": {
-            "26": 18
+            "26": 20
           },
           "Branches": []
         },
@@ -6166,13 +6166,13 @@
       "DataAbstractionAPI.API.Models.DTOs.RecordDto": {
         "System.String DataAbstractionAPI.API.Models.DTOs.RecordDto::get_Id()": {
           "Lines": {
-            "14": 72
+            "14": 87
           },
           "Branches": []
         },
         "System.Collections.Generic.Dictionary`2<System.String,System.Object> DataAbstractionAPI.API.Models.DTOs.RecordDto::get_Data()": {
           "Lines": {
-            "20": 71
+            "20": 94
           },
           "Branches": []
         }
@@ -6182,13 +6182,13 @@
       "DataAbstractionAPI.API.Models.DTOs.SchemaResponseDto": {
         "System.String DataAbstractionAPI.API.Models.DTOs.SchemaResponseDto::get_Name()": {
           "Lines": {
-            "14": 9
+            "14": 19
           },
           "Branches": []
         },
         "System.Collections.Generic.List`1<DataAbstractionAPI.API.Models.DTOs.FieldDefinitionDto> DataAbstractionAPI.API.Models.DTOs.SchemaResponseDto::get_Fields()": {
           "Lines": {
-            "20": 11
+            "20": 20
           },
           "Branches": []
         }
@@ -6214,21 +6214,21 @@
       "DataAbstractionAPI.API.Middleware.ApiKeyAuthenticationMiddleware": {
         "System.Boolean DataAbstractionAPI.API.Middleware.ApiKeyAuthenticationMiddleware::IsValidApiKey(System.String)": {
           "Lines": {
-            "62": 9,
-            "63": 9,
+            "62": 12,
+            "63": 12,
             "64": 0,
             "65": 0,
-            "68": 9,
-            "69": 1,
-            "70": 1,
-            "74": 37,
-            "75": 10,
-            "76": 10,
+            "68": 12,
+            "69": 2,
+            "70": 2,
+            "74": 47,
+            "75": 12,
+            "76": 12,
             "77": 7,
             "78": 7,
-            "80": 3,
-            "82": 1,
-            "83": 9
+            "80": 5,
+            "82": 3,
+            "83": 12
           },
           "Branches": [
             {
@@ -6245,7 +6245,7 @@
               "EndOffset": 16,
               "Path": 1,
               "Ordinal": 1,
-              "Hits": 9
+              "Hits": 12
             },
             {
               "Line": 68,
@@ -6253,7 +6253,7 @@
               "EndOffset": 29,
               "Path": 0,
               "Ordinal": 2,
-              "Hits": 9
+              "Hits": 11
             },
             {
               "Line": 68,
@@ -6261,7 +6261,7 @@
               "EndOffset": 46,
               "Path": 1,
               "Ordinal": 3,
-              "Hits": 0
+              "Hits": 1
             },
             {
               "Line": 68,
@@ -6269,7 +6269,7 @@
               "EndOffset": 51,
               "Path": 0,
               "Ordinal": 4,
-              "Hits": 1
+              "Hits": 2
             },
             {
               "Line": 68,
@@ -6277,7 +6277,7 @@
               "EndOffset": 56,
               "Path": 1,
               "Ordinal": 5,
-              "Hits": 8
+              "Hits": 10
             },
             {
               "Line": 74,
@@ -6285,7 +6285,7 @@
               "EndOffset": 74,
               "Path": 1,
               "Ordinal": 9,
-              "Hits": 10
+              "Hits": 12
             },
             {
               "Line": 76,
@@ -6301,7 +6301,7 @@
               "EndOffset": 100,
               "Path": 1,
               "Ordinal": 7,
-              "Hits": 3
+              "Hits": 5
             },
             {
               "Line": 74,
@@ -6309,26 +6309,26 @@
               "EndOffset": 114,
               "Path": 0,
               "Ordinal": 8,
-              "Hits": 1
+              "Hits": 3
             }
           ]
         },
         "System.Boolean DataAbstractionAPI.API.Middleware.ApiKeyAuthenticationMiddleware::ConstantTimeEquals(System.String,System.String)": {
           "Lines": {
-            "89": 10,
-            "90": 10,
+            "89": 12,
+            "90": 12,
             "91": 0,
             "92": 0,
-            "95": 10,
-            "96": 1,
-            "97": 1,
-            "100": 9,
-            "101": 176,
-            "102": 79,
-            "103": 79,
-            "104": 79,
-            "106": 9,
-            "107": 10
+            "95": 12,
+            "96": 2,
+            "97": 2,
+            "100": 10,
+            "101": 204,
+            "102": 92,
+            "103": 92,
+            "104": 92,
+            "106": 10,
+            "107": 12
           },
           "Branches": [
             {
@@ -6337,7 +6337,7 @@
               "EndOffset": 4,
               "Path": 0,
               "Ordinal": 0,
-              "Hits": 10
+              "Hits": 12
             },
             {
               "Line": 90,
@@ -6361,7 +6361,7 @@
               "EndOffset": 26,
               "Path": 1,
               "Ordinal": 3,
-              "Hits": 10
+              "Hits": 12
             },
             {
               "Line": 95,
@@ -6369,7 +6369,7 @@
               "EndOffset": 47,
               "Path": 0,
               "Ordinal": 4,
-              "Hits": 1
+              "Hits": 2
             },
             {
               "Line": 95,
@@ -6377,7 +6377,7 @@
               "EndOffset": 52,
               "Path": 1,
               "Ordinal": 5,
-              "Hits": 9
+              "Hits": 10
             },
             {
               "Line": 101,
@@ -6385,7 +6385,7 @@
               "EndOffset": 59,
               "Path": 1,
               "Ordinal": 7,
-              "Hits": 79
+              "Hits": 92
             },
             {
               "Line": 101,
@@ -6393,21 +6393,21 @@
               "EndOffset": 103,
               "Path": 0,
               "Ordinal": 6,
-              "Hits": 9
+              "Hits": 10
             }
           ]
         },
         "System.Void DataAbstractionAPI.API.Middleware.ApiKeyAuthenticationMiddleware::.ctor(Microsoft.AspNetCore.Http.RequestDelegate,Microsoft.Extensions.Options.IOptions`1<DataAbstractionAPI.API.Configuration.ApiKeyAuthenticationOptions>,Microsoft.Extensions.Logging.ILogger`1<DataAbstractionAPI.API.Middleware.ApiKeyAuthenticationMiddleware>)": {
           "Lines": {
-            "18": 51,
-            "19": 51,
-            "20": 51,
-            "21": 51,
-            "22": 51,
-            "23": 51,
-            "24": 51,
-            "25": 51,
-            "26": 51
+            "18": 54,
+            "19": 54,
+            "20": 54,
+            "21": 54,
+            "22": 54,
+            "23": 54,
+            "24": 54,
+            "25": 54,
+            "26": 54
           },
           "Branches": []
         }
@@ -6415,27 +6415,27 @@
       "DataAbstractionAPI.API.Middleware.ApiKeyAuthenticationMiddleware/<InvokeAsync>d__4": {
         "System.Void DataAbstractionAPI.API.Middleware.ApiKeyAuthenticationMiddleware/<InvokeAsync>d__4::MoveNext()": {
           "Lines": {
-            "29": 58,
-            "31": 58,
+            "29": 61,
+            "31": 61,
             "32": 48,
             "33": 48,
             "34": 38,
-            "38": 10,
+            "38": 13,
             "39": 1,
             "40": 1,
             "41": 1,
             "42": 1,
             "43": 1,
-            "46": 9,
-            "49": 9,
-            "50": 2,
-            "51": 2,
-            "52": 2,
-            "53": 2,
-            "54": 2,
+            "46": 12,
+            "49": 12,
+            "50": 5,
+            "51": 5,
+            "52": 5,
+            "53": 5,
+            "54": 5,
             "57": 7,
             "58": 7,
-            "59": 48
+            "59": 51
           },
           "Branches": [
             {
@@ -6452,7 +6452,7 @@
               "EndOffset": 190,
               "Path": 1,
               "Ordinal": 1,
-              "Hits": 10
+              "Hits": 13
             },
             {
               "Line": 38,
@@ -6468,7 +6468,7 @@
               "EndOffset": 444,
               "Path": 1,
               "Ordinal": 3,
-              "Hits": 9
+              "Hits": 12
             },
             {
               "Line": 49,
@@ -6476,7 +6476,7 @@
               "EndOffset": 496,
               "Path": 0,
               "Ordinal": 4,
-              "Hits": 2
+              "Hits": 5
             },
             {
               "Line": 49,
@@ -6494,15 +6494,15 @@
       "DataAbstractionAPI.API.Middleware.GlobalExceptionHandlerMiddleware": {
         "System.Void DataAbstractionAPI.API.Middleware.GlobalExceptionHandlerMiddleware::.ctor(Microsoft.AspNetCore.Http.RequestDelegate,Microsoft.Extensions.Logging.ILogger`1<DataAbstractionAPI.API.Middleware.GlobalExceptionHandlerMiddleware>,Microsoft.AspNetCore.Hosting.IWebHostEnvironment)": {
           "Lines": {
-            "18": 49,
-            "19": 49,
-            "20": 49,
-            "21": 49,
-            "22": 49,
-            "23": 49,
-            "24": 49,
-            "25": 49,
-            "26": 49
+            "18": 56,
+            "19": 56,
+            "20": 56,
+            "21": 56,
+            "22": 56,
+            "23": 56,
+            "24": 56,
+            "25": 56,
+            "26": 56
           },
           "Branches": []
         }
@@ -6510,53 +6510,53 @@
       "DataAbstractionAPI.API.Middleware.GlobalExceptionHandlerMiddleware/<HandleExceptionAsync>d__5": {
         "System.Void DataAbstractionAPI.API.Middleware.GlobalExceptionHandlerMiddleware/<HandleExceptionAsync>d__5::MoveNext()": {
           "Lines": {
-            "42": 18,
-            "43": 18,
-            "44": 18,
-            "46": 18,
-            "47": 18,
-            "48": 18,
-            "49": 18,
-            "51": 18,
-            "54": 7,
-            "55": 7,
-            "56": 7,
-            "59": 3,
-            "60": 3,
-            "61": 3,
-            "64": 1,
-            "65": 1,
-            "66": 1,
-            "67": 1,
-            "70": 1,
-            "71": 1,
-            "72": 1,
-            "73": 1,
-            "76": 3,
-            "77": 3,
-            "78": 3,
-            "81": 1,
-            "82": 1,
-            "83": 1,
-            "84": 1,
-            "87": 2,
-            "88": 2,
-            "89": 2,
-            "90": 2,
-            "91": 2,
-            "92": 2,
-            "96": 18,
+            "42": 25,
+            "43": 25,
+            "44": 25,
+            "46": 25,
+            "47": 25,
+            "48": 25,
+            "49": 25,
+            "51": 25,
+            "54": 8,
+            "55": 8,
+            "56": 8,
+            "59": 4,
+            "60": 4,
+            "61": 4,
+            "64": 2,
+            "65": 2,
+            "66": 2,
+            "67": 2,
+            "70": 2,
+            "71": 2,
+            "72": 2,
+            "73": 2,
+            "76": 4,
+            "77": 4,
+            "78": 4,
+            "81": 2,
+            "82": 2,
+            "83": 2,
+            "84": 2,
+            "87": 3,
+            "88": 3,
+            "89": 3,
+            "90": 3,
+            "91": 3,
+            "92": 3,
+            "96": 25,
             "97": 11,
             "98": 11,
             "99": 11,
             "100": 11,
-            "102": 18,
-            "103": 18,
-            "104": 18,
-            "105": 18,
-            "107": 18,
-            "108": 18,
-            "109": 18
+            "102": 25,
+            "103": 25,
+            "104": 25,
+            "105": 25,
+            "107": 25,
+            "108": 25,
+            "109": 25
           },
           "Branches": [
             {
@@ -6565,7 +6565,7 @@
               "EndOffset": 108,
               "Path": 0,
               "Ordinal": 0,
-              "Hits": 11
+              "Hits": 17
             },
             {
               "Line": 51,
@@ -6573,7 +6573,7 @@
               "EndOffset": 124,
               "Path": 0,
               "Ordinal": 2,
-              "Hits": 8
+              "Hits": 13
             },
             {
               "Line": 51,
@@ -6581,7 +6581,7 @@
               "EndOffset": 152,
               "Path": 0,
               "Ordinal": 4,
-              "Hits": 7
+              "Hits": 11
             },
             {
               "Line": 51,
@@ -6589,7 +6589,7 @@
               "EndOffset": 180,
               "Path": 0,
               "Ordinal": 6,
-              "Hits": 6
+              "Hits": 9
             },
             {
               "Line": 51,
@@ -6597,7 +6597,7 @@
               "EndOffset": 196,
               "Path": 0,
               "Ordinal": 8,
-              "Hits": 3
+              "Hits": 5
             },
             {
               "Line": 51,
@@ -6605,7 +6605,7 @@
               "EndOffset": 217,
               "Path": 1,
               "Ordinal": 1,
-              "Hits": 7
+              "Hits": 8
             },
             {
               "Line": 51,
@@ -6613,7 +6613,7 @@
               "EndOffset": 256,
               "Path": 1,
               "Ordinal": 3,
-              "Hits": 3
+              "Hits": 4
             },
             {
               "Line": 51,
@@ -6621,7 +6621,7 @@
               "EndOffset": 297,
               "Path": 1,
               "Ordinal": 5,
-              "Hits": 1
+              "Hits": 2
             },
             {
               "Line": 51,
@@ -6629,7 +6629,7 @@
               "EndOffset": 361,
               "Path": 1,
               "Ordinal": 7,
-              "Hits": 1
+              "Hits": 2
             },
             {
               "Line": 51,
@@ -6637,7 +6637,7 @@
               "EndOffset": 423,
               "Path": 1,
               "Ordinal": 9,
-              "Hits": 3
+              "Hits": 4
             },
             {
               "Line": 51,
@@ -6645,7 +6645,7 @@
               "EndOffset": 462,
               "Path": 1,
               "Ordinal": 11,
-              "Hits": 1
+              "Hits": 2
             },
             {
               "Line": 51,
@@ -6653,7 +6653,7 @@
               "EndOffset": 515,
               "Path": 0,
               "Ordinal": 10,
-              "Hits": 2
+              "Hits": 3
             },
             {
               "Line": 89,
@@ -6661,7 +6661,7 @@
               "EndOffset": 573,
               "Path": 0,
               "Ordinal": 12,
-              "Hits": 1
+              "Hits": 2
             },
             {
               "Line": 89,
@@ -6685,7 +6685,7 @@
               "EndOffset": 688,
               "Path": 1,
               "Ordinal": 15,
-              "Hits": 18
+              "Hits": 25
             }
           ]
         }
@@ -6693,16 +6693,16 @@
       "DataAbstractionAPI.API.Middleware.GlobalExceptionHandlerMiddleware/<InvokeAsync>d__4": {
         "System.Void DataAbstractionAPI.API.Middleware.GlobalExceptionHandlerMiddleware/<InvokeAsync>d__4::MoveNext()": {
           "Lines": {
-            "29": 56,
-            "31": 56,
-            "32": 56,
+            "29": 63,
+            "31": 63,
+            "32": 63,
             "33": 38,
-            "34": 18,
-            "35": 18,
-            "36": 18,
-            "37": 18,
-            "38": 18,
-            "39": 56
+            "34": 25,
+            "35": 25,
+            "36": 25,
+            "37": 25,
+            "38": 25,
+            "39": 63
           },
           "Branches": []
         }
@@ -6712,12 +6712,12 @@
       "DataAbstractionAPI.API.Mapping.AggregateResultExtensions": {
         "DataAbstractionAPI.API.Models.DTOs.AggregateResponseDto DataAbstractionAPI.API.Mapping.AggregateResultExtensions::ToDto(DataAbstractionAPI.Core.Models.AggregateResult)": {
           "Lines": {
-            "15": 6,
-            "16": 6,
-            "17": 6,
-            "18": 6,
-            "19": 6,
-            "20": 6
+            "15": 9,
+            "16": 9,
+            "17": 9,
+            "18": 9,
+            "19": 9,
+            "20": 9
           },
           "Branches": []
         }
@@ -6727,19 +6727,19 @@
       "DataAbstractionAPI.API.Mapping.BulkResultExtensions": {
         "DataAbstractionAPI.API.Models.DTOs.BulkResponseDto DataAbstractionAPI.API.Mapping.BulkResultExtensions::ToDto(DataAbstractionAPI.Core.Models.BulkResult)": {
           "Lines": {
-            "15": 4,
-            "16": 4,
-            "17": 4,
-            "18": 4,
-            "19": 4,
-            "20": 4,
+            "15": 7,
+            "16": 7,
+            "17": 7,
+            "18": 7,
+            "19": 7,
+            "20": 7,
             "21": 4,
-            "22": 4,
-            "23": 4,
-            "24": 4,
-            "25": 4,
-            "26": 4,
-            "27": 4
+            "22": 7,
+            "23": 7,
+            "24": 7,
+            "25": 7,
+            "26": 7,
+            "27": 7
           },
           "Branches": [
             {
@@ -6748,7 +6748,7 @@
               "EndOffset": 55,
               "Path": 0,
               "Ordinal": 0,
-              "Hits": 0
+              "Hits": 1
             },
             {
               "Line": 16,
@@ -6756,21 +6756,21 @@
               "EndOffset": 59,
               "Path": 1,
               "Ordinal": 1,
-              "Hits": 4
+              "Hits": 6
             }
           ]
         },
         "DataAbstractionAPI.API.Models.DTOs.BulkOperationItemResultDto DataAbstractionAPI.API.Mapping.BulkResultExtensions::ToDto(DataAbstractionAPI.Core.Models.BulkOperationItemResult)": {
           "Lines": {
-            "33": 4,
-            "34": 4,
-            "35": 4,
-            "36": 4,
-            "37": 4,
-            "38": 4,
-            "39": 4,
-            "40": 4,
-            "41": 4
+            "33": 6,
+            "34": 6,
+            "35": 6,
+            "36": 6,
+            "37": 6,
+            "38": 6,
+            "39": 6,
+            "40": 6,
+            "41": 6
           },
           "Branches": []
         }
@@ -6780,13 +6780,13 @@
       "DataAbstractionAPI.API.Mapping.CollectionSchemaExtensions": {
         "DataAbstractionAPI.API.Models.DTOs.SchemaResponseDto DataAbstractionAPI.API.Mapping.CollectionSchemaExtensions::ToDto(DataAbstractionAPI.Core.Models.CollectionSchema)": {
           "Lines": {
-            "15": 3,
-            "16": 3,
-            "17": 3,
-            "18": 3,
-            "19": 10,
-            "20": 3,
-            "21": 3
+            "15": 7,
+            "16": 7,
+            "17": 7,
+            "18": 7,
+            "19": 11,
+            "20": 7,
+            "21": 5
           },
           "Branches": []
         }
@@ -6796,13 +6796,13 @@
       "DataAbstractionAPI.API.Mapping.CreateResultExtensions": {
         "DataAbstractionAPI.API.Models.DTOs.CreateResponseDto DataAbstractionAPI.API.Mapping.CreateResultExtensions::ToDto(DataAbstractionAPI.Core.Models.CreateResult)": {
           "Lines": {
-            "15": 3,
-            "16": 3,
-            "17": 3,
-            "18": 3,
-            "19": 3,
-            "20": 3,
-            "21": 3
+            "15": 4,
+            "16": 4,
+            "17": 4,
+            "18": 4,
+            "19": 4,
+            "20": 4,
+            "21": 4
           },
           "Branches": []
         }
@@ -6812,15 +6812,15 @@
       "DataAbstractionAPI.API.Mapping.FieldDefinitionExtensions": {
         "DataAbstractionAPI.API.Models.DTOs.FieldDefinitionDto DataAbstractionAPI.API.Mapping.FieldDefinitionExtensions::ToDto(DataAbstractionAPI.Core.Models.FieldDefinition)": {
           "Lines": {
-            "15": 11,
-            "16": 11,
-            "17": 11,
-            "18": 11,
-            "19": 11,
-            "20": 11,
-            "21": 11,
-            "22": 11,
-            "23": 11
+            "15": 13,
+            "16": 13,
+            "17": 13,
+            "18": 13,
+            "19": 13,
+            "20": 13,
+            "21": 13,
+            "22": 13,
+            "23": 13
           },
           "Branches": []
         }
@@ -6830,14 +6830,14 @@
       "DataAbstractionAPI.API.Mapping.ListResultExtensions": {
         "DataAbstractionAPI.API.Models.DTOs.ListResponseDto DataAbstractionAPI.API.Mapping.ListResultExtensions::ToDto(DataAbstractionAPI.Core.Models.ListResult)": {
           "Lines": {
-            "15": 9,
-            "16": 9,
-            "17": 9,
+            "15": 13,
+            "16": 13,
+            "17": 13,
             "18": 17,
-            "19": 9,
-            "20": 9,
-            "21": 9,
-            "22": 9
+            "19": 13,
+            "20": 13,
+            "21": 13,
+            "22": 10
           },
           "Branches": []
         }
@@ -6847,13 +6847,13 @@
       "DataAbstractionAPI.API.Mapping.RecordExtensions": {
         "DataAbstractionAPI.API.Models.DTOs.RecordDto DataAbstractionAPI.API.Mapping.RecordExtensions::ToDto(DataAbstractionAPI.Core.Models.Record)": {
           "Lines": {
-            "15": 23,
-            "16": 23,
-            "17": 23,
-            "18": 23,
-            "19": 23,
-            "20": 23,
-            "21": 23
+            "15": 29,
+            "16": 29,
+            "17": 29,
+            "18": 29,
+            "19": 29,
+            "20": 29,
+            "21": 28
           },
           "Branches": []
         }
@@ -6863,14 +6863,14 @@
       "DataAbstractionAPI.API.Mapping.SummaryResultExtensions": {
         "DataAbstractionAPI.API.Models.DTOs.SummaryResponseDto DataAbstractionAPI.API.Mapping.SummaryResultExtensions::ToDto(DataAbstractionAPI.Core.Models.SummaryResult)": {
           "Lines": {
-            "15": 2,
-            "16": 2,
-            "17": 16,
+            "15": 4,
+            "16": 4,
+            "17": 21,
             "18": 5,
             "19": 5,
             "20": 5,
-            "21": 2,
-            "22": 2
+            "21": 3,
+            "22": 3
           },
           "Branches": [
             {
@@ -6887,7 +6887,7 @@
               "EndOffset": 62,
               "Path": 0,
               "Ordinal": 0,
-              "Hits": 2
+              "Hits": 3
             }
           ]
         }
@@ -7086,12 +7086,12 @@
         },
         "System.Void DataAbstractionAPI.API.Controllers.DataController::.ctor(DataAbstractionAPI.Core.Interfaces.IDataAdapter,Microsoft.AspNetCore.Hosting.IWebHostEnvironment,Microsoft.Extensions.Configuration.IConfiguration)": {
           "Lines": {
-            "18": 63,
-            "19": 63,
-            "20": 63,
-            "21": 63,
-            "22": 63,
-            "23": 63
+            "18": 85,
+            "19": 85,
+            "20": 85,
+            "21": 85,
+            "22": 85,
+            "23": 85
           },
           "Branches": []
         }
@@ -7183,18 +7183,18 @@
       "DataAbstractionAPI.API.Controllers.DataController/<BulkOperation>d__14": {
         "System.Void DataAbstractionAPI.API.Controllers.DataController/<BulkOperation>d__14::MoveNext()": {
           "Lines": {
-            "253": 6,
-            "254": 6,
-            "255": 0,
-            "256": 0,
-            "260": 6,
-            "261": 6,
-            "262": 6,
-            "263": 6,
-            "264": 6,
-            "265": 6,
-            "266": 6,
-            "268": 6,
+            "253": 8,
+            "254": 8,
+            "255": 1,
+            "256": 1,
+            "260": 7,
+            "261": 7,
+            "262": 7,
+            "263": 7,
+            "264": 7,
+            "265": 7,
+            "266": 7,
+            "268": 7,
             "269": 4,
             "272": 4,
             "273": 1,
@@ -7206,7 +7206,7 @@
             "280": 0,
             "282": 0,
             "284": 3,
-            "285": 4
+            "285": 5
           },
           "Branches": [
             {
@@ -7215,7 +7215,7 @@
               "EndOffset": 31,
               "Path": 0,
               "Ordinal": 0,
-              "Hits": 0
+              "Hits": 1
             },
             {
               "Line": 254,
@@ -7223,7 +7223,7 @@
               "EndOffset": 79,
               "Path": 1,
               "Ordinal": 1,
-              "Hits": 6
+              "Hits": 7
             },
             {
               "Line": 272,
@@ -7295,10 +7295,10 @@
       "DataAbstractionAPI.API.Controllers.DataController/<CreateRecord>d__7": {
         "System.Void DataAbstractionAPI.API.Controllers.DataController/<CreateRecord>d__7::MoveNext()": {
           "Lines": {
-            "74": 4,
-            "75": 4,
-            "76": 2,
-            "77": 2
+            "74": 8,
+            "75": 8,
+            "76": 3,
+            "77": 3
           },
           "Branches": []
         }
@@ -7306,8 +7306,8 @@
       "DataAbstractionAPI.API.Controllers.DataController/<DeleteRecord>d__9": {
         "System.Void DataAbstractionAPI.API.Controllers.DataController/<DeleteRecord>d__9::MoveNext()": {
           "Lines": {
-            "112": 4,
-            "113": 4,
+            "112": 6,
+            "113": 6,
             "114": 2,
             "115": 2,
             "116": 2,
@@ -7321,10 +7321,10 @@
       "DataAbstractionAPI.API.Controllers.DataController/<GetCollection>d__5": {
         "System.Void DataAbstractionAPI.API.Controllers.DataController/<GetCollection>d__5::MoveNext()": {
           "Lines": {
-            "41": 10,
-            "42": 10,
-            "43": 10,
-            "44": 8,
+            "41": 14,
+            "42": 14,
+            "43": 14,
+            "44": 9,
             "45": 8
           },
           "Branches": []
@@ -7333,9 +7333,9 @@
       "DataAbstractionAPI.API.Controllers.DataController/<GetRecord>d__6": {
         "System.Void DataAbstractionAPI.API.Controllers.DataController/<GetRecord>d__6::MoveNext()": {
           "Lines": {
-            "58": 4,
-            "59": 4,
-            "60": 2,
+            "58": 7,
+            "59": 7,
+            "60": 3,
             "61": 2
           },
           "Branches": []
@@ -7344,8 +7344,8 @@
       "DataAbstractionAPI.API.Controllers.DataController/<GetSchema>d__10": {
         "System.Void DataAbstractionAPI.API.Controllers.DataController/<GetSchema>d__10::MoveNext()": {
           "Lines": {
-            "131": 4,
-            "132": 4,
+            "131": 5,
+            "132": 5,
             "133": 2,
             "134": 2
           },
@@ -7386,8 +7386,8 @@
       "DataAbstractionAPI.API.Controllers.DataController/<ListCollections>d__11": {
         "System.Void DataAbstractionAPI.API.Controllers.DataController/<ListCollections>d__11::MoveNext()": {
           "Lines": {
-            "143": 4,
-            "144": 4,
+            "143": 5,
+            "144": 5,
             "145": 4,
             "146": 4
           },
@@ -7397,8 +7397,8 @@
       "DataAbstractionAPI.API.Controllers.DataController/<UpdateRecord>d__8": {
         "System.Void DataAbstractionAPI.API.Controllers.DataController/<UpdateRecord>d__8::MoveNext()": {
           "Lines": {
-            "92": 4,
-            "93": 4,
+            "92": 6,
+            "93": 6,
             "94": 2,
             "95": 2,
             "96": 2,
@@ -7647,19 +7647,19 @@
       "DataAbstractionAPI.API.Configuration.ApiKeyAuthenticationOptions": {
         "System.Boolean DataAbstractionAPI.API.Configuration.ApiKeyAuthenticationOptions::get_Enabled()": {
           "Lines": {
-            "12": 187
+            "12": 196
           },
           "Branches": []
         },
         "System.String[] DataAbstractionAPI.API.Configuration.ApiKeyAuthenticationOptions::get_ValidApiKeys()": {
           "Lines": {
-            "17": 197
+            "17": 210
           },
           "Branches": []
         },
         "System.String DataAbstractionAPI.API.Configuration.ApiKeyAuthenticationOptions::get_HeaderName()": {
           "Lines": {
-            "23": 140
+            "23": 149
           },
           "Branches": []
         }
@@ -7749,7 +7749,7 @@
       "DataAbstractionAPI.Core.Models.AggregateResult": {
         "System.Collections.Generic.List`1<System.Collections.Generic.Dictionary`2<System.String,System.Object>> DataAbstractionAPI.Core.Models.AggregateResult::get_Data()": {
           "Lines": {
-            "12": 24
+            "12": 33
           },
           "Branches": []
         }
@@ -7759,25 +7759,25 @@
       "DataAbstractionAPI.Core.Models.BulkOperationItemResult": {
         "System.Int32 DataAbstractionAPI.Core.Models.BulkOperationItemResult::get_Index()": {
           "Lines": {
-            "11": 8
+            "11": 12
           },
           "Branches": []
         },
         "System.String DataAbstractionAPI.Core.Models.BulkOperationItemResult::get_Id()": {
           "Lines": {
-            "16": 8
+            "16": 12
           },
           "Branches": []
         },
         "System.Boolean DataAbstractionAPI.Core.Models.BulkOperationItemResult::get_Success()": {
           "Lines": {
-            "21": 8
+            "21": 12
           },
           "Branches": []
         },
         "System.String DataAbstractionAPI.Core.Models.BulkOperationItemResult::get_Error()": {
           "Lines": {
-            "26": 4
+            "26": 8
           },
           "Branches": []
         }
@@ -7787,25 +7787,25 @@
       "DataAbstractionAPI.Core.Models.BulkOperationRequest": {
         "System.String DataAbstractionAPI.Core.Models.BulkOperationRequest::get_Action()": {
           "Lines": {
-            "11": 28
+            "11": 30
           },
           "Branches": []
         },
         "System.Boolean DataAbstractionAPI.Core.Models.BulkOperationRequest::get_Atomic()": {
           "Lines": {
-            "17": 16
+            "17": 18
           },
           "Branches": []
         },
         "System.Collections.Generic.List`1<System.Collections.Generic.Dictionary`2<System.String,System.Object>> DataAbstractionAPI.Core.Models.BulkOperationRequest::get_Records()": {
           "Lines": {
-            "23": 39
+            "23": 41
           },
           "Branches": []
         },
         "System.Collections.Generic.Dictionary`2<System.String,System.Object> DataAbstractionAPI.Core.Models.BulkOperationRequest::get_UpdateData()": {
           "Lines": {
-            "29": 7
+            "29": 8
           },
           "Branches": []
         }
@@ -7815,49 +7815,49 @@
       "DataAbstractionAPI.Core.Models.BulkResult": {
         "System.Boolean DataAbstractionAPI.Core.Models.BulkResult::get_Success()": {
           "Lines": {
-            "13": 9
+            "13": 15
           },
           "Branches": []
         },
         "System.Int32 DataAbstractionAPI.Core.Models.BulkResult::get_Succeeded()": {
           "Lines": {
-            "18": 8
+            "18": 14
           },
           "Branches": []
         },
         "System.Int32 DataAbstractionAPI.Core.Models.BulkResult::get_Failed()": {
           "Lines": {
-            "23": 8
+            "23": 14
           },
           "Branches": []
         },
         "System.Collections.Generic.List`1<DataAbstractionAPI.Core.Models.BulkOperationItemResult> DataAbstractionAPI.Core.Models.BulkResult::get_Results()": {
           "Lines": {
-            "28": 11
+            "28": 20
           },
           "Branches": []
         },
         "System.Collections.Generic.List`1<System.String> DataAbstractionAPI.Core.Models.BulkResult::get_Ids()": {
           "Lines": {
-            "33": 5
+            "33": 9
           },
           "Branches": []
         },
         "System.String DataAbstractionAPI.Core.Models.BulkResult::get_Error()": {
           "Lines": {
-            "38": 4
+            "38": 7
           },
           "Branches": []
         },
         "System.Nullable`1<System.Int32> DataAbstractionAPI.Core.Models.BulkResult::get_FailedIndex()": {
           "Lines": {
-            "43": 4
+            "43": 7
           },
           "Branches": []
         },
         "System.String DataAbstractionAPI.Core.Models.BulkResult::get_FailedError()": {
           "Lines": {
-            "48": 4
+            "48": 7
           },
           "Branches": []
         }
@@ -7867,13 +7867,13 @@
       "DataAbstractionAPI.Core.Models.CollectionSchema": {
         "System.String DataAbstractionAPI.Core.Models.CollectionSchema::get_Name()": {
           "Lines": {
-            "8": 9
+            "8": 21
           },
           "Branches": []
         },
         "System.Collections.Generic.List`1<DataAbstractionAPI.Core.Models.FieldDefinition> DataAbstractionAPI.Core.Models.CollectionSchema::get_Fields()": {
           "Lines": {
-            "9": 9
+            "9": 21
           },
           "Branches": []
         }
@@ -7883,13 +7883,13 @@
       "DataAbstractionAPI.Core.Models.CreateResult": {
         "DataAbstractionAPI.Core.Models.Record DataAbstractionAPI.Core.Models.CreateResult::get_Record()": {
           "Lines": {
-            "8": 13
+            "8": 16
           },
           "Branches": []
         },
         "System.String DataAbstractionAPI.Core.Models.CreateResult::get_Id()": {
           "Lines": {
-            "9": 17
+            "9": 21
           },
           "Branches": []
         }
@@ -7915,25 +7915,25 @@
       "DataAbstractionAPI.Core.Models.FieldDefinition": {
         "System.String DataAbstractionAPI.Core.Models.FieldDefinition::get_Name()": {
           "Lines": {
-            "10": 33
+            "10": 39
           },
           "Branches": []
         },
         "DataAbstractionAPI.Core.Enums.FieldType DataAbstractionAPI.Core.Models.FieldDefinition::get_Type()": {
           "Lines": {
-            "11": 22
+            "11": 26
           },
           "Branches": []
         },
         "System.Boolean DataAbstractionAPI.Core.Models.FieldDefinition::get_Nullable()": {
           "Lines": {
-            "12": 31
+            "12": 36
           },
           "Branches": []
         },
         "System.Object DataAbstractionAPI.Core.Models.FieldDefinition::get_Default()": {
           "Lines": {
-            "13": 20
+            "13": 22
           },
           "Branches": []
         }
@@ -7943,19 +7943,19 @@
       "DataAbstractionAPI.Core.Models.ListResult": {
         "System.Collections.Generic.List`1<DataAbstractionAPI.Core.Models.Record> DataAbstractionAPI.Core.Models.ListResult::get_Data()": {
           "Lines": {
-            "8": 36
+            "8": 54
           },
           "Branches": []
         },
         "System.Int32 DataAbstractionAPI.Core.Models.ListResult::get_Total()": {
           "Lines": {
-            "9": 21
+            "9": 28
           },
           "Branches": []
         },
         "System.Boolean DataAbstractionAPI.Core.Models.ListResult::get_More()": {
           "Lines": {
-            "10": 21
+            "10": 28
           },
           "Branches": []
         }
@@ -7965,31 +7965,31 @@
       "DataAbstractionAPI.Core.Models.QueryOptions": {
         "System.String[] DataAbstractionAPI.Core.Models.QueryOptions::get_Fields()": {
           "Lines": {
-            "8": 11
+            "8": 14
           },
           "Branches": []
         },
         "System.Collections.Generic.Dictionary`2<System.String,System.Object> DataAbstractionAPI.Core.Models.QueryOptions::get_Filter()": {
           "Lines": {
-            "9": 11
+            "9": 14
           },
           "Branches": []
         },
         "System.Int32 DataAbstractionAPI.Core.Models.QueryOptions::get_Limit()": {
           "Lines": {
-            "10": 37
+            "10": 54
           },
           "Branches": []
         },
         "System.Int32 DataAbstractionAPI.Core.Models.QueryOptions::get_Offset()": {
           "Lines": {
-            "11": 24
+            "11": 34
           },
           "Branches": []
         },
         "System.String DataAbstractionAPI.Core.Models.QueryOptions::get_Sort()": {
           "Lines": {
-            "12": 11
+            "12": 14
           },
           "Branches": []
         }
@@ -7999,13 +7999,13 @@
       "DataAbstractionAPI.Core.Models.Record": {
         "System.String DataAbstractionAPI.Core.Models.Record::get_Id()": {
           "Lines": {
-            "8": 179
+            "8": 216
           },
           "Branches": []
         },
         "System.Collections.Generic.Dictionary`2<System.String,System.Object> DataAbstractionAPI.Core.Models.Record::get_Data()": {
           "Lines": {
-            "9": 377
+            "9": 411
           },
           "Branches": []
         }
@@ -8015,7 +8015,7 @@
       "DataAbstractionAPI.Core.Models.SummaryResult": {
         "System.Collections.Generic.Dictionary`2<System.String,System.Int32> DataAbstractionAPI.Core.Models.SummaryResult::get_Counts()": {
           "Lines": {
-            "11": 6
+            "11": 12
           },
           "Branches": []
         }
@@ -8025,7 +8025,7 @@
       "DataAbstractionAPI.Core.Exceptions.ConversionException": {
         "System.String DataAbstractionAPI.Core.Exceptions.ConversionException::get_FieldName()": {
           "Lines": {
-            "11": 1
+            "11": 2
           },
           "Branches": []
         },
@@ -8049,21 +8049,21 @@
         },
         "System.Void DataAbstractionAPI.Core.Exceptions.ConversionException::.ctor(System.String,System.Object,DataAbstractionAPI.Core.Enums.FieldType,DataAbstractionAPI.Core.Enums.FieldType)": {
           "Lines": {
-            "29": 1,
-            "30": 1,
-            "31": 1
+            "29": 2,
+            "30": 2,
+            "31": 2
           },
           "Branches": []
         },
         "System.Void DataAbstractionAPI.Core.Exceptions.ConversionException::.ctor(System.String,System.Object,DataAbstractionAPI.Core.Enums.FieldType,DataAbstractionAPI.Core.Enums.FieldType,System.String)": {
           "Lines": {
-            "34": 1,
-            "35": 1,
-            "36": 1,
-            "37": 1,
-            "38": 1,
-            "39": 1,
-            "40": 1
+            "34": 2,
+            "35": 2,
+            "36": 2,
+            "37": 2,
+            "38": 2,
+            "39": 2,
+            "40": 2
           },
           "Branches": []
         },
@@ -8085,7 +8085,7 @@
       "DataAbstractionAPI.Core.Exceptions.ValidationException": {
         "System.String DataAbstractionAPI.Core.Exceptions.ValidationException::get_FieldName()": {
           "Lines": {
-            "11": 1
+            "11": 2
           },
           "Branches": []
         },
@@ -8099,10 +8099,10 @@
         },
         "System.Void DataAbstractionAPI.Core.Exceptions.ValidationException::.ctor(System.String,System.String)": {
           "Lines": {
-            "19": 1,
-            "20": 1,
-            "21": 1,
-            "22": 1
+            "19": 2,
+            "20": 2,
+            "21": 2,
+            "22": 2
           },
           "Branches": []
         },
