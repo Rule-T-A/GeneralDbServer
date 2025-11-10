@@ -18,5 +18,10 @@ public interface IDataAdapter
     // Schema Operations
     Task<CollectionSchema> GetSchemaAsync(string collection, CancellationToken ct = default);
     Task<string[]> ListCollectionsAsync(CancellationToken ct = default);
+    
+    // Advanced Data Operations
+    Task<BulkResult> BulkOperationAsync(string collection, BulkOperationRequest request, CancellationToken ct = default);
+    Task<SummaryResult> GetSummaryAsync(string collection, string field, CancellationToken ct = default);
+    Task<AggregateResult> AggregateAsync(string collection, AggregateRequest request, CancellationToken ct = default);
 }
 

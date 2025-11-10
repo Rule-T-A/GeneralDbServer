@@ -138,6 +138,115 @@ public class DataController : ControllerBase
     }
 
     /// <summary>
+    /// Performs bulk operations (create, update, delete) on multiple records.
+    /// </summary>
+    /// <param name="collection">The name of the collection</param>
+    /// <param name="request">The bulk operation request</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Bulk operation result</returns>
+    [HttpPost("{collection}/bulk")]
+    [ProducesResponseType(typeof(BulkResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(BulkResponseDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(BulkResponseDto), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<BulkResponseDto>> BulkOperation(string collection, [FromBody] BulkOperationRequestDto request, CancellationToken cancellationToken = default)
+    {
+        if (request == null)
+        {
+            return BadRequest(new BulkResponseDto { Success = false, Error = "Request body is required" });
+        }
+
+        // Convert DTO to Core model
+        var coreRequest = new BulkOperationRequest
+        {
+            Action = request.Action,
+            Atomic = request.Atomic,
+            Records = request.Records,
+            UpdateData = request.UpdateData
+        };
+
+        var result = await _adapter.BulkOperationAsync(collection, coreRequest, cancellationToken);
+        var dto = result.ToDto();
+
+        // Return appropriate status code based on result
+        if (request.Atomic)
+        {
+            if (result.Success && request.Action.ToLower() == "create")
+            {
+                return CreatedAtAction(nameof(GetCollection), new { collection }, dto);
+            }
+            else if (!result.Success)
+            {
+                return BadRequest(dto);
+            }
+        }
+
+        return Ok(dto);
+    }
+
+    /// <summary>
+    /// Gets a summary (count) of values for a specific field.
+    /// </summary>
+    /// <param name="collection">The name of the collection</param>
+    /// <param name="field">The field name to summarize</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Dictionary mapping field values to their counts</returns>
+    [HttpGet("{collection}/summary")]
+    [ProducesResponseType(typeof(SummaryResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<SummaryResponseDto>> GetSummary(string collection, [FromQuery] string field, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(field))
+        {
+            return BadRequest(new { error = "Field parameter is required" });
+        }
+
+        var result = await _adapter.GetSummaryAsync(collection, field, cancellationToken);
+        return Ok(result.ToDto());
+    }
+
+    /// <summary>
+    /// Performs complex aggregations with grouping and multiple aggregate functions.
+    /// </summary>
+    /// <param name="collection">The name of the collection</param>
+    /// <param name="request">The aggregate request</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Aggregated results</returns>
+    [HttpPost("{collection}/aggregate")]
+    [ProducesResponseType(typeof(AggregateResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<AggregateResponseDto>> Aggregate(string collection, [FromBody] AggregateRequestDto request, CancellationToken cancellationToken = default)
+    {
+        if (request == null)
+        {
+            return BadRequest(new { error = "Request body is required" });
+        }
+
+        if (request.Aggregates == null || request.Aggregates.Count == 0)
+        {
+            return BadRequest(new { error = "At least one aggregate function must be specified" });
+        }
+
+        // Convert DTO to Core model
+        var coreRequest = new AggregateRequest
+        {
+            GroupBy = request.GroupBy,
+            Filter = request.Filter,
+            Aggregates = request.Aggregates.Select(a => new AggregateFunction
+            {
+                Field = a.Field,
+                Function = a.Function,
+                Alias = a.Alias
+            }).ToList()
+        };
+
+        var result = await _adapter.AggregateAsync(collection, coreRequest, cancellationToken);
+        return Ok(result.ToDto());
+    }
+
+    /// <summary>
     /// Upload a CSV file to create or replace a collection.
     /// </summary>
     /// <param name="request">The upload request containing collection name and file</param>

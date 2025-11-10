@@ -732,5 +732,484 @@ public class CsvAdapter : IDataAdapter
         // Default to String if no data found
         return FieldType.String;
     }
+
+    public async Task<BulkResult> BulkOperationAsync(string collection, BulkOperationRequest request, CancellationToken ct = default)
+    {
+        await Task.Yield();
+        ct.ThrowIfCancellationRequested();
+
+        // Validate action
+        if (string.IsNullOrWhiteSpace(request.Action) || 
+            !new[] { "create", "update", "delete" }.Contains(request.Action.ToLower()))
+        {
+            throw new ArgumentException("Action must be 'create', 'update', or 'delete'", nameof(request));
+        }
+
+        if (request.Records == null || request.Records.Count == 0)
+        {
+            throw new ArgumentException("Records cannot be empty", nameof(request));
+        }
+
+        var csvPath = GetCsvPath(collection);
+        if (!File.Exists(csvPath))
+        {
+            throw new FileNotFoundException($"Collection '{collection}' not found at {csvPath}");
+        }
+
+        var action = request.Action.ToLower();
+        var lockPath = csvPath + ".lock";
+
+        if (request.Atomic)
+        {
+            // Atomic mode: all succeed or all fail
+            BulkResult? result = null;
+            int attempt = 0;
+            while (attempt <= _retryOptions.MaxRetries)
+            {
+                try
+                {
+                    ct.ThrowIfCancellationRequested();
+                    using (var fileLock = new CsvFileLock(lockPath))
+                    {
+                        ct.ThrowIfCancellationRequested();
+                        var handler = new CsvFileHandler(csvPath);
+                        var headers = handler.ReadHeaders();
+                        var allRecords = handler.ReadRecords();
+
+                        var createdIds = new List<string>();
+                        int failedIndex = -1;
+                        string? failedError = null;
+
+                        try
+                        {
+                            for (int i = 0; i < request.Records.Count; i++)
+                            {
+                                ct.ThrowIfCancellationRequested();
+                                var record = request.Records[i];
+
+                                if (action == "create")
+                                {
+                                    var newId = GenerateId();
+                                    var recordData = new Dictionary<string, object>(record) { ["id"] = newId };
+                                    
+                                    // Ensure all headers are present
+                                    foreach (var header in headers)
+                                    {
+                                        if (!recordData.ContainsKey(header))
+                                        {
+                                            recordData[header] = string.Empty;
+                                        }
+                                    }
+                                    
+                                    allRecords.Add(recordData);
+                                    createdIds.Add(newId);
+                                }
+                                else if (action == "update")
+                                {
+                                    if (!record.ContainsKey("id"))
+                                    {
+                                        throw new ArgumentException($"Record at index {i} must contain an 'id' field for update operations");
+                                    }
+
+                                    var id = record["id"]?.ToString();
+                                    if (string.IsNullOrEmpty(id))
+                                    {
+                                        throw new ArgumentException($"Record at index {i} has invalid 'id' field");
+                                    }
+
+                                    var recordIndex = allRecords.FindIndex(r => r.ContainsKey("id") && r["id"]?.ToString() == id);
+                                    if (recordIndex == -1)
+                                    {
+                                        throw new KeyNotFoundException($"Record with ID '{id}' not found at index {i}");
+                                    }
+
+                                    // Merge update data
+                                    var updateData = request.UpdateData ?? record;
+                                    foreach (var kvp in updateData)
+                                    {
+                                        if (kvp.Key != "id")
+                                        {
+                                            allRecords[recordIndex][kvp.Key] = kvp.Value;
+                                        }
+                                    }
+                                }
+                                else if (action == "delete")
+                                {
+                                    if (!record.ContainsKey("id"))
+                                    {
+                                        throw new ArgumentException($"Record at index {i} must contain an 'id' field for delete operations");
+                                    }
+
+                                    var id = record["id"]?.ToString();
+                                    if (string.IsNullOrEmpty(id))
+                                    {
+                                        throw new ArgumentException($"Record at index {i} has invalid 'id' field");
+                                    }
+
+                                    var recordIndex = allRecords.FindIndex(r => r.ContainsKey("id") && r["id"]?.ToString() == id);
+                                    if (recordIndex == -1)
+                                    {
+                                        throw new KeyNotFoundException($"Record with ID '{id}' not found at index {i}");
+                                    }
+
+                                    allRecords.RemoveAt(recordIndex);
+                                }
+                            }
+
+                            // All operations succeeded, write the file
+                            ct.ThrowIfCancellationRequested();
+                            using (var fileStream = new FileStream(csvPath, FileMode.Create, FileAccess.Write, FileShare.Read))
+                            using (var writer = new StreamWriter(fileStream))
+                            using (var csv = new CsvHelper.CsvWriter(writer, System.Globalization.CultureInfo.InvariantCulture))
+                            {
+                                // Write headers
+                                foreach (var header in headers)
+                                {
+                                    csv.WriteField(header);
+                                }
+                                csv.NextRecord();
+
+                                // Write records
+                                foreach (var record in allRecords)
+                                {
+                                    ct.ThrowIfCancellationRequested();
+                                    foreach (var header in headers)
+                                    {
+                                        var value = record.ContainsKey(header) ? record[header]?.ToString() : "";
+                                        csv.WriteField(value);
+                                    }
+                                    csv.NextRecord();
+                                }
+                            }
+
+                            if (action == "create")
+                            {
+                                result = new BulkResult
+                                {
+                                    Success = true,
+                                    Succeeded = request.Records.Count,
+                                    Failed = 0,
+                                    Ids = createdIds
+                                };
+                            }
+                            else
+                            {
+                                result = new BulkResult
+                                {
+                                    Success = true,
+                                    Succeeded = request.Records.Count,
+                                    Failed = 0
+                                };
+                            }
+                            break; // Success, exit retry loop
+                        }
+                        catch (Exception ex)
+                        {
+                            // Rollback: don't write the file
+                            result = new BulkResult
+                            {
+                                Success = false,
+                                Error = $"Transaction rolled back: {ex.Message}",
+                                FailedIndex = failedIndex >= 0 ? failedIndex : request.Records.Count - 1,
+                                FailedError = failedError ?? ex.Message
+                            };
+                            throw; // Re-throw to trigger retry if it's a lock exception
+                        }
+                    }
+                }
+                catch (IOException ex) when (attempt < _retryOptions.MaxRetries && IsLockException(ex))
+                {
+                    attempt++;
+                    var delayMs = _retryOptions.BaseDelayMs * (int)Math.Pow(2, attempt - 1);
+                    await Task.Delay(delayMs, ct);
+                }
+                catch (Exception) when (result != null && !result.Success)
+                {
+                    // Non-lock exception in atomic mode - return failure result
+                    return result;
+                }
+            }
+
+            // If we get here and result is null, all retries failed
+            if (result == null)
+            {
+                throw new IOException("Failed to acquire file lock after retries");
+            }
+
+            return result;
+        }
+        else
+        {
+            // Best-effort mode: process each record individually
+            var results = new List<BulkOperationItemResult>();
+            int succeeded = 0;
+            int failed = 0;
+
+            for (int i = 0; i < request.Records.Count; i++)
+            {
+                ct.ThrowIfCancellationRequested();
+                var record = request.Records[i];
+                var itemResult = new BulkOperationItemResult { Index = i };
+
+                try
+                {
+                    if (action == "create")
+                    {
+                        var createResult = await CreateAsync(collection, record, ct);
+                        itemResult.Success = true;
+                        itemResult.Id = createResult.Id;
+                        succeeded++;
+                    }
+                    else if (action == "update")
+                    {
+                        if (!record.ContainsKey("id"))
+                        {
+                            throw new ArgumentException("Record must contain an 'id' field for update operations");
+                        }
+
+                        var id = record["id"]?.ToString() ?? string.Empty;
+                        var updateData = request.UpdateData ?? record;
+                        // Remove id from update data
+                        var cleanUpdateData = updateData.Where(kvp => kvp.Key != "id").ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+                        
+                        await UpdateAsync(collection, id, cleanUpdateData, ct);
+                        itemResult.Success = true;
+                        itemResult.Id = id;
+                        succeeded++;
+                    }
+                    else if (action == "delete")
+                    {
+                        if (!record.ContainsKey("id"))
+                        {
+                            throw new ArgumentException("Record must contain an 'id' field for delete operations");
+                        }
+
+                        var id = record["id"]?.ToString() ?? string.Empty;
+                        await DeleteAsync(collection, id, ct);
+                        itemResult.Success = true;
+                        itemResult.Id = id;
+                        succeeded++;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    itemResult.Success = false;
+                    itemResult.Error = ex.Message;
+                    failed++;
+                }
+
+                results.Add(itemResult);
+            }
+
+            return new BulkResult
+            {
+                Success = succeeded > 0,
+                Succeeded = succeeded,
+                Failed = failed,
+                Results = results
+            };
+        }
+    }
+
+    public async Task<SummaryResult> GetSummaryAsync(string collection, string field, CancellationToken ct = default)
+    {
+        await Task.Yield();
+        ct.ThrowIfCancellationRequested();
+
+        if (string.IsNullOrWhiteSpace(field))
+        {
+            throw new ArgumentException("Field name cannot be empty", nameof(field));
+        }
+
+        var csvPath = GetCsvPath(collection);
+        if (!File.Exists(csvPath))
+        {
+            throw new FileNotFoundException($"Collection '{collection}' not found at {csvPath}");
+        }
+
+        ct.ThrowIfCancellationRequested();
+        var handler = new CsvFileHandler(csvPath);
+        var allRecords = handler.ReadRecords();
+
+        // Group by field value and count
+        var counts = allRecords
+            .Where(r => r.ContainsKey(field))
+            .GroupBy(r => r[field]?.ToString() ?? "null")
+            .ToDictionary(g => g.Key, g => g.Count());
+
+        return new SummaryResult { Counts = counts };
+    }
+
+    public async Task<AggregateResult> AggregateAsync(string collection, AggregateRequest request, CancellationToken ct = default)
+    {
+        await Task.Yield();
+        ct.ThrowIfCancellationRequested();
+
+        if (request == null)
+        {
+            throw new ArgumentNullException(nameof(request));
+        }
+
+        if (request.Aggregates == null || request.Aggregates.Count == 0)
+        {
+            throw new ArgumentException("At least one aggregate function must be specified", nameof(request));
+        }
+
+        var csvPath = GetCsvPath(collection);
+        if (!File.Exists(csvPath))
+        {
+            throw new FileNotFoundException($"Collection '{collection}' not found at {csvPath}");
+        }
+
+        ct.ThrowIfCancellationRequested();
+        var handler = new CsvFileHandler(csvPath);
+        var allRecords = handler.ReadRecords();
+
+        // Convert to Record objects for filtering
+        var records = allRecords.Select((dict, index) => new Record
+        {
+            Id = dict.ContainsKey("id") ? dict["id"].ToString() ?? index.ToString() : index.ToString(),
+            Data = dict
+        }).ToList();
+
+        // Apply filter if provided
+        if (request.Filter != null && request.Filter.Count > 0)
+        {
+            if (_filterEvaluator != null)
+            {
+                records = records.Where(record => _filterEvaluator.Evaluate(record, request.Filter)).ToList();
+            }
+            else
+            {
+                records = FilterRecords(records, request.Filter);
+            }
+        }
+
+        ct.ThrowIfCancellationRequested();
+
+        // Group by fields if specified
+        IEnumerable<IGrouping<string, Record>> groupedRecords;
+        if (request.GroupBy != null && request.GroupBy.Length > 0)
+        {
+            // Multi-level grouping: create composite key
+            groupedRecords = records.GroupBy(r =>
+            {
+                var keys = request.GroupBy.Select(field =>
+                {
+                    if (r.Data.ContainsKey(field))
+                    {
+                        return r.Data[field]?.ToString() ?? "null";
+                    }
+                    return "null";
+                });
+                return string.Join("|", keys);
+            });
+        }
+        else
+        {
+            // No grouping: treat all records as one group
+            groupedRecords = records.GroupBy(r => "all");
+        }
+
+        // Apply aggregate functions to each group
+        var result = new AggregateResult();
+        foreach (var group in groupedRecords)
+        {
+            ct.ThrowIfCancellationRequested();
+            var groupResult = new Dictionary<string, object>();
+
+            // Add group-by field values
+            if (request.GroupBy != null && request.GroupBy.Length > 0)
+            {
+                var firstRecord = group.First();
+                var groupKeys = group.Key.Split('|');
+                for (int i = 0; i < request.GroupBy.Length; i++)
+                {
+                    groupResult[request.GroupBy[i]] = groupKeys[i];
+                }
+            }
+
+            // Apply aggregate functions
+            foreach (var agg in request.Aggregates)
+            {
+                var field = agg.Field;
+                var function = agg.Function.ToLower();
+                var alias = string.IsNullOrWhiteSpace(agg.Alias) ? $"{field}_{function}" : agg.Alias;
+
+                object? value = null;
+                var fieldValues = group
+                    .Where(r => r.Data.ContainsKey(field) && r.Data[field] != null)
+                    .Select(r => r.Data[field])
+                    .ToList();
+
+                switch (function)
+                {
+                    case "count":
+                        value = group.Count();
+                        break;
+
+                    case "sum":
+                        value = fieldValues
+                            .Select(v => ConvertToNumeric(v))
+                            .Where(v => v.HasValue)
+                            .Sum(v => v!.Value);
+                        break;
+
+                    case "avg":
+                        var numericValues = fieldValues
+                            .Select(v => ConvertToNumeric(v))
+                            .Where(v => v.HasValue)
+                            .Select(v => v!.Value)
+                            .ToList();
+                        value = numericValues.Count > 0 ? numericValues.Average() : 0;
+                        break;
+
+                    case "min":
+                        var minValues = fieldValues
+                            .Select(v => ConvertToNumeric(v))
+                            .Where(v => v.HasValue)
+                            .Select(v => v!.Value)
+                            .ToList();
+                        value = minValues.Count > 0 ? minValues.Min() : null;
+                        break;
+
+                    case "max":
+                        var maxValues = fieldValues
+                            .Select(v => ConvertToNumeric(v))
+                            .Where(v => v.HasValue)
+                            .Select(v => v!.Value)
+                            .ToList();
+                        value = maxValues.Count > 0 ? maxValues.Max() : null;
+                        break;
+
+                    default:
+                        throw new ArgumentException($"Unsupported aggregate function: {function}");
+                }
+
+                groupResult[alias] = value ?? 0;
+            }
+
+            result.Data.Add(groupResult);
+        }
+
+        return result;
+    }
+
+    private double? ConvertToNumeric(object? value)
+    {
+        if (value == null) return null;
+
+        return value switch
+        {
+            int i => i,
+            long l => l,
+            short s => s,
+            double d => d,
+            float f => f,
+            decimal dec => (double)dec,
+            string str => double.TryParse(str, out var parsed) ? parsed : null,
+            _ => null
+        };
+    }
 }
 

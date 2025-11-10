@@ -1127,6 +1127,369 @@ app.MapControllers();
 
 ---
 
+## 5. Agent Discovery Endpoint Plan
+
+### Overview
+Create a discovery endpoint (`GET /api/help` or `GET /api/docs`) that provides machine-readable information to help agents (LLMs, automated clients) understand how to use the API. This endpoint will be available in both Development and Production environments, unlike Swagger which is development-only.
+
+### Prerequisites
+- [ ] Understand current API structure and endpoints
+- [ ] Review `data-abstraction-api.md` specification for agent usage patterns
+- [ ] Consider what information agents need to discover and use the API
+
+### Step 5.1: Design Discovery Endpoint Response
+
+**Location**: New model in `DataAbstractionAPI.API/Models/DTOs/`
+
+**Decision Point**: What information should the discovery endpoint provide?
+
+**Recommended Response Structure**:
+```json
+{
+  "api_version": "v1",
+  "base_url": "http://localhost:5012/api",
+  "documentation": {
+    "openapi_json": "http://localhost:5012/swagger/v1/swagger.json",
+    "swagger_ui": "http://localhost:5012/swagger",
+    "available": true
+  },
+  "authentication": {
+    "type": "api_key",
+    "header_name": "X-API-Key",
+    "required": false,
+    "description": "Optional API key authentication. Configured via appsettings.json"
+  },
+  "endpoints": {
+    "collections": {
+      "list": "GET /api/data",
+      "description": "List all available collections"
+    },
+    "data": {
+      "list": "GET /api/data/{collection}",
+      "get": "GET /api/data/{collection}/{id}",
+      "create": "POST /api/data/{collection}",
+      "update": "PUT /api/data/{collection}/{id}",
+      "delete": "DELETE /api/data/{collection}/{id}",
+      "summary": "GET /api/data/{collection}/summary?field={fieldName}",
+      "bulk": "POST /api/data/{collection}/bulk",
+      "aggregate": "POST /api/data/{collection}/aggregate"
+    },
+    "schema": {
+      "get": "GET /api/data/{collection}/schema",
+      "description": "Get collection schema (field definitions)"
+    },
+    "upload": {
+      "upload": "POST /api/data/upload",
+      "description": "Upload CSV file to create or replace a collection",
+      "content_type": "multipart/form-data"
+    }
+  },
+  "common_patterns": {
+    "discover_collections": "1. GET /api/data to list collections",
+    "discover_schema": "2. GET /api/data/{collection}/schema to get field definitions",
+    "query_data": "3. GET /api/data/{collection}?limit=10 to query records",
+    "field_projection": "Note: Field projection, filtering, and sorting available in adapter layer but not yet exposed via REST API"
+  },
+  "response_formats": {
+    "list_response": {
+      "data_key": "d",
+      "total_key": "t",
+      "more_key": "more"
+    },
+    "compact_keys": true,
+    "description": "Responses use compact keys (d, t, more) for token efficiency"
+  }
+}
+```
+
+**Alternative Simpler Version** (if full structure is too complex):
+```json
+{
+  "api_version": "v1",
+  "base_url": "http://localhost:5012/api",
+  "openapi_spec": "http://localhost:5012/swagger/v1/swagger.json",
+  "authentication": {
+    "type": "api_key",
+    "header": "X-API-Key",
+    "required": false
+  },
+  "quick_start": [
+    "GET /api/data - List collections",
+    "GET /api/data/{collection}/schema - Get schema",
+    "GET /api/data/{collection} - List records",
+    "GET /api/data/{collection}/summary?field={field} - Get field counts"
+  ]
+}
+```
+
+**Recommendation**: Start with simpler version, can expand later
+
+### Step 5.2: Create Discovery Response DTO
+
+**Location**: `DataAbstractionAPI.API/Models/DTOs/DiscoveryResponseDto.cs` (NEW FILE)
+
+**Properties**:
+```csharp
+public class DiscoveryResponseDto
+{
+    [JsonPropertyName("api_version")]
+    public string ApiVersion { get; set; } = "v1";
+    
+    [JsonPropertyName("base_url")]
+    public string BaseUrl { get; set; } = string.Empty;
+    
+    [JsonPropertyName("openapi_spec")]
+    public string? OpenApiSpec { get; set; }
+    
+    [JsonPropertyName("swagger_ui")]
+    public string? SwaggerUi { get; set; }
+    
+    [JsonPropertyName("openapi_available")]
+    public bool OpenApiAvailable { get; set; }
+    
+    [JsonPropertyName("authentication")]
+    public AuthenticationInfoDto Authentication { get; set; } = new();
+    
+    [JsonPropertyName("quick_start")]
+    public List<string> QuickStart { get; set; } = new();
+    
+    [JsonPropertyName("endpoints")]
+    public EndpointsInfoDto? Endpoints { get; set; }
+}
+
+public class AuthenticationInfoDto
+{
+    [JsonPropertyName("type")]
+    public string Type { get; set; } = "api_key";
+    
+    [JsonPropertyName("header")]
+    public string Header { get; set; } = "X-API-Key";
+    
+    [JsonPropertyName("required")]
+    public bool Required { get; set; }
+    
+    [JsonPropertyName("description")]
+    public string? Description { get; set; }
+}
+
+public class EndpointsInfoDto
+{
+    [JsonPropertyName("collections")]
+    public EndpointInfoDto? Collections { get; set; }
+    
+    [JsonPropertyName("data")]
+    public DataEndpointsInfoDto? Data { get; set; }
+    
+    [JsonPropertyName("schema")]
+    public EndpointInfoDto? Schema { get; set; }
+    
+    [JsonPropertyName("upload")]
+    public EndpointInfoDto? Upload { get; set; }
+}
+
+public class DataEndpointsInfoDto
+{
+    [JsonPropertyName("list")]
+    public string List { get; set; } = "GET /api/data/{collection}";
+    
+    [JsonPropertyName("get")]
+    public string Get { get; set; } = "GET /api/data/{collection}/{id}";
+    
+    [JsonPropertyName("create")]
+    public string Create { get; set; } = "POST /api/data/{collection}";
+    
+    [JsonPropertyName("update")]
+    public string Update { get; set; } = "PUT /api/data/{collection}/{id}";
+    
+    [JsonPropertyName("delete")]
+    public string Delete { get; set; } = "DELETE /api/data/{collection}/{id}";
+    
+    [JsonPropertyName("summary")]
+    public string? Summary { get; set; }
+    
+    [JsonPropertyName("bulk")]
+    public string? Bulk { get; set; }
+    
+    [JsonPropertyName("aggregate")]
+    public string? Aggregate { get; set; }
+}
+
+public class EndpointInfoDto
+{
+    [JsonPropertyName("endpoint")]
+    public string? Endpoint { get; set; }
+    
+    [JsonPropertyName("description")]
+    public string? Description { get; set; }
+}
+```
+
+### Step 5.3: Create Discovery Controller Endpoint
+
+**Location**: `DataAbstractionAPI.API/Controllers/DataController.cs` (add new method) OR create `DiscoveryController.cs` (NEW FILE)
+
+**Decision Point**: 
+- Option A: Add to existing `DataController.cs` (simpler, fewer files)
+- Option B: Create separate `DiscoveryController.cs` (better organization)
+
+**Recommendation**: Option A (add to DataController) for simplicity
+
+**Route**: `GET /api/help` or `GET /api/docs`
+
+**Implementation**:
+```csharp
+/// <summary>
+/// Discovery endpoint for agents and automated clients.
+/// Provides machine-readable information about the API structure and usage.
+/// </summary>
+/// <param name="request">HTTP request (for determining base URL)</param>
+/// <returns>Discovery information including endpoints, authentication, and quick start guide</returns>
+[HttpGet("help")]
+[ProducesResponseType(typeof(DiscoveryResponseDto), StatusCodes.Status200OK)]
+public ActionResult<DiscoveryResponseDto> GetHelp([FromServices] IWebHostEnvironment environment)
+{
+    var baseUrl = $"{Request.Scheme}://{Request.Host}{Request.PathBase}/api";
+    var isDevelopment = environment.IsDevelopment();
+    
+    var response = new DiscoveryResponseDto
+    {
+        ApiVersion = "v1",
+        BaseUrl = baseUrl,
+        OpenApiSpec = isDevelopment ? $"{Request.Scheme}://{Request.Host}{Request.PathBase}/swagger/v1/swagger.json" : null,
+        SwaggerUi = isDevelopment ? $"{Request.Scheme}://{Request.Host}{Request.PathBase}/swagger" : null,
+        OpenApiAvailable = isDevelopment,
+        Authentication = new AuthenticationInfoDto
+        {
+            Type = "api_key",
+            Header = "X-API-Key",
+            Required = false, // Check from configuration
+            Description = "Optional API key authentication. Configured via appsettings.json"
+        },
+        QuickStart = new List<string>
+        {
+            "GET /api/data - List all available collections",
+            "GET /api/data/{collection}/schema - Get collection schema (field definitions)",
+            "GET /api/data/{collection} - List records in a collection (supports ?limit parameter)",
+            "GET /api/data/{collection}/{id} - Get a single record by ID",
+            "POST /api/data/{collection} - Create a new record",
+            "PUT /api/data/{collection}/{id} - Update an existing record",
+            "DELETE /api/data/{collection}/{id} - Delete a record",
+            "GET /api/data/{collection}/summary?field={fieldName} - Get count of values for a field",
+            "POST /api/data/{collection}/bulk - Perform bulk operations (create/update/delete)",
+            "POST /api/data/{collection}/aggregate - Perform complex aggregations with grouping"
+        }
+    };
+    
+    // Optionally populate detailed endpoints structure
+    // Can be expanded later if needed
+    
+    return Ok(response);
+}
+```
+
+**Notes**:
+- Use `Request.Scheme`, `Request.Host`, `Request.PathBase` to build URLs dynamically
+- Check `IWebHostEnvironment.IsDevelopment()` to determine if OpenAPI is available
+- Check API key configuration to determine if authentication is required
+- Keep response simple initially, can expand later
+
+### Step 5.4: Configure API Key Requirement Detection
+
+**Location**: `DataAbstractionAPI.API/Controllers/DataController.cs` or helper method
+
+**Implementation**:
+- Read `ApiKeyAuthenticationOptions` from configuration
+- Check if API key authentication is enabled
+- Set `Authentication.Required` accordingly
+
+**Code**:
+```csharp
+private bool IsApiKeyRequired()
+{
+    var apiKeyOptions = _configuration.GetSection("ApiKeyAuthentication").Get<ApiKeyAuthenticationOptions>();
+    return apiKeyOptions?.Enabled == true && 
+           apiKeyOptions?.ValidKeys != null && 
+           apiKeyOptions.ValidKeys.Length > 0;
+}
+```
+
+### Step 5.5: Write Tests
+
+**Location**: `DataAbstractionAPI.API.Tests/Integration/DiscoveryEndpointTests.cs` (NEW FILE)
+
+**Tests to Create**:
+- [ ] `DiscoveryEndpoint_ReturnsValidJson_WithCorrectStructure`
+- [ ] `DiscoveryEndpoint_IncludesBaseUrl_FromRequest`
+- [ ] `DiscoveryEndpoint_InDevelopment_IncludesOpenApiLinks`
+- [ ] `DiscoveryEndpoint_InProduction_ExcludesOpenApiLinks`
+- [ ] `DiscoveryEndpoint_ReflectsApiKeyConfiguration_WhenEnabled`
+- [ ] `DiscoveryEndpoint_ReflectsApiKeyConfiguration_WhenDisabled`
+- [ ] `DiscoveryEndpoint_IncludesAllQuickStartEndpoints`
+- [ ] `DiscoveryEndpoint_Returns200StatusCode`
+
+**Implementation Notes**:
+- Use `TestServer` for integration tests
+- Test both Development and Production environments
+- Verify JSON structure matches DTO
+- Test with API key enabled/disabled configurations
+
+### Step 5.6: Update Swagger Documentation
+
+**Location**: `DataAbstractionAPI.API/Controllers/DataController.cs`
+
+- [ ] Add XML comments to discovery endpoint method
+- [ ] Document that this endpoint is always available (unlike Swagger)
+- [ ] Add example response to Swagger
+- [ ] Mark as important for agent/automated client usage
+
+### Step 5.7: Update API Documentation
+
+**Location**: `data-abstraction-api.md` and `README.md`
+
+**Documentation to Add**:
+- [ ] Document `/api/help` endpoint in API specification
+- [ ] Explain that this is the recommended entry point for agents
+- [ ] Add example discovery endpoint response
+- [ ] Update "System Prompt for LLM" section to mention discovery endpoint
+- [ ] Add to README.md as a feature
+
+### Step 5.8: Consider Additional Features (Optional)
+
+**Future Enhancements** (not in initial implementation):
+- [ ] Include current collections list in response (could be expensive, make optional)
+- [ ] Include schema examples
+- [ ] Include rate limiting information
+- [ ] Include API versioning information
+- [ ] Support different response formats (JSON-LD, etc.)
+- [ ] Include links to related resources (HATEOAS-style)
+
+### Estimated Effort
+- **Step 5.1**: 1 hour (design response structure)
+- **Step 5.2**: 2 hours (create DTOs)
+- **Step 5.3**: 2 hours (implement controller endpoint)
+- **Step 5.4**: 1 hour (configure API key detection)
+- **Step 5.5**: 3 hours (write tests)
+- **Step 5.6**: 1 hour (update Swagger)
+- **Step 5.7**: 1 hour (update documentation)
+
+**Total**: ~11 hours (1.4 days)
+
+### Benefits
+
+1. **Agent-Friendly**: Provides machine-readable API information
+2. **Always Available**: Works in Production (unlike Swagger)
+3. **Self-Documenting**: API can explain itself to clients
+4. **Standard Pattern**: Common convention (`/api/help`, `/api/docs`)
+5. **Extensible**: Can grow to include more information over time
+
+### Dependencies
+
+- None - This is independent and can be implemented at any time
+- Can be done before or after other Phase 3 enhancements
+- Recommended: Implement early as it helps with testing other features
+
+---
+
 ## Summary
 
 ### Total Estimated Effort
@@ -1135,20 +1498,23 @@ app.MapControllers();
 2. **Advanced Schema Endpoints**: ~36 hours (4.5 days)
 3. **DTOs with [JsonPropertyName]**: ~22 hours (2.75 days)
 4. **CORS Configuration**: ~10 hours (1.25 days)
+5. **Agent Discovery Endpoint**: ~11 hours (1.4 days)
 
-**Grand Total**: ~100 hours (~12.5 days)
+**Grand Total**: ~111 hours (~13.9 days)
 
 ### Recommended Implementation Order
 
 1. **CORS Configuration** (easiest, quick win)
-2. **DTOs with [JsonPropertyName]** (foundation for other endpoints)
-3. **Advanced Data Endpoints** (Bulk, Summary, Aggregate)
-4. **Advanced Schema Endpoints** (most complex, depends on DTOs)
+2. **Agent Discovery Endpoint** (helps with testing and agent integration, independent)
+3. **DTOs with [JsonPropertyName]** (foundation for other endpoints)
+4. **Advanced Data Endpoints** (Bulk, Summary, Aggregate)
+5. **Advanced Schema Endpoints** (most complex, depends on DTOs)
 
 ### Dependencies
 
 - DTOs should be done before Advanced Data/Schema endpoints (cleaner API responses)
 - CORS is independent and can be done anytime
+- Agent Discovery Endpoint is independent and can be done anytime (recommended early)
 - Advanced Data and Schema endpoints are independent of each other
 
 ### Testing Strategy
