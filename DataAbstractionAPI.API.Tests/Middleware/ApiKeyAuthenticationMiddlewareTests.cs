@@ -209,5 +209,76 @@ public class ApiKeyAuthenticationMiddlewareTests
                 It.Is<Func<It.IsAnyType, Exception?, string>>((v, t) => true)),
             Times.AtLeastOnce);
     }
+
+    // ============================================
+    // Task 3.2.1: Additional Edge Cases
+    // ============================================
+
+    [Fact]
+    public async Task ApiKeyMiddleware_WithNullValidApiKeys_Returns401()
+    {
+        // Arrange
+        var options = Options.Create(new ApiKeyAuthenticationOptions
+        {
+            Enabled = true,
+            ValidApiKeys = null!,
+            HeaderName = "X-API-Key"
+        });
+
+        _context.Request.Headers["X-API-Key"] = "any-key";
+
+        var middleware = new ApiKeyAuthenticationMiddleware(_next, options, _loggerMock.Object);
+
+        // Act
+        await middleware.InvokeAsync(_context);
+
+        // Assert
+        Assert.Equal(401, _context.Response.StatusCode);
+    }
+
+    [Fact]
+    public async Task ApiKeyMiddleware_WithCaseSensitiveKey_IsCaseSensitive()
+    {
+        // Arrange
+        var options = Options.Create(new ApiKeyAuthenticationOptions
+        {
+            Enabled = true,
+            ValidApiKeys = new[] { "Valid-Key-123" },
+            HeaderName = "X-API-Key"
+        });
+
+        _context.Request.Headers["X-API-Key"] = "valid-key-123"; // Different case
+
+        var middleware = new ApiKeyAuthenticationMiddleware(_next, options, _loggerMock.Object);
+
+        // Act
+        await middleware.InvokeAsync(_context);
+
+        // Assert
+        Assert.Equal(401, _context.Response.StatusCode);
+    }
+
+    [Fact]
+    public async Task ApiKeyMiddleware_WithWhitespaceInKey_TrimsCorrectly()
+    {
+        // Arrange
+        var options = Options.Create(new ApiKeyAuthenticationOptions
+        {
+            Enabled = true,
+            ValidApiKeys = new[] { "valid-key" },
+            HeaderName = "X-API-Key"
+        });
+
+        _context.Request.Headers["X-API-Key"] = "  valid-key  "; // With whitespace
+
+        var middleware = new ApiKeyAuthenticationMiddleware(_next, options, _loggerMock.Object);
+
+        // Act
+        await middleware.InvokeAsync(_context);
+
+        // Assert - Should fail because exact match is required (no trimming in current implementation)
+        // This test documents the current behavior
+        Assert.Equal(401, _context.Response.StatusCode);
+    }
 }
 

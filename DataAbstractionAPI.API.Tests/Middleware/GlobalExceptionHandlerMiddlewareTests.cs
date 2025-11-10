@@ -291,6 +291,57 @@ public class GlobalExceptionHandlerMiddlewareTests
         _nextMock.Verify(next => next(It.IsAny<HttpContext>()), Times.Once);
     }
 
+    // ============================================
+    // Task 3.2.2: Additional Edge Cases
+    // ============================================
+
+    [Fact]
+    public async Task GlobalExceptionHandler_WithDifferentStatusCodes_SetsCorrectly()
+    {
+        // Arrange - Test that all different exception types set correct status codes
+        var testCases = new[]
+        {
+            (Exception: (Exception)new FileNotFoundException("Not found"), ExpectedStatusCode: HttpStatusCode.NotFound),
+            (Exception: (Exception)new KeyNotFoundException("Key not found"), ExpectedStatusCode: HttpStatusCode.NotFound),
+            (Exception: (Exception)new ValidationException("field", "Invalid"), ExpectedStatusCode: HttpStatusCode.BadRequest),
+            (Exception: (Exception)new ConversionException("field", "value", Core.Enums.FieldType.String, Core.Enums.FieldType.Integer), ExpectedStatusCode: HttpStatusCode.BadRequest),
+            (Exception: (Exception)new ArgumentException("Invalid argument"), ExpectedStatusCode: HttpStatusCode.BadRequest),
+            (Exception: (Exception)new IOException("IO error"), ExpectedStatusCode: HttpStatusCode.InternalServerError),
+            (Exception: (Exception)new Exception("Generic error"), ExpectedStatusCode: HttpStatusCode.InternalServerError)
+        };
+
+        foreach (var testCase in testCases)
+        {
+            // Reset context for each test
+            _context.Response.Body = new MemoryStream();
+            _context.Response.StatusCode = 200;
+
+            _nextMock.Setup(next => next(It.IsAny<HttpContext>()))
+                .ThrowsAsync(testCase.Exception);
+            _environmentMock.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+            var middleware = new GlobalExceptionHandlerMiddleware(
+                _nextMock.Object,
+                _loggerMock.Object,
+                _environmentMock.Object);
+
+            // Act
+            await middleware.InvokeAsync(_context);
+
+            // Assert
+            Assert.Equal((int)testCase.ExpectedStatusCode, _context.Response.StatusCode);
+            
+            var responseBody = await GetResponseBody(_context);
+            var errorResponse = JsonSerializer.Deserialize<ErrorResponse>(responseBody, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+
+            Assert.NotNull(errorResponse);
+            Assert.Equal((int)testCase.ExpectedStatusCode, errorResponse.StatusCode);
+        }
+    }
+
     private async Task<string> GetResponseBody(HttpContext context)
     {
         context.Response.Body.Seek(0, SeekOrigin.Begin);
