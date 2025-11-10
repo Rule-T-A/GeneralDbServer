@@ -1,0 +1,420 @@
+{
+  "DataAbstractionAPI.Core.dll": {
+    "C:\\Users\\katie\\Project Files\\GeneralDbServer\\DataAbstractionAPI.Core\\Models\\AggregateFunction.cs": {
+      "DataAbstractionAPI.Core.Models.AggregateFunction": {
+        "System.String DataAbstractionAPI.Core.Models.AggregateFunction::get_Field()": {
+          "Lines": {
+            "11": 0
+          },
+          "Branches": []
+        },
+        "System.String DataAbstractionAPI.Core.Models.AggregateFunction::get_Function()": {
+          "Lines": {
+            "16": 0
+          },
+          "Branches": []
+        },
+        "System.String DataAbstractionAPI.Core.Models.AggregateFunction::get_Alias()": {
+          "Lines": {
+            "21": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\Users\\katie\\Project Files\\GeneralDbServer\\DataAbstractionAPI.Core\\Models\\AggregateRequest.cs": {
+      "DataAbstractionAPI.Core.Models.AggregateRequest": {
+        "System.String[] DataAbstractionAPI.Core.Models.AggregateRequest::get_GroupBy()": {
+          "Lines": {
+            "11": 0
+          },
+          "Branches": []
+        },
+        "System.Collections.Generic.List`1<DataAbstractionAPI.Core.Models.AggregateFunction> DataAbstractionAPI.Core.Models.AggregateRequest::get_Aggregates()": {
+          "Lines": {
+            "16": 0
+          },
+          "Branches": []
+        },
+        "System.Collections.Generic.Dictionary`2<System.String,System.Object> DataAbstractionAPI.Core.Models.AggregateRequest::get_Filter()": {
+          "Lines": {
+            "21": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\Users\\katie\\Project Files\\GeneralDbServer\\DataAbstractionAPI.Core\\Models\\AggregateResult.cs": {
+      "DataAbstractionAPI.Core.Models.AggregateResult": {
+        "System.Collections.Generic.List`1<System.Collections.Generic.Dictionary`2<System.String,System.Object>> DataAbstractionAPI.Core.Models.AggregateResult::get_Data()": {
+          "Lines": {
+            "12": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\Users\\katie\\Project Files\\GeneralDbServer\\DataAbstractionAPI.Core\\Models\\BulkOperationItemResult.cs": {
+      "DataAbstractionAPI.Core.Models.BulkOperationItemResult": {
+        "System.Int32 DataAbstractionAPI.Core.Models.BulkOperationItemResult::get_Index()": {
+          "Lines": {
+            "11": 0
+          },
+          "Branches": []
+        },
+        "System.String DataAbstractionAPI.Core.Models.BulkOperationItemResult::get_Id()": {
+          "Lines": {
+            "16": 0
+          },
+          "Branches": []
+        },
+        "System.Boolean DataAbstractionAPI.Core.Models.BulkOperationItemResult::get_Success()": {
+          "Lines": {
+            "21": 0
+          },
+          "Branches": []
+        },
+        "System.String DataAbstractionAPI.Core.Models.BulkOperationItemResult::get_Error()": {
+          "Lines": {
+            "26": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\Users\\katie\\Project Files\\GeneralDbServer\\DataAbstractionAPI.Core\\Models\\BulkOperationRequest.cs": {
+      "DataAbstractionAPI.Core.Models.BulkOperationRequest": {
+        "System.String DataAbstractionAPI.Core.Models.BulkOperationRequest::get_Action()": {
+          "Lines": {
+            "11": 0
+          },
+          "Branches": []
+        },
+        "System.Boolean DataAbstractionAPI.Core.Models.BulkOperationRequest::get_Atomic()": {
+          "Lines": {
+            "17": 0
+          },
+          "Branches": []
+        },
+        "System.Collections.Generic.List`1<System.Collections.Generic.Dictionary`2<System.String,System.Object>> DataAbstractionAPI.Core.Models.BulkOperationRequest::get_Records()": {
+          "Lines": {
+            "23": 0
+          },
+          "Branches": []
+        },
+        "System.Collections.Generic.Dictionary`2<System.String,System.Object> DataAbstractionAPI.Core.Models.BulkOperationRequest::get_UpdateData()": {
+          "Lines": {
+            "29": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\Users\\katie\\Project Files\\GeneralDbServer\\DataAbstractionAPI.Core\\Models\\BulkResult.cs": {
+      "DataAbstractionAPI.Core.Models.BulkResult": {
+        "System.Boolean DataAbstractionAPI.Core.Models.BulkResult::get_Success()": {
+          "Lines": {
+            "13": 0
+          },
+          "Branches": []
+        },
+        "System.Int32 DataAbstractionAPI.Core.Models.BulkResult::get_Succeeded()": {
+          "Lines": {
+            "18": 0
+          },
+          "Branches": []
+        },
+        "System.Int32 DataAbstractionAPI.Core.Models.BulkResult::get_Failed()": {
+          "Lines": {
+            "23": 0
+          },
+          "Branches": []
+        },
+        "System.Collections.Generic.List`1<DataAbstractionAPI.Core.Models.BulkOperationItemResult> DataAbstractionAPI.Core.Models.BulkResult::get_Results()": {
+          "Lines": {
+            "28": 0
+          },
+          "Branches": []
+        },
+        "System.Collections.Generic.List`1<System.String> DataAbstractionAPI.Core.Models.BulkResult::get_Ids()": {
+          "Lines": {
+            "33": 0
+          },
+          "Branches": []
+        },
+        "System.String DataAbstractionAPI.Core.Models.BulkResult::get_Error()": {
+          "Lines": {
+            "38": 0
+          },
+          "Branches": []
+        },
+        "System.Nullable`1<System.Int32> DataAbstractionAPI.Core.Models.BulkResult::get_FailedIndex()": {
+          "Lines": {
+            "43": 0
+          },
+          "Branches": []
+        },
+        "System.String DataAbstractionAPI.Core.Models.BulkResult::get_FailedError()": {
+          "Lines": {
+            "48": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\Users\\katie\\Project Files\\GeneralDbServer\\DataAbstractionAPI.Core\\Models\\CollectionSchema.cs": {
+      "DataAbstractionAPI.Core.Models.CollectionSchema": {
+        "System.String DataAbstractionAPI.Core.Models.CollectionSchema::get_Name()": {
+          "Lines": {
+            "8": 9
+          },
+          "Branches": []
+        },
+        "System.Collections.Generic.List`1<DataAbstractionAPI.Core.Models.FieldDefinition> DataAbstractionAPI.Core.Models.CollectionSchema::get_Fields()": {
+          "Lines": {
+            "9": 14
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\Users\\katie\\Project Files\\GeneralDbServer\\DataAbstractionAPI.Core\\Models\\CreateResult.cs": {
+      "DataAbstractionAPI.Core.Models.CreateResult": {
+        "DataAbstractionAPI.Core.Models.Record DataAbstractionAPI.Core.Models.CreateResult::get_Record()": {
+          "Lines": {
+            "8": 11
+          },
+          "Branches": []
+        },
+        "System.String DataAbstractionAPI.Core.Models.CreateResult::get_Id()": {
+          "Lines": {
+            "9": 9
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\Users\\katie\\Project Files\\GeneralDbServer\\DataAbstractionAPI.Core\\Models\\DefaultGenerationContext.cs": {
+      "DataAbstractionAPI.Core.Models.DefaultGenerationContext": {
+        "System.String DataAbstractionAPI.Core.Models.DefaultGenerationContext::get_CollectionName()": {
+          "Lines": {
+            "11": 5
+          },
+          "Branches": []
+        },
+        "System.Collections.Generic.List`1<DataAbstractionAPI.Core.Models.Record> DataAbstractionAPI.Core.Models.DefaultGenerationContext::get_ExistingRecords()": {
+          "Lines": {
+            "16": 7
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\Users\\katie\\Project Files\\GeneralDbServer\\DataAbstractionAPI.Core\\Models\\FieldDefinition.cs": {
+      "DataAbstractionAPI.Core.Models.FieldDefinition": {
+        "System.String DataAbstractionAPI.Core.Models.FieldDefinition::get_Name()": {
+          "Lines": {
+            "10": 15
+          },
+          "Branches": []
+        },
+        "DataAbstractionAPI.Core.Enums.FieldType DataAbstractionAPI.Core.Models.FieldDefinition::get_Type()": {
+          "Lines": {
+            "11": 7
+          },
+          "Branches": []
+        },
+        "System.Boolean DataAbstractionAPI.Core.Models.FieldDefinition::get_Nullable()": {
+          "Lines": {
+            "12": 11
+          },
+          "Branches": []
+        },
+        "System.Object DataAbstractionAPI.Core.Models.FieldDefinition::get_Default()": {
+          "Lines": {
+            "13": 3
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\Users\\katie\\Project Files\\GeneralDbServer\\DataAbstractionAPI.Core\\Models\\ListResult.cs": {
+      "DataAbstractionAPI.Core.Models.ListResult": {
+        "System.Collections.Generic.List`1<DataAbstractionAPI.Core.Models.Record> DataAbstractionAPI.Core.Models.ListResult::get_Data()": {
+          "Lines": {
+            "8": 7
+          },
+          "Branches": []
+        },
+        "System.Int32 DataAbstractionAPI.Core.Models.ListResult::get_Total()": {
+          "Lines": {
+            "9": 3
+          },
+          "Branches": []
+        },
+        "System.Boolean DataAbstractionAPI.Core.Models.ListResult::get_More()": {
+          "Lines": {
+            "10": 3
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\Users\\katie\\Project Files\\GeneralDbServer\\DataAbstractionAPI.Core\\Models\\QueryOptions.cs": {
+      "DataAbstractionAPI.Core.Models.QueryOptions": {
+        "System.String[] DataAbstractionAPI.Core.Models.QueryOptions::get_Fields()": {
+          "Lines": {
+            "8": 3
+          },
+          "Branches": []
+        },
+        "System.Collections.Generic.Dictionary`2<System.String,System.Object> DataAbstractionAPI.Core.Models.QueryOptions::get_Filter()": {
+          "Lines": {
+            "9": 4
+          },
+          "Branches": []
+        },
+        "System.Int32 DataAbstractionAPI.Core.Models.QueryOptions::get_Limit()": {
+          "Lines": {
+            "10": 5
+          },
+          "Branches": []
+        },
+        "System.Int32 DataAbstractionAPI.Core.Models.QueryOptions::get_Offset()": {
+          "Lines": {
+            "11": 5
+          },
+          "Branches": []
+        },
+        "System.String DataAbstractionAPI.Core.Models.QueryOptions::get_Sort()": {
+          "Lines": {
+            "12": 3
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\Users\\katie\\Project Files\\GeneralDbServer\\DataAbstractionAPI.Core\\Models\\Record.cs": {
+      "DataAbstractionAPI.Core.Models.Record": {
+        "System.String DataAbstractionAPI.Core.Models.Record::get_Id()": {
+          "Lines": {
+            "8": 25
+          },
+          "Branches": []
+        },
+        "System.Collections.Generic.Dictionary`2<System.String,System.Object> DataAbstractionAPI.Core.Models.Record::get_Data()": {
+          "Lines": {
+            "9": 26
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\Users\\katie\\Project Files\\GeneralDbServer\\DataAbstractionAPI.Core\\Models\\SummaryResult.cs": {
+      "DataAbstractionAPI.Core.Models.SummaryResult": {
+        "System.Collections.Generic.Dictionary`2<System.String,System.Int32> DataAbstractionAPI.Core.Models.SummaryResult::get_Counts()": {
+          "Lines": {
+            "11": 0
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\Users\\katie\\Project Files\\GeneralDbServer\\DataAbstractionAPI.Core\\Exceptions\\ConversionException.cs": {
+      "DataAbstractionAPI.Core.Exceptions.ConversionException": {
+        "System.String DataAbstractionAPI.Core.Exceptions.ConversionException::get_FieldName()": {
+          "Lines": {
+            "11": 2
+          },
+          "Branches": []
+        },
+        "System.Object DataAbstractionAPI.Core.Exceptions.ConversionException::get_Value()": {
+          "Lines": {
+            "16": 2
+          },
+          "Branches": []
+        },
+        "DataAbstractionAPI.Core.Enums.FieldType DataAbstractionAPI.Core.Exceptions.ConversionException::get_FromType()": {
+          "Lines": {
+            "21": 1
+          },
+          "Branches": []
+        },
+        "DataAbstractionAPI.Core.Enums.FieldType DataAbstractionAPI.Core.Exceptions.ConversionException::get_ToType()": {
+          "Lines": {
+            "26": 1
+          },
+          "Branches": []
+        },
+        "System.Void DataAbstractionAPI.Core.Exceptions.ConversionException::.ctor(System.String,System.Object,DataAbstractionAPI.Core.Enums.FieldType,DataAbstractionAPI.Core.Enums.FieldType)": {
+          "Lines": {
+            "29": 2,
+            "30": 2,
+            "31": 2
+          },
+          "Branches": []
+        },
+        "System.Void DataAbstractionAPI.Core.Exceptions.ConversionException::.ctor(System.String,System.Object,DataAbstractionAPI.Core.Enums.FieldType,DataAbstractionAPI.Core.Enums.FieldType,System.String)": {
+          "Lines": {
+            "34": 3,
+            "35": 3,
+            "36": 3,
+            "37": 3,
+            "38": 3,
+            "39": 3,
+            "40": 3
+          },
+          "Branches": []
+        },
+        "System.Void DataAbstractionAPI.Core.Exceptions.ConversionException::.ctor(System.String,System.Object,DataAbstractionAPI.Core.Enums.FieldType,DataAbstractionAPI.Core.Enums.FieldType,System.String,System.Exception)": {
+          "Lines": {
+            "43": 1,
+            "44": 1,
+            "45": 1,
+            "46": 1,
+            "47": 1,
+            "48": 1,
+            "49": 1
+          },
+          "Branches": []
+        }
+      }
+    },
+    "C:\\Users\\katie\\Project Files\\GeneralDbServer\\DataAbstractionAPI.Core\\Exceptions\\ValidationException.cs": {
+      "DataAbstractionAPI.Core.Exceptions.ValidationException": {
+        "System.String DataAbstractionAPI.Core.Exceptions.ValidationException::get_FieldName()": {
+          "Lines": {
+            "11": 3
+          },
+          "Branches": []
+        },
+        "System.Void DataAbstractionAPI.Core.Exceptions.ValidationException::.ctor(System.String)": {
+          "Lines": {
+            "14": 2,
+            "15": 2,
+            "16": 2
+          },
+          "Branches": []
+        },
+        "System.Void DataAbstractionAPI.Core.Exceptions.ValidationException::.ctor(System.String,System.String)": {
+          "Lines": {
+            "19": 3,
+            "20": 3,
+            "21": 3,
+            "22": 3
+          },
+          "Branches": []
+        },
+        "System.Void DataAbstractionAPI.Core.Exceptions.ValidationException::.ctor(System.String,System.String,System.Exception)": {
+          "Lines": {
+            "25": 1,
+            "26": 1,
+            "27": 1,
+            "28": 1
+          },
+          "Branches": []
+        }
+      }
+    }
+  }
+}

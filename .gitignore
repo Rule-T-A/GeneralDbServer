@@ -89,3 +89,4 @@ coverage/
 *.db
 *.db
 *.db
+/archive
