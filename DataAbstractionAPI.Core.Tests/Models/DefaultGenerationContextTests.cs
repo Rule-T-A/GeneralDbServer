@@ -68,5 +68,40 @@ public class DefaultGenerationContextTests
         Assert.NotNull(context.ExistingRecords);
         Assert.Single(context.ExistingRecords);
     }
+
+    // ============================================
+    // Task 2.2.7: DefaultGenerationContext Edge Cases
+    // ============================================
+
+    [Fact]
+    public void DefaultGenerationContext_WithNullExistingRecords_HandlesGracefully()
+    {
+        // Arrange
+        var context = new DefaultGenerationContext
+        {
+            CollectionName = "test",
+            ExistingRecords = null
+        };
+
+        // Assert - Null existing records is valid (default value)
+        Assert.Equal("test", context.CollectionName);
+        Assert.Null(context.ExistingRecords);
+    }
+
+    [Fact]
+    public void DefaultGenerationContext_WithEmptyCollectionName_IsValid()
+    {
+        // Arrange
+        var context = new DefaultGenerationContext
+        {
+            CollectionName = string.Empty,
+            ExistingRecords = new List<Record> { new Record { Id = "1", Data = new Dictionary<string, object>() } }
+        };
+
+        // Assert - Empty collection name is valid
+        Assert.Equal(string.Empty, context.CollectionName);
+        Assert.NotNull(context.ExistingRecords);
+        Assert.Single(context.ExistingRecords);
+    }
 }
 

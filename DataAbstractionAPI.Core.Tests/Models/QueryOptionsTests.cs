@@ -39,5 +39,62 @@ public class QueryOptionsTests
         Assert.Equal(10, options.Offset);
         Assert.Equal("name:asc", options.Sort);
     }
+
+    // ============================================
+    // Task 2.2.2: QueryOptions Edge Cases
+    // ============================================
+
+    [Fact]
+    public void QueryOptions_WithNegativeLimit_HandlesGracefully()
+    {
+        // Arrange
+        var options = new QueryOptions
+        {
+            Limit = -5
+        };
+
+        // Assert - Negative limit is allowed (validation should happen at service layer)
+        Assert.Equal(-5, options.Limit);
+    }
+
+    [Fact]
+    public void QueryOptions_WithNegativeOffset_HandlesGracefully()
+    {
+        // Arrange
+        var options = new QueryOptions
+        {
+            Offset = -10
+        };
+
+        // Assert - Negative offset is allowed (validation should happen at service layer)
+        Assert.Equal(-10, options.Offset);
+    }
+
+    [Fact]
+    public void QueryOptions_WithEmptyFieldsArray_IsValid()
+    {
+        // Arrange
+        var options = new QueryOptions
+        {
+            Fields = Array.Empty<string>()
+        };
+
+        // Assert - Empty fields array is valid
+        Assert.NotNull(options.Fields);
+        Assert.Empty(options.Fields);
+    }
+
+    [Fact]
+    public void QueryOptions_WithNullSortString_IsValid()
+    {
+        // Arrange
+        var options = new QueryOptions
+        {
+            Sort = null
+        };
+
+        // Assert - Null sort string is valid (default value)
+        Assert.Null(options.Sort);
+    }
 }
 
