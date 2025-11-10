@@ -3995,11 +3995,12 @@ public class CsvAdapterTests : IDisposable
         await adapter.UpdateAsync("users", "1", updates);
 
         // Assert - Verify DefaultGenerator was called
+        // Called twice: once for applying defaults to records, once for schema file
         mockDefaultGenerator.Verify(g => g.GenerateDefault(
             "newField",
             It.IsAny<FieldType>(),
             It.Is<DefaultGenerationContext>(c => c.CollectionName == "users")), 
-            Times.Once);
+            Times.Exactly(2));
 
         // Verify other records got the default value
         var allRecords = await adapter.ListAsync("users", new QueryOptions { Limit = 100 });
@@ -4390,14 +4391,15 @@ public class CsvAdapterTests : IDisposable
         await adapter.UpdateAsync("users", "1", updates2);
 
         // Assert - Verify type inference worked
+        // Called twice per field: once for applying defaults to records, once for schema file
         mockDefaultGenerator.Verify(g => g.GenerateDefault(
             "age_field",
             FieldType.Integer,
-            It.IsAny<DefaultGenerationContext>()), Times.Once);
+            It.IsAny<DefaultGenerationContext>()), Times.Exactly(2));
         mockDefaultGenerator.Verify(g => g.GenerateDefault(
             "is_active",
             FieldType.Boolean,
-            It.IsAny<DefaultGenerationContext>()), Times.Once);
+            It.IsAny<DefaultGenerationContext>()), Times.Exactly(2));
 
         // Cleanup
         Directory.Delete(testDir, true);

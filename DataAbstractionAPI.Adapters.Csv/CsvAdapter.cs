@@ -296,43 +296,51 @@ public class CsvAdapter : IDataAdapter
                 }
             }
             
-            // Update schema file if it exists
+            // Update schema file if it exists, or create it if it doesn't
             if (_schemaManager != null && newFields.Count > 0)
             {
                 ct.ThrowIfCancellationRequested();
                 var currentSchema = _schemaManager.LoadSchema(collection);
-                if (currentSchema != null)
+                
+                // Create new schema if it doesn't exist
+                if (currentSchema == null)
                 {
-                    // Add new field definitions to schema
-                    foreach (var newField in newFields)
+                    currentSchema = new CollectionSchema
                     {
-                        var firstValue = existingRecord.ContainsKey(newField) ? existingRecord[newField] : null;
-                        var fieldType = InferFieldType(firstValue);
-                        
-                        var newFieldDef = new FieldDefinition
-                        {
-                            Name = newField,
-                            Type = fieldType,
-                            Nullable = true,
-                            Default = _defaultGenerator != null 
-                                ? _defaultGenerator.GenerateDefault(newField, fieldType, new DefaultGenerationContext { CollectionName = collection })
-                                : null
-                        };
-                        
-                        if (currentSchema.Fields == null)
-                        {
-                            currentSchema.Fields = new List<FieldDefinition>();
-                        }
-                        
-                        // Only add if not already present
-                        if (!currentSchema.Fields.Any(f => f.Name == newField))
-                        {
-                            currentSchema.Fields.Add(newFieldDef);
-                        }
+                        Name = collection,
+                        Fields = new List<FieldDefinition>()
+                    };
+                }
+                
+                // Add new field definitions to schema
+                foreach (var newField in newFields)
+                {
+                    var firstValue = existingRecord.ContainsKey(newField) ? existingRecord[newField] : null;
+                    var fieldType = InferFieldType(firstValue);
+                    
+                    var newFieldDef = new FieldDefinition
+                    {
+                        Name = newField,
+                        Type = fieldType,
+                        Nullable = true,
+                        Default = _defaultGenerator != null 
+                            ? _defaultGenerator.GenerateDefault(newField, fieldType, new DefaultGenerationContext { CollectionName = collection })
+                            : null
+                    };
+                    
+                    if (currentSchema.Fields == null)
+                    {
+                        currentSchema.Fields = new List<FieldDefinition>();
                     }
                     
-                    _schemaManager.SaveSchema(collection, currentSchema);
+                    // Only add if not already present
+                    if (!currentSchema.Fields.Any(f => f.Name == newField))
+                    {
+                        currentSchema.Fields.Add(newFieldDef);
+                    }
                 }
+                
+                _schemaManager.SaveSchema(collection, currentSchema);
             }
         }
 
