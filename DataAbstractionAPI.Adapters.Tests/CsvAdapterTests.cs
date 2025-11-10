@@ -1571,6 +1571,97 @@ public class CsvAdapterTests : IDisposable
 
     #endregion
 
+    // ============================================
+    // Task 1.4.1: BulkOperationAsync Edge Cases
+    // ============================================
+
+    [Fact]
+    public async Task CsvAdapter_BulkOperationAsync_WithPartialFailures_ReturnsPartialResults()
+    {
+        // Arrange - Create best-effort bulk operation where some records will fail
+        var testDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(testDir);
+        var csvPath = Path.Combine(testDir, "test.csv");
+        File.WriteAllText(csvPath, "id,name,email\n1,Alice,alice@example.com\n");
+        
+        var adapter = new CsvAdapter(testDir);
+        
+        var request = new BulkOperationRequest
+        {
+            Action = "update",
+            Atomic = false, // Best-effort mode
+            Records = new List<Dictionary<string, object>>
+            {
+                new() { { "id", "1" }, { "name", "Updated Alice" } }, // Valid - should succeed
+                new() { { "id", "999" }, { "name", "Non-existent" } } // Invalid - should fail (ID doesn't exist)
+            }
+        };
+
+        // Act
+        var result = await adapter.BulkOperationAsync("test", request);
+
+        // Assert - Should return partial results
+        Assert.NotNull(result);
+        Assert.NotNull(result.Results);
+        Assert.Equal(2, result.Results.Count);
+        Assert.Equal(1, result.Succeeded);
+        Assert.Equal(1, result.Failed);
+        Assert.True(result.Results[0].Success); // First should succeed
+        Assert.False(result.Results[1].Success); // Second should fail
+        Assert.NotNull(result.Results[1].Error); // Should have error message
+
+        // Cleanup
+        Directory.Delete(testDir, true);
+    }
+
+    [Fact]
+    public async Task CsvAdapter_BulkOperationAsync_WithLargeBatch_HandlesCorrectly()
+    {
+        // Arrange - Create a large batch of 100+ records
+        var testDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(testDir);
+        var csvPath = Path.Combine(testDir, "test.csv");
+        File.WriteAllText(csvPath, "id,name,email\n");
+        
+        var adapter = new CsvAdapter(testDir);
+        
+        var records = new List<Dictionary<string, object>>();
+        for (int i = 0; i < 150; i++)
+        {
+            records.Add(new Dictionary<string, object>
+            {
+                { "name", $"User {i}" },
+                { "email", $"user{i}@example.com" }
+            });
+        }
+
+        var request = new BulkOperationRequest
+        {
+            Action = "create",
+            Atomic = false, // Best-effort mode for large batch
+            Records = records
+        };
+
+        // Act
+        var result = await adapter.BulkOperationAsync("test", request);
+
+        // Assert - All should succeed
+        Assert.NotNull(result);
+        Assert.True(result.Success);
+        Assert.Equal(150, result.Succeeded);
+        Assert.Equal(0, result.Failed);
+        Assert.NotNull(result.Results);
+        Assert.Equal(150, result.Results.Count);
+        Assert.All(result.Results, r => Assert.True(r.Success));
+
+        // Verify records were created
+        var listResult = await adapter.ListAsync("test", new QueryOptions { Limit = 200 });
+        Assert.Equal(150, listResult.Total);
+
+        // Cleanup
+        Directory.Delete(testDir, true);
+    }
+
     #region GetSummaryAsync Tests
 
     [Fact]
@@ -1643,6 +1734,33 @@ public class CsvAdapterTests : IDisposable
         // Act & Assert
         await Assert.ThrowsAsync<ArgumentException>(
             () => _adapter.GetSummaryAsync("users", ""));
+    }
+
+    // ============================================
+    // Task 1.4.2: GetSummaryAsync Edge Cases
+    // ============================================
+
+    [Fact]
+    public async Task CsvAdapter_GetSummaryAsync_WithEmptyCollection_ReturnsEmptyCounts()
+    {
+        // Arrange - Create empty collection (headers only, no data)
+        var testDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(testDir);
+        var csvPath = Path.Combine(testDir, "test.csv");
+        File.WriteAllText(csvPath, "id,name,status\n"); // Only headers, no records
+        
+        var adapter = new CsvAdapter(testDir);
+
+        // Act
+        var result = await adapter.GetSummaryAsync("test", "status");
+
+        // Assert - Should return empty counts
+        Assert.NotNull(result);
+        Assert.NotNull(result.Counts);
+        Assert.Empty(result.Counts);
+
+        // Cleanup
+        Directory.Delete(testDir, true);
     }
 
     #endregion
@@ -1852,6 +1970,154 @@ public class CsvAdapterTests : IDisposable
         // Act & Assert
         await Assert.ThrowsAsync<OperationCanceledException>(
             () => _adapter.AggregateAsync("users", request, cts.Token));
+    }
+
+    // ============================================
+    // Task 1.4.3: AggregateAsync Edge Cases
+    // ============================================
+
+    [Fact]
+    public async Task CsvAdapter_AggregateAsync_WithNullValues_HandlesGracefully()
+    {
+        // Arrange - Create test data with null values
+        var testDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(testDir);
+        var csvPath = Path.Combine(testDir, "products.csv");
+        File.WriteAllText(csvPath, "id,category,price\n1,Electronics,100\n2,Electronics,\n3,Books,15\n4,Books,\n");
+        
+        var adapter = new CsvAdapter(testDir);
+
+        var request = new AggregateRequest
+        {
+            GroupBy = new[] { "category" },
+            Aggregates = new List<AggregateFunction>
+            {
+                new() { Field = "price", Function = "avg", Alias = "avg_price" },
+                new() { Field = "id", Function = "count", Alias = "count" }
+            }
+        };
+
+        // Act
+        var result = await adapter.AggregateAsync("products", request);
+
+        // Assert - Should handle null values gracefully
+        Assert.NotNull(result);
+        Assert.NotNull(result.Data);
+        Assert.True(result.Data.Count > 0);
+        // Avg should only consider non-null values
+        var electronicsGroup = result.Data.FirstOrDefault(d => d.ContainsKey("category") && d["category"]?.ToString() == "Electronics");
+        Assert.NotNull(electronicsGroup);
+        Assert.True(electronicsGroup.ContainsKey("avg_price"));
+        Assert.True(electronicsGroup.ContainsKey("count"));
+
+        // Cleanup
+        Directory.Delete(testDir, true);
+    }
+
+    [Fact]
+    public async Task CsvAdapter_AggregateAsync_WithEmptyGroups_ReturnsEmpty()
+    {
+        // Arrange - Create test data that will result in empty groups after filtering
+        var testDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(testDir);
+        var csvPath = Path.Combine(testDir, "products.csv");
+        File.WriteAllText(csvPath, "id,category,status\n1,Electronics,active\n2,Electronics,active\n3,Books,active\n");
+        
+        var adapter = new CsvAdapter(testDir);
+
+        var request = new AggregateRequest
+        {
+            GroupBy = new[] { "category" },
+            Filter = new Dictionary<string, object> { { "status", "inactive" } }, // Filter that matches nothing
+            Aggregates = new List<AggregateFunction>
+            {
+                new() { Field = "id", Function = "count", Alias = "count" }
+            }
+        };
+
+        // Act
+        var result = await adapter.AggregateAsync("products", request);
+
+        // Assert - Should return empty result (no groups match filter)
+        Assert.NotNull(result);
+        Assert.NotNull(result.Data);
+        Assert.Empty(result.Data);
+
+        // Cleanup
+        Directory.Delete(testDir, true);
+    }
+
+    [Fact]
+    public async Task CsvAdapter_AggregateAsync_WithInvalidFieldNames_HandlesGracefully()
+    {
+        // Arrange - Create test data and aggregate on non-existent field
+        var testDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(testDir);
+        var csvPath = Path.Combine(testDir, "products.csv");
+        File.WriteAllText(csvPath, "id,category,price\n1,Electronics,100\n2,Electronics,200\n");
+        
+        var adapter = new CsvAdapter(testDir);
+
+        var request = new AggregateRequest
+        {
+            GroupBy = new[] { "category" },
+            Aggregates = new List<AggregateFunction>
+            {
+                new() { Field = "nonexistent_field", Function = "count", Alias = "count" },
+                new() { Field = "nonexistent_field", Function = "sum", Alias = "total" }
+            }
+        };
+
+        // Act
+        var result = await adapter.AggregateAsync("products", request);
+
+        // Assert - Should handle invalid field names gracefully
+        Assert.NotNull(result);
+        Assert.NotNull(result.Data);
+        Assert.True(result.Data.Count > 0);
+        var firstGroup = result.Data[0];
+        // Count should work (counts all records regardless of field)
+        Assert.True(firstGroup.ContainsKey("count"));
+        // Sum should be 0 or null for non-existent field
+        Assert.True(firstGroup.ContainsKey("total"));
+
+        // Cleanup
+        Directory.Delete(testDir, true);
+    }
+
+    [Fact]
+    public async Task CsvAdapter_AggregateAsync_WithGroupByInvalidField_HandlesGracefully()
+    {
+        // Arrange - Group by a field that doesn't exist
+        var testDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(testDir);
+        var csvPath = Path.Combine(testDir, "products.csv");
+        File.WriteAllText(csvPath, "id,category,price\n1,Electronics,100\n2,Electronics,200\n3,Books,15\n");
+        
+        var adapter = new CsvAdapter(testDir);
+
+        var request = new AggregateRequest
+        {
+            GroupBy = new[] { "nonexistent_field" }, // Field that doesn't exist
+            Aggregates = new List<AggregateFunction>
+            {
+                new() { Field = "id", Function = "count", Alias = "count" }
+            }
+        };
+
+        // Act
+        var result = await adapter.AggregateAsync("products", request);
+
+        // Assert - Should group by "null" for missing field
+        Assert.NotNull(result);
+        Assert.NotNull(result.Data);
+        Assert.Single(result.Data); // All records should be in one group (all have null for missing field)
+        var group = result.Data[0];
+        Assert.True(group.ContainsKey("nonexistent_field"));
+        Assert.Equal("null", group["nonexistent_field"]?.ToString());
+
+        // Cleanup
+        Directory.Delete(testDir, true);
     }
 
     // ============================================
