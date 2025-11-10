@@ -3,6 +3,7 @@ using DataAbstractionAPI.Core.Interfaces;
 using DataAbstractionAPI.Core.Models;
 using DataAbstractionAPI.API.Models.DTOs;
 using DataAbstractionAPI.API.Mapping;
+using DataAbstractionAPI.API.Configuration;
 
 namespace DataAbstractionAPI.API.Controllers;
 
@@ -12,11 +13,13 @@ public class DataController : ControllerBase
 {
     private readonly IDataAdapter _adapter;
     private readonly IWebHostEnvironment _environment;
+    private readonly IConfiguration _configuration;
 
-    public DataController(IDataAdapter adapter, IWebHostEnvironment environment)
+    public DataController(IDataAdapter adapter, IWebHostEnvironment environment, IConfiguration configuration)
     {
         _adapter = adapter;
         _environment = environment;
+        _configuration = configuration;
     }
 
     private string GetDataPath()
@@ -130,11 +133,108 @@ public class DataController : ControllerBase
         return Ok(schema.ToDto());
     }
 
+    /// <summary>
+    /// Lists all available collections.
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Array of collection names</returns>
     [HttpGet]
     public async Task<ActionResult<string[]>> ListCollections(CancellationToken cancellationToken = default)
     {
         var collections = await _adapter.ListCollectionsAsync(cancellationToken);
         return Ok(collections);
+    }
+
+    /// <summary>
+    /// Discovery endpoint for agents and automated clients.
+    /// Provides machine-readable information about the API structure and usage.
+    /// This endpoint is always available in both Development and Production environments,
+    /// unlike Swagger which is development-only.
+    /// </summary>
+    /// <returns>Discovery information including endpoints, authentication, and quick start guide</returns>
+    [HttpGet("help")]
+    [ProducesResponseType(typeof(DiscoveryResponseDto), StatusCodes.Status200OK)]
+    public ActionResult<DiscoveryResponseDto> GetHelp()
+    {
+        var baseUrl = $"{Request.Scheme}://{Request.Host}{Request.PathBase}/api";
+        var isDevelopment = _environment.IsDevelopment();
+        
+        var apiKeyOptions = _configuration.GetSection("ApiKeyAuthentication").Get<ApiKeyAuthenticationOptions>() 
+            ?? new ApiKeyAuthenticationOptions();
+        var isApiKeyRequired = IsApiKeyRequired(apiKeyOptions);
+
+        var response = new DiscoveryResponseDto
+        {
+            ApiVersion = "v1",
+            BaseUrl = baseUrl,
+            OpenApiSpec = isDevelopment ? $"{Request.Scheme}://{Request.Host}{Request.PathBase}/swagger/v1/swagger.json" : null,
+            SwaggerUi = isDevelopment ? $"{Request.Scheme}://{Request.Host}{Request.PathBase}/swagger" : null,
+            OpenApiAvailable = isDevelopment,
+            Authentication = new AuthenticationInfoDto
+            {
+                Type = "api_key",
+                Header = apiKeyOptions.HeaderName,
+                Required = isApiKeyRequired,
+                Description = isApiKeyRequired 
+                    ? "API key authentication is required. Provide the API key in the X-API-Key header."
+                    : "Optional API key authentication. Configured via appsettings.json"
+            },
+            QuickStart = new List<string>
+            {
+                "GET /api/data - List all available collections",
+                "GET /api/data/{collection}/schema - Get collection schema (field definitions)",
+                "GET /api/data/{collection} - List records in a collection (supports ?limit parameter)",
+                "GET /api/data/{collection}/{id} - Get a single record by ID",
+                "POST /api/data/{collection} - Create a new record",
+                "PUT /api/data/{collection}/{id} - Update an existing record",
+                "DELETE /api/data/{collection}/{id} - Delete a record",
+                "GET /api/data/{collection}/summary?field={fieldName} - Get count of values for a field",
+                "POST /api/data/{collection}/bulk - Perform bulk operations (create/update/delete)",
+                "POST /api/data/{collection}/aggregate - Perform complex aggregations with grouping",
+                "POST /api/data/upload - Upload a CSV file to create or replace a collection"
+            },
+            Endpoints = new EndpointsInfoDto
+            {
+                Collections = new EndpointInfoDto
+                {
+                    Endpoint = "GET /api/data",
+                    Description = "List all available collections"
+                },
+                Data = new DataEndpointsInfoDto
+                {
+                    List = "GET /api/data/{collection}",
+                    Get = "GET /api/data/{collection}/{id}",
+                    Create = "POST /api/data/{collection}",
+                    Update = "PUT /api/data/{collection}/{id}",
+                    Delete = "DELETE /api/data/{collection}/{id}",
+                    Summary = "GET /api/data/{collection}/summary?field={fieldName}",
+                    Bulk = "POST /api/data/{collection}/bulk",
+                    Aggregate = "POST /api/data/{collection}/aggregate"
+                },
+                Schema = new EndpointInfoDto
+                {
+                    Endpoint = "GET /api/data/{collection}/schema",
+                    Description = "Get collection schema (field definitions)"
+                },
+                Upload = new EndpointInfoDto
+                {
+                    Endpoint = "POST /api/data/upload",
+                    Description = "Upload CSV file to create or replace a collection"
+                }
+            }
+        };
+        
+        return Ok(response);
+    }
+
+    /// <summary>
+    /// Determines if API key authentication is required based on configuration.
+    /// </summary>
+    private bool IsApiKeyRequired(ApiKeyAuthenticationOptions options)
+    {
+        return options.Enabled && 
+               options.ValidApiKeys != null && 
+               options.ValidApiKeys.Length > 0;
     }
 
     /// <summary>

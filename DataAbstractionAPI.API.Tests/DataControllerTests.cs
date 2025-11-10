@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
 using DataAbstractionAPI.API.Controllers;
 using DataAbstractionAPI.Core.Interfaces;
 using DataAbstractionAPI.Core.Models;
@@ -38,7 +39,10 @@ public class DataControllerTests : IDisposable
         var mockEnvironment = new Mock<IWebHostEnvironment>();
         mockEnvironment.Setup(e => e.ContentRootPath).Returns(AppContext.BaseDirectory);
         
-        _controller = new DataController(_adapter, mockEnvironment.Object);
+        // Create mock IConfiguration
+        var mockConfiguration = new Mock<IConfiguration>();
+        
+        _controller = new DataController(_adapter, mockEnvironment.Object, mockConfiguration.Object);
     }
 
     public void Dispose()
@@ -283,7 +287,10 @@ public class DataControllerTests : IDisposable
         var mockEnvironment = new Mock<IWebHostEnvironment>();
         mockEnvironment.Setup(e => e.ContentRootPath).Returns(AppContext.BaseDirectory);
         
-        var emptyController = new DataController(emptyAdapter, mockEnvironment.Object);
+        // Create mock IConfiguration
+        var mockConfiguration = new Mock<IConfiguration>();
+        
+        var emptyController = new DataController(emptyAdapter, mockEnvironment.Object, mockConfiguration.Object);
 
         try
         {
