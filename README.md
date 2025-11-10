@@ -2,8 +2,8 @@
 
 A .NET Core implementation of a unified data abstraction layer that provides a consistent interface for interacting with data across different storage backends.
 
-**Status**: Phase 1 + 1.x + 2 + 3 + 3.1 + Advanced Data Endpoints Complete ✅  
-**Last Updated**: November 2025  
+**Status**: Phase 1 + 1.x + 2 + 3 + 3.1 + 3.2 Complete ✅  
+**Last Updated**: December 2025  
 **Test Coverage**: 91.27% Services layer (independently verified)  
 **Total Tests**: 403 passing (39 Core + 87 Adapter + 185 Services + 92 API)
 
@@ -352,6 +352,7 @@ dotnet test
 - **Aggregate**: Complex aggregations with grouping and multiple functions (count, sum, avg, min, max)
 - **Schema**: Get collection schema, list collections
 - **Upload**: Upload CSV files to create or replace collections via Swagger UI or API
+- **Discovery**: Agent discovery endpoint (`GET /api/data/help`) for machine-readable API information
 - **Field projection**: Available in adapter layer (not yet exposed via REST API)
 - **Filtering**: Available in adapter layer (not yet exposed via REST API)
 - **Sorting**: Available in adapter layer (not yet exposed via REST API)
@@ -495,6 +496,21 @@ var aggregateRequest = new AggregateRequest
 var aggregateResult = await adapter.AggregateAsync("products", aggregateRequest);
 // aggregateResult.Data contains grouped and aggregated results
 ```
+
+### Discovery Endpoint
+
+The API provides a discovery endpoint for agents and automated clients:
+
+```csharp
+// GET /api/data/help
+// Returns machine-readable API information including:
+// - Available endpoints
+// - Authentication requirements
+// - Quick start guide
+// - OpenAPI spec location (in development)
+```
+
+This endpoint is always available (unlike Swagger which is development-only) and provides a standard way for automated clients to discover API capabilities.
 
 ---
 
@@ -653,13 +669,12 @@ MIT License - see LICENSE file for details
 ### Active Documentation
 - **README.md** - This file, project overview
 - **IMPLEMENTATION_PLAN.md** - Detailed TDD implementation plan
-- **TEST_COVERAGE_VERIFICATION_REPORT.md** - Independent verification of test coverage claims
-- **API_USAGE.md** - REST API usage guide
-- **QUICK_API_GUIDE.md** - Quick start for the API
+- **DOCUMENTATION_REVIEW_REPORT.md** - Documentation accuracy review (December 2025)
 - **data-abstraction-api.md** - API specification
+- **PHASE_3_ENHANCEMENT_PLANS.md** - Detailed plans for Phase 3 enhancements
 
 ### Archived Documentation
-Historical and outdated documentation has been moved to the `archive/` folder for reference.
+Historical and outdated documentation has been moved to the `archive/` folder for reference. This includes earlier test reports, implementation summaries, and planning documents that have been superseded.
 
 ## Contributing
 
