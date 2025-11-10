@@ -1,7 +1,7 @@
 # Data Abstraction API - TDD Implementation Plan
 
 **Status**: Phase 1 + Phase 1.x + Phase 2 + Phase 3 + Phase 3.1 + Phase 3.2 COMPLETE ✅ (Full CRUD operations, Services Layer, REST API, Limitations Remediation, and Advanced Data Endpoints implemented)
-**Last Updated**: December 2025
+**Last Updated**: December 2025 (Coverage improvements ongoing)
 
 ## Overview
 
@@ -38,9 +38,11 @@ This plan follows Test-Driven Development (TDD) principles:
 - ✅ Intelligent defaults (DefaultGenerator integration)
 - ✅ Schema file consistency (CSV headers as source of truth)
 
-**Total Tests**: 403 passing (39 Core + 87 Adapter + 185 Services + 92 API tests: 15 controller + 11 auth + 15 error handling + 51 advanced endpoints)
+**Total Tests**: 519 passing (94 Core + 153 Adapter + 185 Services + 87 API tests: 15 controller + 11 auth + 15 error handling + 51 advanced endpoints)
 
 **Note**: Comprehensive test suite added (Phase 3.1 preparation) - see `TEST_IMPLEMENTATION_SUMMARY.md`
+
+**Coverage Improvement Work**: Ongoing coverage improvement initiative - see `COVERAGE_IMPROVEMENT_PLAN.md` for details. Added 119 new tests across Core and Adapters projects (65 Adapters tests + 54 Core tests) to improve coverage for low-coverage areas.
 
 ### Known Scope Limitations
 
@@ -483,7 +485,7 @@ The Services layer provides reusable business logic that adapters can use:
 ### Prerequisites
 
 - [X] Phase 1 fully complete ✅
-- [X] All Phase 1 tests passing ✅ (39 Core + 66 Adapter tests)
+- [X] All Phase 1 tests passing ✅ (39 Core + 66 Adapter tests - increased to 94 Core + 153 Adapter with coverage improvements)
 - [ ] Phase 1 code reviewed (discussion item)
 - [X] Core interfaces updated with missing types ✅ (Step 2.0)
 - [X] CsvAdapter refactored to support service injection ✅ (Step 2.05)
@@ -1179,6 +1181,7 @@ dotnet test DataAbstractionAPI.API.Tests
 - [X] All schema consistency tests pass ✅
 - [X] Integration tests pass ✅
 - [X] All 330 tests passing (39 Core + 66 Adapter + 185 Services + 40 API) ✅
+- [X] Coverage improvements: 519 tests total (94 Core + 153 Adapter + 185 Services + 87 API) ✅
 
 **Documentation**
 
@@ -1245,7 +1248,11 @@ dotnet test --filter "Schema"
 - [X] Summary endpoint integration tests ✅
 - [X] Aggregate endpoint integration tests ✅
 
-**Test Results**: ✅ All 403 tests passing (39 Core + 87 Adapter + 185 Services + 92 API)
+**Test Results**: ✅ All 519 tests passing (94 Core + 153 Adapter + 185 Services + 87 API)
+
+**Note**: Test counts increased due to coverage improvement work (see `COVERAGE_IMPROVEMENT_PLAN.md`):
+- Core: 39 → 94 tests (+55 tests: 34 new model tests + 20 edge case tests + 1 existing)
+- Adapters: 87 → 153 tests (+66 tests: 31 helper method tests + 14 CsvFileHandler tests + 13 CsvSchemaManager tests + 7 advanced operations tests + 1 existing)
 
 **Phase Gate**: ✅ PHASE 3.2 COMPLETE - Ready for Phase 4
 
@@ -1389,6 +1396,7 @@ dotnet list DataAbstractionAPI.UI reference
 - [X] All Phase 1 tests passing (39 Core + 66 Adapter tests) ✅
 - [X] All Phase 2 tests passing (89 Services tests) ✅
 - [X] All Phase 3 tests passing (15 API tests) ✅
+- [X] Coverage improvements ongoing: 519 tests total (94 Core + 153 Adapter + 185 Services + 87 API) ✅
 - [X] CsvAdapter methods implemented:
   - ✅ UpdateAsync() - IMPLEMENTED in Phase 1.x
   - ✅ DeleteAsync() - IMPLEMENTED in Phase 1.x
@@ -1508,5 +1516,6 @@ dotnet test /p:CollectCoverage=true
 - **TEST_IMPLEMENTATION_SUMMARY.md**: Summary of implemented tests (133 tests total)
 - **SERVICES_COVERAGE_PLAN.md**: Detailed plan to achieve >85% test coverage for Services layer
 - **LIMITATIONS_REMEDIATION_PLAN.md**: Detailed plan to address discovered limitations
+- **COVERAGE_IMPROVEMENT_PLAN.md**: Ongoing coverage improvement plan for Adapters.Csv, Core, and API projects (119 tests added so far)
 - **API_USAGE.md**: REST API usage guide
 - **QUICK_API_GUIDE.md**: Quick start guide for API
