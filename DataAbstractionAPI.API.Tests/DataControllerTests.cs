@@ -620,5 +620,305 @@ public class DataControllerTests : IDisposable
         Assert.False(bulkResponse.Success);
         Assert.Equal("Request body is required", bulkResponse.Error);
     }
+
+    // ============================================
+    // Section 3: DataController.UploadCsvFile() - CRAP: 420 - Branch Coverage
+    // ============================================
+
+    [Fact]
+    public async Task DataController_UploadCsvFile_WithNullRequest_ReturnsBadRequest()
+    {
+        // Act
+        var result = await _controller.UploadCsvFile(null!);
+
+        // Assert
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
+        Assert.Equal(400, badRequestResult.StatusCode);
+    }
+
+    [Fact]
+    public async Task DataController_UploadCsvFile_WithEmptyCollectionName_ReturnsBadRequest()
+    {
+        // Arrange
+        var request = new UploadCsvRequest
+        {
+            Collection = "",
+            File = CreateMockFormFile("test.csv", "id,name\n1,Test")
+        };
+
+        // Act
+        var result = await _controller.UploadCsvFile(request);
+
+        // Assert
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
+        Assert.Equal(400, badRequestResult.StatusCode);
+    }
+
+    [Fact]
+    public async Task DataController_UploadCsvFile_WithWhitespaceCollectionName_ReturnsBadRequest()
+    {
+        // Arrange
+        var request = new UploadCsvRequest
+        {
+            Collection = "   ",
+            File = CreateMockFormFile("test.csv", "id,name\n1,Test")
+        };
+
+        // Act
+        var result = await _controller.UploadCsvFile(request);
+
+        // Assert
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
+        Assert.Equal(400, badRequestResult.StatusCode);
+    }
+
+    [Fact]
+    public async Task DataController_UploadCsvFile_WithNullFile_ReturnsBadRequest()
+    {
+        // Arrange
+        var request = new UploadCsvRequest
+        {
+            Collection = "test",
+            File = null!
+        };
+
+        // Act
+        var result = await _controller.UploadCsvFile(request);
+
+        // Assert
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
+        Assert.Equal(400, badRequestResult.StatusCode);
+    }
+
+    [Fact]
+    public async Task DataController_UploadCsvFile_WithEmptyFile_ReturnsBadRequest()
+    {
+        // Arrange
+        var request = new UploadCsvRequest
+        {
+            Collection = "test",
+            File = CreateMockFormFile("test.csv", "", length: 0)
+        };
+
+        // Act
+        var result = await _controller.UploadCsvFile(request);
+
+        // Assert
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
+        Assert.Equal(400, badRequestResult.StatusCode);
+    }
+
+    [Fact]
+    public async Task DataController_UploadCsvFile_WithNonCsvExtension_ReturnsBadRequest()
+    {
+        // Arrange
+        var request = new UploadCsvRequest
+        {
+            Collection = "test",
+            File = CreateMockFormFile("test.txt", "id,name\n1,Test")
+        };
+
+        // Act
+        var result = await _controller.UploadCsvFile(request);
+
+        // Assert
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
+        Assert.Equal(400, badRequestResult.StatusCode);
+    }
+
+    [Fact]
+    public async Task DataController_UploadCsvFile_WithUppercaseExtension_AcceptsFile()
+    {
+        // Arrange
+        var request = new UploadCsvRequest
+        {
+            Collection = "test_uppercase",
+            File = CreateMockFormFile("test.CSV", "id,name\n1,Test")
+        };
+
+        // Act
+        var result = await _controller.UploadCsvFile(request);
+
+        // Assert
+        var okResult = Assert.IsType<OkObjectResult>(result.Result);
+        var uploadResponse = Assert.IsType<UploadResponse>(okResult.Value);
+        Assert.Equal("test_uppercase", uploadResponse.Collection);
+    }
+
+    [Fact]
+    public async Task DataController_UploadCsvFile_WithMixedCaseExtension_AcceptsFile()
+    {
+        // Arrange
+        var request = new UploadCsvRequest
+        {
+            Collection = "test_mixed",
+            File = CreateMockFormFile("test.Csv", "id,name\n1,Test")
+        };
+
+        // Act
+        var result = await _controller.UploadCsvFile(request);
+
+        // Assert
+        var okResult = Assert.IsType<OkObjectResult>(result.Result);
+        var uploadResponse = Assert.IsType<UploadResponse>(okResult.Value);
+        Assert.Equal("test_mixed", uploadResponse.Collection);
+    }
+
+    [Fact]
+    public async Task DataController_UploadCsvFile_WithPathTraversal_ReturnsBadRequest()
+    {
+        // Arrange
+        var request = new UploadCsvRequest
+        {
+            Collection = "../etc/passwd",
+            File = CreateMockFormFile("test.csv", "id,name\n1,Test")
+        };
+
+        // Act
+        var result = await _controller.UploadCsvFile(request);
+
+        // Assert
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
+        Assert.Equal(400, badRequestResult.StatusCode);
+    }
+
+    [Fact]
+    public async Task DataController_UploadCsvFile_WithForwardSlash_ReturnsBadRequest()
+    {
+        // Arrange
+        var request = new UploadCsvRequest
+        {
+            Collection = "test/collection",
+            File = CreateMockFormFile("test.csv", "id,name\n1,Test")
+        };
+
+        // Act
+        var result = await _controller.UploadCsvFile(request);
+
+        // Assert
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
+        Assert.Equal(400, badRequestResult.StatusCode);
+    }
+
+    [Fact]
+    public async Task DataController_UploadCsvFile_WithBackslash_ReturnsBadRequest()
+    {
+        // Arrange
+        var request = new UploadCsvRequest
+        {
+            Collection = "test\\collection",
+            File = CreateMockFormFile("test.csv", "id,name\n1,Test")
+        };
+
+        // Act
+        var result = await _controller.UploadCsvFile(request);
+
+        // Assert
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
+        Assert.Equal(400, badRequestResult.StatusCode);
+    }
+
+    [Fact]
+    public async Task DataController_UploadCsvFile_WithAbsolutePath_ReturnsBadRequest()
+    {
+        // Arrange
+        var request = new UploadCsvRequest
+        {
+            Collection = "/etc/passwd",
+            File = CreateMockFormFile("test.csv", "id,name\n1,Test")
+        };
+
+        // Act
+        var result = await _controller.UploadCsvFile(request);
+
+        // Assert
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
+        Assert.Equal(400, badRequestResult.StatusCode);
+    }
+
+    [Fact]
+    public async Task DataController_UploadCsvFile_WithValidFile_ReturnsSuccess()
+    {
+        // Arrange
+        var request = new UploadCsvRequest
+        {
+            Collection = "test_collection",
+            File = CreateMockFormFile("test.csv", "id,name\n1,Test User")
+        };
+
+        // Act
+        var result = await _controller.UploadCsvFile(request);
+
+        // Assert
+        var okResult = Assert.IsType<OkObjectResult>(result.Result);
+        var uploadResponse = Assert.IsType<UploadResponse>(okResult.Value);
+        Assert.Equal("test_collection", uploadResponse.Collection);
+        Assert.Contains("test_collection.csv", uploadResponse.FilePath);
+    }
+
+    [Fact]
+    public async Task DataController_UploadCsvFile_WithValidFile_ReturnsCorrectPath()
+    {
+        // Arrange
+        var request = new UploadCsvRequest
+        {
+            Collection = "test_path",
+            File = CreateMockFormFile("test.csv", "id,name\n1,Test")
+        };
+
+        // Act
+        var result = await _controller.UploadCsvFile(request);
+
+        // Assert
+        var okResult = Assert.IsType<OkObjectResult>(result.Result);
+        var uploadResponse = Assert.IsType<UploadResponse>(okResult.Value);
+        Assert.NotNull(uploadResponse.FilePath);
+        Assert.Contains("test_path.csv", uploadResponse.FilePath);
+        Assert.True(File.Exists(uploadResponse.FilePath));
+    }
+
+    [Fact]
+    public async Task DataController_UploadCsvFile_WithExistingFile_OverwritesFile()
+    {
+        // Arrange
+        var request = new UploadCsvRequest
+        {
+            Collection = "overwrite_test",
+            File = CreateMockFormFile("test.csv", "id,name\n1,Original")
+        };
+
+        // Upload first time
+        await _controller.UploadCsvFile(request);
+
+        // Update request with new content
+        request.File = CreateMockFormFile("test.csv", "id,name\n1,Updated");
+
+        // Act - Upload again
+        var result = await _controller.UploadCsvFile(request);
+
+        // Assert
+        var okResult = Assert.IsType<OkObjectResult>(result.Result);
+        var uploadResponse = Assert.IsType<UploadResponse>(okResult.Value);
+        
+        // Verify file was overwritten
+        var fileContent = await File.ReadAllTextAsync(uploadResponse.FilePath);
+        Assert.Contains("Updated", fileContent);
+        Assert.DoesNotContain("Original", fileContent);
+    }
+
+    private Microsoft.AspNetCore.Http.IFormFile CreateMockFormFile(string fileName, string content, long length = -1)
+    {
+        var stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(content));
+        var fileLength = length >= 0 ? length : stream.Length;
+        
+        var formFile = new Mock<Microsoft.AspNetCore.Http.IFormFile>();
+        formFile.Setup(f => f.FileName).Returns(fileName);
+        formFile.Setup(f => f.Length).Returns(fileLength);
+        formFile.Setup(f => f.OpenReadStream()).Returns(stream);
+        formFile.Setup(f => f.CopyToAsync(It.IsAny<Stream>(), It.IsAny<CancellationToken>()))
+            .Returns((Stream target, CancellationToken ct) => stream.CopyToAsync(target, ct));
+        
+        return formFile.Object;
+    }
 }
 
