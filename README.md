@@ -500,9 +500,27 @@ CsvAdapterTests
 - [x] DI integration
 - [x] HTTPS support
 - [x] Cancellation token support
+- [x] **CORS configuration** - Cross-Origin Resource Sharing support for web clients
 - Port: http://localhost:5012, https://localhost:7128
 
 **Note**: The current API implementation is a basic version. The adapter supports filtering, sorting, pagination, and field selection via QueryOptions, but the REST API controller currently only exposes the `limit` query parameter. Full query parameter support can be added in future iterations.
+
+#### CORS Configuration
+
+The API supports Cross-Origin Resource Sharing (CORS) to allow web browsers to access the API from different origins. CORS is configured via `appsettings.json`:
+
+**Development Configuration** (`appsettings.Development.json`):
+- Allows origins: `http://localhost:5001`, `https://localhost:5002`
+- Allows methods: GET, POST, PUT, PATCH, DELETE, OPTIONS
+- Allows headers: Content-Type, X-API-Key, Authorization
+
+**Production Configuration** (`appsettings.json`):
+- Specify exact allowed origins (empty array disables CORS in production)
+- Defaults to allowing all origins in development if not configured
+
+⚠️ **Security**: Never use `AllowAnyOrigin()` in production. Always specify exact origins.
+
+For detailed CORS configuration options, see `DataAbstractionAPI.API/Configuration/CorsOptions.cs`.
 
 ### Phase 3.1: Limitations Remediation ✅ COMPLETE
 - [x] **Cancellation token support**: Full cancellation support in all async methods

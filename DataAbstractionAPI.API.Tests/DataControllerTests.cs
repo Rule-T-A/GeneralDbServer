@@ -8,6 +8,7 @@ using DataAbstractionAPI.API.Controllers;
 using DataAbstractionAPI.Core.Interfaces;
 using DataAbstractionAPI.Core.Models;
 using DataAbstractionAPI.Adapters.Csv;
+using DataAbstractionAPI.API.Models.DTOs;
 using Xunit;
 using Moq;
 using Record = DataAbstractionAPI.Core.Models.Record;
@@ -56,11 +57,11 @@ public class DataControllerTests : IDisposable
 
         // Assert
         var okObjectResult = Assert.IsType<OkObjectResult>(result.Result);
-        var listResult = Assert.IsType<ListResult>(okObjectResult.Value);
+        var listResponse = Assert.IsType<ListResponseDto>(okObjectResult.Value);
         
-        Assert.NotNull(listResult);
-        Assert.True(listResult.Data.Count > 0);
-        Assert.True(listResult.Total > 0);
+        Assert.NotNull(listResponse);
+        Assert.True(listResponse.Data.Count > 0);
+        Assert.True(listResponse.Total > 0);
     }
 
     [Fact]
@@ -80,9 +81,9 @@ public class DataControllerTests : IDisposable
 
         // Assert
         var okObjectResult = Assert.IsType<OkObjectResult>(result.Result);
-        var listResult = Assert.IsType<ListResult>(okObjectResult.Value);
+        var listResponse = Assert.IsType<ListResponseDto>(okObjectResult.Value);
         
-        Assert.True(listResult.Data.Count <= 2);
+        Assert.True(listResponse.Data.Count <= 2);
     }
 
     [Fact]
@@ -97,11 +98,11 @@ public class DataControllerTests : IDisposable
 
         // Assert
         var okObjectResult = Assert.IsType<OkObjectResult>(result.Result);
-        var record = Assert.IsType<Record>(okObjectResult.Value);
+        var recordDto = Assert.IsType<RecordDto>(okObjectResult.Value);
         
-        Assert.NotNull(record);
-        Assert.Equal(recordId, record.Id);
-        Assert.NotNull(record.Data);
+        Assert.NotNull(recordDto);
+        Assert.Equal(recordId, recordDto.Id);
+        Assert.NotNull(recordDto.Data);
     }
 
     [Fact]
@@ -135,8 +136,9 @@ public class DataControllerTests : IDisposable
         Assert.NotNull(createdAtActionResult.RouteValues);
         Assert.Equal("users", createdAtActionResult.RouteValues["collection"]);
         
-        var createResult = Assert.IsType<CreateResult>(createdAtActionResult.Value);
-        Assert.NotNull(createResult.Id);
+        var createResponse = Assert.IsType<CreateResponseDto>(createdAtActionResult.Value);
+        Assert.NotNull(createResponse.Id);
+        Assert.NotNull(createResponse.Record);
     }
 
     [Fact]
@@ -155,7 +157,7 @@ public class DataControllerTests : IDisposable
     }
 
     [Fact]
-    public async Task DataController_UpdateRecord_Returns204_OnSuccess()
+    public async Task DataController_UpdateRecord_Returns200_WithUpdateResponse()
     {
         // Arrange - Get existing record
         var listResult = await _adapter.ListAsync("users", new QueryOptions { Limit = 1 });
@@ -170,8 +172,13 @@ public class DataControllerTests : IDisposable
         var result = await _controller.UpdateRecord("users", recordId, updates);
 
         // Assert
-        var noContentResult = Assert.IsType<NoContentResult>(result);
-        Assert.Equal(204, noContentResult.StatusCode);
+        var okObjectResult = Assert.IsType<OkObjectResult>(result.Result);
+        var updateResponse = Assert.IsType<UpdateResponseDto>(okObjectResult.Value);
+        
+        Assert.Equal(200, okObjectResult.StatusCode);
+        Assert.True(updateResponse.Success);
+        Assert.True(updateResponse.UpdatedFields.ContainsKey("name"));
+        Assert.Equal("Updated Name", updateResponse.UpdatedFields["name"].ToString());
         
         // Verify update was applied
         var updatedRecord = await _adapter.GetAsync("users", recordId);
@@ -194,7 +201,7 @@ public class DataControllerTests : IDisposable
     }
 
     [Fact]
-    public async Task DataController_DeleteRecord_Returns204_OnSuccess()
+    public async Task DataController_DeleteRecord_Returns200_WithDeleteResponse()
     {
         // Arrange - Get existing record
         var listResult = await _adapter.ListAsync("users", new QueryOptions { Limit = 1 });
@@ -204,8 +211,12 @@ public class DataControllerTests : IDisposable
         var result = await _controller.DeleteRecord("users", recordId);
 
         // Assert
-        var noContentResult = Assert.IsType<NoContentResult>(result);
-        Assert.Equal(204, noContentResult.StatusCode);
+        var okObjectResult = Assert.IsType<OkObjectResult>(result.Result);
+        var deleteResponse = Assert.IsType<DeleteResponseDto>(okObjectResult.Value);
+        
+        Assert.Equal(200, okObjectResult.StatusCode);
+        Assert.True(deleteResponse.Success);
+        Assert.Equal(recordId, deleteResponse.Id);
         
         // Verify record was deleted
         await Assert.ThrowsAsync<FileNotFoundException>(
@@ -230,11 +241,11 @@ public class DataControllerTests : IDisposable
 
         // Assert
         var okObjectResult = Assert.IsType<OkObjectResult>(result.Result);
-        var schema = Assert.IsType<CollectionSchema>(okObjectResult.Value);
+        var schemaResponse = Assert.IsType<SchemaResponseDto>(okObjectResult.Value);
         
-        Assert.NotNull(schema);
-        Assert.Equal("users", schema.Name);
-        Assert.True(schema.Fields.Count > 0);
+        Assert.NotNull(schemaResponse);
+        Assert.Equal("users", schemaResponse.Name);
+        Assert.True(schemaResponse.Fields.Count > 0);
     }
 
     [Fact]

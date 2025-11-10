@@ -10,7 +10,68 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<ApiKeyAuthenticationOptions>(
     builder.Configuration.GetSection("ApiKeyAuthentication"));
 
-builder.Services.AddControllers();
+// Configure CORS
+builder.Services.Configure<CorsOptions>(
+    builder.Configuration.GetSection("Cors"));
+
+var corsOptions = builder.Configuration.GetSection("Cors").Get<CorsOptions>() 
+    ?? new CorsOptions();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("DefaultPolicy", policy =>
+    {
+        if (corsOptions.AllowedOrigins.Length > 0)
+        {
+            policy.WithOrigins(corsOptions.AllowedOrigins);
+        }
+        else
+        {
+            // Fallback: allow all origins in development only
+            if (builder.Environment.IsDevelopment())
+            {
+                policy.AllowAnyOrigin();
+            }
+        }
+
+        if (corsOptions.AllowedMethods.Length > 0)
+        {
+            policy.WithMethods(corsOptions.AllowedMethods);
+        }
+        else
+        {
+            policy.WithMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS");
+        }
+
+        if (corsOptions.AllowedHeaders.Length > 0)
+        {
+            policy.WithHeaders(corsOptions.AllowedHeaders);
+        }
+        else
+        {
+            policy.WithHeaders("Content-Type", "X-API-Key", "Authorization");
+        }
+
+        if (corsOptions.AllowCredentials)
+        {
+            policy.AllowCredentials();
+        }
+
+        if (corsOptions.PreflightMaxAge.HasValue)
+        {
+            policy.SetPreflightMaxAge(TimeSpan.FromSeconds(corsOptions.PreflightMaxAge.Value));
+        }
+    });
+});
+
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        // Configure JSON serialization
+        options.JsonSerializerOptions.PropertyNamingPolicy = null; // Use [JsonPropertyName] attributes instead
+        options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter()); // Serialize enums as strings
+        options.JsonSerializerOptions.WriteIndented = false; // Compact JSON for efficiency
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -89,6 +150,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Add CORS middleware (before UseAuthorization)
+app.UseCors("DefaultPolicy");
 
 // Add Global Exception Handler Middleware (should be early in pipeline)
 app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
